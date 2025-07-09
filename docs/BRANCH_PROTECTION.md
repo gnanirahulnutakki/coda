@@ -20,7 +20,6 @@ This guide will help you set up branch protection rules for the main branch to a
      - ✅ Require approvals: 1 (or more for larger teams)
      - ✅ Dismiss stale pull request approvals when new commits are pushed
      - ✅ Require review from CODEOWNERS (if you have a CODEOWNERS file)
-   
    - ✅ **Require status checks to pass before merging**
      - ✅ Require branches to be up to date before merging
      - Select these status checks as required:
@@ -28,9 +27,7 @@ This guide will help you set up branch protection rules for the main branch to a
        - `test / test (20.x)`
        - `test / test (22.x)`
        - `audit`
-   
    - ✅ **Require conversation resolution before merging**
-   
    - ✅ **Include administrators** (enforce rules for admins too)
 
    ### Additional Security Settings (Optional but Recommended)
@@ -49,6 +46,7 @@ This guide will help you set up branch protection rules for the main branch to a
 ## Verification
 
 After setting up branch protection:
+
 1. The warning message should disappear from your repository
 2. Try creating a test PR to ensure the rules work as expected
 3. Verify that direct pushes to main are blocked (except for allowed users if configured)
@@ -56,6 +54,7 @@ After setting up branch protection:
 ## For Solo Developers
 
 If you're working alone and find the PR requirement too restrictive:
+
 - You can still enable protection against force pushes and deletions
 - Consider setting up a simplified rule that only prevents accidental branch deletion
 - Minimum recommended settings:
