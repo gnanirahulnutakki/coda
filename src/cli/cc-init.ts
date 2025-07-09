@@ -16,8 +16,8 @@ export async function handleCcInit(args: string[]): Promise<void> {
 
   // Check for help flag
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: claude-composer cc-init [options]')
-    console.log('\nInitialize a new Claude Composer configuration file')
+    console.log('Usage: coda cc-init [options]')
+    console.log('\nInitialize a new Coda configuration file')
     console.log('\nOptions:')
     console.log(
       '  --use-yolo               Accept all prompts automatically (use with caution)',
@@ -25,7 +25,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
     console.log('  --use-core-toolset       Enable core toolset')
     console.log('  --no-use-core-toolset    Disable core toolset')
     console.log(
-      '  --project                Create config in current directory (.claude-composer/config.yaml)',
+      '  --project                Create config in current directory (.coda/config.yaml)',
     )
     console.log('  -h, --help               Show this help message')
     console.log('\nNotes:')
@@ -70,14 +70,20 @@ export async function handleCcInit(args: string[]): Promise<void> {
 
   // Prompt for yolo mode if not specified
   if (options.useYolo === undefined) {
+    console.log('\n\x1b[33m⚠️  YOLO Mode Configuration\x1b[0m')
+    console.log('\x1b[90mYOLO mode will:\x1b[0m')
+    console.log('\x1b[90m• Skip ALL permission prompts (file edits, commands, etc.)\x1b[0m')
+    console.log('\x1b[90m• Automatically accept trust prompts for directories\x1b[0m')
+    console.log('\x1b[90m• Let AI make changes without your review\x1b[0m')
+    console.log('\x1b[90m• Work well for automation and CI/CD pipelines\x1b[0m')
+    
     const yoloResponse = await prompts(
       {
         type: 'confirm',
         name: 'useYolo',
         message:
-          'Would you like to enable YOLO mode? (accepts all prompts automatically)',
+          'Enable YOLO mode? (AI will execute ALL actions without asking)',
         initial: false,
-        hint: 'Use with caution - Claude will perform actions without confirmation',
       },
       {
         onCancel: () => {
@@ -87,6 +93,12 @@ export async function handleCcInit(args: string[]): Promise<void> {
     )
 
     options.useYolo = yoloResponse.useYolo
+    
+    if (options.useYolo) {
+      console.log('\x1b[33m✓ YOLO mode enabled - AI will not ask for permissions\x1b[0m')
+    } else {
+      console.log('\x1b[32m✓ YOLO mode disabled - AI will ask before making changes\x1b[0m')
+    }
   }
 
   // Prompt for toolset if none specified
@@ -117,7 +129,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
         'Error: Cannot create project config without a global config.',
       )
       console.error(
-        'Please run "claude-composer cc-init" first to create a global configuration.',
+        'Please run "coda cc-init" first to create a global configuration.',
       )
       process.exit(1)
     }
@@ -125,7 +137,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
 
   // Check if config file already exists
   const configPath = options.project
-    ? '.claude-composer/config.yaml'
+    ? '.coda/config.yaml'
     : CONFIG_PATHS.getConfigFilePath()
 
   if (fs.existsSync(configPath)) {
@@ -141,6 +153,72 @@ export async function handleCcInit(args: string[]): Promise<void> {
     config.yolo = true
   }
 
+  // Ask for AI provider if not in project mode
+  if (!options.project) {
+    // Auto-detect available providers
+    const { ProviderDetector } = await import('../utils/provider-detector.js')
+    const availableProviders = await ProviderDetector.detectAvailableProviders()
+    
+    let choices = []
+    if (availableProviders.includes('claude-code')) {
+      choices.push({ title: 'Claude Code ✓', value: 'claude-code' })
+    } else {
+      choices.push({ title: 'Claude Code (not found)', value: 'claude-code', disabled: true })
+    }
+    
+    if (availableProviders.includes('gemini')) {
+      choices.push({ title: 'Gemini ✓', value: 'gemini' })
+    } else {
+      choices.push({ title: 'Gemini (not found)', value: 'gemini', disabled: true })
+    }
+    
+    // If no providers found, still show the menu but with a warning
+    if (availableProviders.length === 0) {
+      warn('⚠️  No AI providers detected on your system')
+      warn('   You can still configure one and install it later')
+      choices = [
+        { title: 'Claude Code', value: 'claude-code' },
+        { title: 'Gemini', value: 'gemini' }
+      ]
+    }
+    
+    const providerResponse = await prompts(
+      {
+        type: 'select',
+        name: 'provider',
+        message: 'Which AI provider would you like to use?',
+        choices: choices,
+        initial: 0
+      },
+      {
+        onCancel: () => {
+          process.exit(130)
+        },
+      },
+    )
+
+    config.provider = providerResponse.provider
+
+    // Ask for custom path if needed
+    const customPathResponse = await prompts(
+      {
+        type: 'text',
+        name: 'customPath',
+        message: `Enter custom path to ${providerResponse.provider} CLI (or press enter to use default):`,
+        initial: ''
+      },
+      {
+        onCancel: () => {
+          process.exit(130)
+        },
+      },
+    )
+
+    if (customPathResponse.customPath) {
+      config.provider_path = customPathResponse.customPath
+    }
+  }
+
   // Add toolsets if requested
   if (options.useCoreToolset && !options.noUseCoreToolset) {
     config.toolsets = ['internal:core']
@@ -151,7 +229,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
 
   // Ensure config directory exists
   const configDir = options.project
-    ? '.claude-composer'
+    ? '.coda'
     : CONFIG_PATHS.getConfigDirectory()
 
   if (!fs.existsSync(configDir)) {

@@ -1,0 +1,5 @@
+{"timestamp":"2024-07-08T13:45:23.123Z","type":"command","data":{"args":["explain this error"],"cwd":"/Users/username/projects/my-app","env":{"NODE_VERSION":"v20.11.0","PLATFORM":"darwin","ARCH":"x64"}}}
+{"timestamp":"2024-07-08T13:45:23.456Z","type":"pattern_match","data":{"patternId":"trust-prompt","matched":true,"response":"1"}}
+{"timestamp":"2024-07-08T13:45:24.789Z","type":"file_edit","data":{"path":"src/index.js","action":"modify","lines":15}}
+{"timestamp":"2024-07-08T13:45:25.012Z","type":"output","data":{"text":"I've analyzed the error and made the necessary fix..."}}
+{"timestamp":"2024-07-08T13:45:28.345Z","type":"pattern_match","data":{"patternId":"confirmation","matched":true,"response":"y"}}

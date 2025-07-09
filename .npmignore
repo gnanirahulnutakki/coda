@@ -1,0 +1,33 @@
+# Source files
+src/
+test/
+
+# Config files
+tsup.config.ts
+vitest.config.ts
+.prettierrc
+.gitignore
+
+# Development directories
+scripts/
+docs/
+.claude-composer/
+
+# Build artifacts
+*.log
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+
+# Development dependencies
+node_modules/
+pnpm-lock.yaml

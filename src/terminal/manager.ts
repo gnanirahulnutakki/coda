@@ -14,6 +14,7 @@ import type {
 import { saveTerminalSnapshot } from './utils'
 import type { AppConfig } from '../config/schemas'
 import type { ResponseQueue } from '../core/response-queue'
+import { errorLogger } from '../utils/error-logger'
 
 export class TerminalManager {
   private state: TerminalState = {
@@ -28,6 +29,7 @@ export class TerminalManager {
   private tempMcpConfigPath?: string
   private appConfig?: AppConfig
   private responseQueue?: ResponseQueue
+  private eventListeners: { target: any; event: string; handler: any }[] = []
 
   constructor(appConfig?: AppConfig, responseQueue?: ResponseQueue) {
     this.appConfig = appConfig
@@ -52,13 +54,28 @@ export class TerminalManager {
     env: NodeJS.ProcessEnv,
     cwd: string,
   ): Promise<void> {
-    this.state.ptyProcess = pty.spawn(childAppPath, childArgs, {
-      name: 'xterm-color',
-      cols,
-      rows,
-      env,
-      cwd,
-    })
+    try {
+      this.state.ptyProcess = pty.spawn(childAppPath, childArgs, {
+        name: 'xterm-color',
+        cols,
+        rows,
+        env,
+        cwd,
+      })
+    } catch (error) {
+      console.error('\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m')
+      console.error('\x1b[31m║          Failed to Start AI Provider                 ║\x1b[0m')
+      console.error('\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m')
+      console.error(`\x1b[31m║ Command: ${childAppPath}\x1b[0m`)
+      console.error(`\x1b[31m║ Error: ${error.message || error}\x1b[0m`)
+      console.error('\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m')
+      console.error('\x1b[31m║ Possible solutions:                                  ║\x1b[0m')
+      console.error('\x1b[31m║ 1. Make sure the AI provider is installed           ║\x1b[0m')
+      console.error('\x1b[31m║ 2. Check if the path is correct                     ║\x1b[0m')
+      console.error('\x1b[31m║ 3. Try running the provider directly to test        ║\x1b[0m')
+      console.error('\x1b[31m╚══════════════════════════════════════════════════════╝\x1b[0m')
+      process.exit(1)
+    }
 
     if (this.responseQueue) {
       this.responseQueue.setTargets(this.state.ptyProcess, undefined)
@@ -67,13 +84,70 @@ export class TerminalManager {
     if (this.appConfig && this.shouldInitializeXterm()) {
       await this.initializeXterm(cols, rows)
     }
-    this.state.ptyProcess.onData((data: string) => {
+    
+    // Buffer to collect early error messages
+    let earlyErrorBuffer = ''
+    let earlyErrorTimeout: NodeJS.Timeout | null = null
+    
+    const dataHandler = (data: string) => {
+      // Collect early data to check for errors
+      if (earlyErrorTimeout) {
+        earlyErrorBuffer += data
+        
+        // Check for known error patterns
+        if (earlyErrorBuffer.includes('Error: Unable to find helper app') ||
+            earlyErrorBuffer.includes('Could not automatically determine the current application\'s identifier') ||
+            earlyErrorBuffer.includes('Squirrel.Windows') ||
+            earlyErrorBuffer.includes('ENOENT')) {
+          
+          clearTimeout(earlyErrorTimeout)
+          earlyErrorTimeout = null
+          
+          console.error('\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m')
+          console.error('\x1b[31m║         AI Provider Startup Error                    ║\x1b[0m')  
+          console.error('\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m')
+          console.error('\x1b[31m║ The AI provider encountered startup errors.          ║\x1b[0m')
+          console.error('\x1b[31m║                                                      ║\x1b[0m')
+          
+          if (earlyErrorBuffer.includes('Squirrel.Windows')) {
+            console.error('\x1b[31m║ This appears to be an Electron/Squirrel issue.      ║\x1b[0m')
+            console.error('\x1b[31m║ The app may need to be properly installed first.    ║\x1b[0m')
+          }
+          
+          console.error('\x1b[31m║                                                      ║\x1b[0m')
+          console.error('\x1b[31m║ Try running the provider directly:                  ║\x1b[0m')
+          console.error(`\x1b[31m║   ${childAppPath}\x1b[0m`)
+          console.error('\x1b[31m╚══════════════════════════════════════════════════════╝\x1b[0m')
+          console.error('\n\x1b[33mFull error output:\x1b[0m')
+          console.error(earlyErrorBuffer)
+        }
+      }
+      
       this.dataHandlers.forEach(handler => handler(data))
-    })
-
-    this.state.ptyProcess.onExit(exitCode => {
+    }
+    
+    // Set up early error detection timeout
+    earlyErrorTimeout = setTimeout(() => {
+      earlyErrorTimeout = null
+      earlyErrorBuffer = ''
+    }, 3000) // Clear buffer after 3 seconds if no errors detected
+    
+    const exitHandler = (exitCode: { exitCode: number }) => {
+      if (earlyErrorTimeout) {
+        clearTimeout(earlyErrorTimeout)
+        earlyErrorTimeout = null
+      }
       this.exitHandlers.forEach(handler => handler(exitCode.exitCode || 0))
-    })
+    }
+    
+    this.state.ptyProcess.onData(dataHandler)
+    this.state.ptyProcess.onExit(exitHandler)
+    
+    // Track event listeners for cleanup
+    this.eventListeners.push(
+      { target: this.state.ptyProcess, event: 'data', handler: dataHandler },
+      { target: this.state.ptyProcess, event: 'exit', handler: exitHandler }
+    )
 
     if (process.stdin.isTTY) {
       process.stdin.removeAllListeners('data')
@@ -120,15 +194,23 @@ export class TerminalManager {
       process.stdin.pipe(this.state.childProcess.stdin!)
     }
 
-    this.state.childProcess.stdout!.on('data', (data: Buffer) => {
+    const stdoutHandler = (data: Buffer) => {
       const dataStr = data.toString()
       this.dataHandlers.forEach(handler => handler(dataStr))
-    })
-
-    this.state.childProcess.stderr!.pipe(process.stderr)
-    this.state.childProcess.on('exit', (code: number | null) => {
+    }
+    const exitHandler = (code: number | null) => {
       this.exitHandlers.forEach(handler => handler(code || 0))
-    })
+    }
+    
+    this.state.childProcess.stdout!.on('data', stdoutHandler)
+    this.state.childProcess.stderr!.pipe(process.stderr)
+    this.state.childProcess.on('exit', exitHandler)
+    
+    // Track event listeners for cleanup
+    this.eventListeners.push(
+      { target: this.state.childProcess.stdout, event: 'data', handler: stdoutHandler },
+      { target: this.state.childProcess, event: 'exit', handler: exitHandler }
+    )
   }
 
   private async initializeXterm(cols: number, rows: number): Promise<void> {
@@ -152,7 +234,9 @@ export class TerminalManager {
 
       this.state.serializeAddon = new SerializeAddon() as SerializeAddon
       this.state.terminal.loadAddon(this.state.serializeAddon)
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.debug('Failed to initialize xterm - this is expected in some environments')
+    }
   }
 
   private shouldInitializeXterm(): boolean {
@@ -177,7 +261,9 @@ export class TerminalManager {
       if (this.state.ptyProcess) {
         this.state.ptyProcess.write(data.toString())
       }
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.warn('Failed to handle stdin data', error as Error)
+    }
   }
 
   onData(handler: DataHandler): void {
@@ -209,7 +295,9 @@ export class TerminalManager {
         this.state.terminal.resize(cols, rows)
       }
       this.resizeHandlers.forEach(handler => handler(cols, rows))
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.debug('Failed to resize terminal', error as Error)
+    }
   }
 
   async captureSnapshot(): Promise<string | null> {
@@ -231,6 +319,21 @@ export class TerminalManager {
   }
 
   cleanup(): void {
+    // Remove all event listeners
+    this.eventListeners.forEach(({ target, event, handler }) => {
+      if (target && typeof target.removeListener === 'function') {
+        target.removeListener(event, handler)
+      } else if (target && typeof target.off === 'function') {
+        target.off(event, handler)
+      }
+    })
+    this.eventListeners = []
+    
+    // Clear handler arrays
+    this.dataHandlers = []
+    this.exitHandlers = []
+    this.resizeHandlers = []
+    
     if (this.state.isRawMode && process.stdin.isTTY) {
       process.stdin.setRawMode(false)
       this.state.isRawMode = false
@@ -249,19 +352,25 @@ export class TerminalManager {
     if (this.state.ptyProcess) {
       try {
         this.state.ptyProcess.kill()
-      } catch (e) {}
+      } catch (e) {
+        errorLogger.debug('Failed to kill pty process - may have already exited')
+      }
     }
 
     if (this.state.childProcess) {
       try {
         this.state.childProcess.kill()
-      } catch (e) {}
+      } catch (e) {
+        errorLogger.debug('Failed to kill child process - may have already exited')
+      }
     }
 
     if (this.tempMcpConfigPath && fs.existsSync(this.tempMcpConfigPath)) {
       try {
         fs.unlinkSync(this.tempMcpConfigPath)
-      } catch (e) {}
+      } catch (e) {
+        errorLogger.debug('Failed to unlink temp MCP config file')
+      }
     }
 
     if (this.state.stdinBuffer) {

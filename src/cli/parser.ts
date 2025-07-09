@@ -4,28 +4,30 @@ import type { ParsedOptions } from '../types/preflight.js'
 export function createClaudeComposerCommand(): Command {
   const program = new Command()
   program
-    .name('claude-composer')
+    .name('coda')
     .description(
-      'A wrapper that enhances the Claude Code CLI\n\nSubcommands:\n  cc-init                  Initialize a new configuration file',
+      'A powerful code development assistant for AI-powered workflows\n\nSubcommands:\n  cc-init                  Initialize a new configuration file\n  switch [provider]        Switch between AI providers (claude-code or gemini)\n  memory <command>         Manage persistent context memory\n  checkpoint <command>     Manage checkpoints and rollback system\n  docs <command>           Index and search documentation\n  costs <command>          Track AI usage costs and token consumption\n  security <command>       Scan code for security vulnerabilities\n  diff <command>           Preview changes before applying them\n  repo <command>           Manage multi-repository context awareness\n  workflow <command>       Manage and run workflow templates\n  offline <command>        Manage offline mode and cached AI responses\n  test <command>           Generate tests and track coverage\n  preset <command>         Manage configuration presets\n  settings <command>       Export/import settings and manage backups\n  wizard                   Interactive configuration wizard\n  stats                    Display usage statistics and command history\n  doctor                   Run diagnostics to check your setup',
     )
     .option(
       '--toolset <name...>',
-      'Use predefined toolsets from ~/.claude-composer/toolsets/ directory or specify an absolute path (can be specified multiple times)',
+      'Use predefined toolsets from ~/.coda/toolsets/ directory or specify an absolute path (can be specified multiple times)',
     )
     .option('--yolo', 'Accept all prompts automatically (use with caution)')
     .option(
       '--ignore-global-config',
-      'Ignore configuration from ~/.claude-composer/config.yaml',
+      'Ignore configuration from ~/.coda/config.yaml',
     )
     .option('--quiet', 'Suppress preflight messages')
+    .option('--debug', 'Enable debug mode with verbose logging')
     .option('--mode <mode>', 'Start mode (act or plan)')
+    .option('--provider <provider>', 'Use a specific AI provider for this session (claude-code or gemini)')
     .option(
       '--allow-buffer-snapshots',
-      'Enable Ctrl+Shift+S to save terminal buffer snapshots to ~/.claude-composer/logs/',
+      'Enable Ctrl+Shift+S to save terminal buffer snapshots to ~/.coda/logs/',
     )
     .option(
       '--log-all-pattern-matches',
-      'Log all pattern matches to ~/.claude-composer/logs/pattern-matches-<pattern.id>.jsonl',
+      'Log all pattern matches to ~/.coda/logs/pattern-matches-<pattern.id>.jsonl',
     )
     .option(
       '--dangerously-allow-in-dirty-directory',

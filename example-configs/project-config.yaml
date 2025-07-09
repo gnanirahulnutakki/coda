@@ -1,0 +1,16 @@
+# Example project-specific configuration
+# Location: ./.coda/config.yaml (in your project root)
+
+# Override global settings for this specific project
+yolo: true  # Enable YOLO mode just for this project
+
+# Use different AI provider for this project
+provider: gemini
+
+# Project-specific toolsets
+toolsets:
+  - project:api-tools     # Project-level toolset
+  - internal:core
+
+# Override notification settings
+show_notifications: false  # Disable notifications for this project

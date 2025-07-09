@@ -58,12 +58,20 @@ export async function checkVersionControl(
   cwd: string,
   allowWithoutVersionControl: boolean,
   options?: PreflightOptions,
+  appConfig?: AppConfig,
 ): Promise<boolean> {
   const gitDir = path.join(cwd, '.git')
 
   if (!fs.existsSync(gitDir)) {
     if (!allowWithoutVersionControl) {
       warn('※ Running in project without version control')
+      
+      // Skip prompt if YOLO mode is enabled
+      if (appConfig?.yolo) {
+        warn('※ YOLO mode: Continuing without version control')
+        return false
+      }
+      
       const proceed = await askYesNo(
         '※ Do you want to continue?',
         true,
@@ -84,6 +92,7 @@ export async function checkDirtyDirectory(
   cwd: string,
   allowInDirtyDirectory: boolean,
   options?: PreflightOptions,
+  appConfig?: AppConfig,
 ): Promise<boolean> {
   try {
     const gitStatus = execSync('git status --porcelain', {
@@ -94,6 +103,13 @@ export async function checkDirtyDirectory(
     if (gitStatus !== '') {
       if (!allowInDirtyDirectory) {
         warn('※ Running in directory with uncommitted changes')
+        
+        // Skip prompt if YOLO mode is enabled
+        if (appConfig?.yolo) {
+          warn('※ YOLO mode: Continuing with uncommitted changes')
+          return true
+        }
+        
         const proceed = await askYesNo(
           '※ Do you want to continue?',
           true,

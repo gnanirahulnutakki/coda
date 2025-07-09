@@ -60,7 +60,7 @@ export interface LoadConfigOptions {
  */
 export class ConfigManager {
   private static instance: ConfigManager | null = null
-  private state: ConfigurationState
+  private state: ConfigState
 
   private constructor() {
     this.state = {

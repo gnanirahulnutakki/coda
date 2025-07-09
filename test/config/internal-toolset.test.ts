@@ -18,7 +18,7 @@ describe('Internal Toolset Loading', () => {
     vi.spyOn(process, 'cwd').mockReturnValue('/test/project')
 
     // Mock environment variable
-    vi.stubEnv('CLAUDE_COMPOSER_CONFIG_DIR', '/home/test/.claude-composer')
+    vi.stubEnv('CODA_CONFIG_DIR', '/home/test/.coda')
 
     // Mock fs.existsSync to return false by default
     vi.mocked(fs.existsSync).mockReturnValue(false)
@@ -75,13 +75,13 @@ mcp:
     it('should load regular toolset when not prefixed with internal:', async () => {
       vi.mocked(fs.existsSync).mockImplementation(filePath => {
         return (
-          filePath === '/home/test/.claude-composer/toolsets/mytoolset.yaml'
+          filePath === '/home/test/.coda/toolsets/mytoolset.yaml'
         )
       })
 
       vi.mocked(fs.readFileSync).mockImplementation(filePath => {
         if (
-          filePath === '/home/test/.claude-composer/toolsets/mytoolset.yaml'
+          filePath === '/home/test/.coda/toolsets/mytoolset.yaml'
         ) {
           return `
 allowed:
@@ -113,13 +113,13 @@ allowed:
       // Mock config file with internal toolset
       vi.mocked(fs.existsSync).mockImplementation(filePath => {
         return (
-          filePath === '/test/project/.claude-composer/config.yaml' ||
+          filePath === '/test/project/.coda/config.yaml' ||
           filePath.includes('internal-toolsets/core.yaml')
         )
       })
 
       vi.mocked(fs.readFileSync).mockImplementation(filePath => {
-        if (filePath === '/test/project/.claude-composer/config.yaml') {
+        if (filePath === '/test/project/.coda/config.yaml') {
           return `
 toolsets:
   - internal:core
@@ -154,14 +154,14 @@ mcp:
     it('should load mix of internal and regular toolsets', async () => {
       vi.mocked(fs.existsSync).mockImplementation(filePath => {
         return (
-          filePath === '/test/project/.claude-composer/config.yaml' ||
+          filePath === '/test/project/.coda/config.yaml' ||
           filePath.includes('internal-toolsets/core.yaml') ||
-          filePath === '/home/test/.claude-composer/toolsets/custom.yaml'
+          filePath === '/home/test/.coda/toolsets/custom.yaml'
         )
       })
 
       vi.mocked(fs.readFileSync).mockImplementation(filePath => {
-        if (filePath === '/test/project/.claude-composer/config.yaml') {
+        if (filePath === '/test/project/.coda/config.yaml') {
           return `
 toolsets:
   - internal:core
@@ -174,7 +174,7 @@ allowed:
   - mcp__context7__resolve-library-id
 `
         }
-        if (filePath === '/home/test/.claude-composer/toolsets/custom.yaml') {
+        if (filePath === '/home/test/.coda/toolsets/custom.yaml') {
           return `
 allowed:
   - custom-tool

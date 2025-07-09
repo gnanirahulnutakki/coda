@@ -4,6 +4,7 @@ import * as path from 'path'
 import * as os from 'os'
 import { type PatternConfig } from '../config/schemas'
 import { CONFIG_PATHS } from '../config/paths'
+import { errorLogger } from '../utils/error-logger'
 
 export interface MatchResult {
   patternId: string
@@ -469,8 +470,35 @@ export class PatternMatcher {
       }
 
       const logLine = JSON.stringify(logEntry) + '\n'
+      
+      // Check file size and rotate if needed
+      if (fs.existsSync(logFile)) {
+        const stats = fs.statSync(logFile)
+        if (stats.size > 10 * 1024 * 1024) { // 10MB
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
+          const rotatedFile = logFile.replace('.jsonl', `-${timestamp}.jsonl`)
+          fs.renameSync(logFile, rotatedFile)
+          
+          // Clean up old logs (keep last 5)
+          const logFiles = fs.readdirSync(logsDir)
+            .filter(f => f.startsWith(`pattern-matches-${match.patternId}-`) && f.endsWith('.jsonl'))
+            .sort()
+            .reverse()
+          
+          logFiles.slice(5).forEach(oldLog => {
+            try {
+              fs.unlinkSync(path.join(logsDir, oldLog))
+            } catch (e) {
+              errorLogger.debug(`Failed to delete old log file: ${oldLog}`)
+            }
+          })
+        }
+      }
+      
       fs.appendFileSync(logFile, logLine)
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.warn('Failed to log pattern match', error as Error)
+    }
   }
 }
 

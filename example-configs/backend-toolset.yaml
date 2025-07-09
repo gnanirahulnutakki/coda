@@ -1,0 +1,31 @@
+# Example custom toolset for backend development
+# Location: ~/.coda/toolsets/backend-tools.yaml
+
+# Tools the AI is allowed to use
+allowed:
+  - read_file
+  - write_file
+  - execute_bash
+  - list_files
+  - search_files
+  
+# Tools the AI is NOT allowed to use
+disallowed:
+  - delete_file
+  - move_file
+
+# MCP (Model Context Protocol) servers
+mcp:
+  postgres:
+    type: stdio
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-postgres"]
+    env:
+      DATABASE_URL: "postgresql://localhost/mydb"
+      
+  redis:
+    type: stdio
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-redis"]
+    env:
+      REDIS_URL: "redis://localhost:6379"

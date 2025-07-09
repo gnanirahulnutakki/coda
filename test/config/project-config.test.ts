@@ -61,7 +61,7 @@ describe('Project Configuration', () => {
     vi.spyOn(process, 'cwd').mockReturnValue('/test/project')
 
     // Mock environment variable instead of os.homedir
-    vi.stubEnv('CLAUDE_COMPOSER_CONFIG_DIR', '/home/test/.claude-composer')
+    vi.stubEnv('CODA_CONFIG_DIR', '/home/test/.coda')
 
     configManager = ConfigManager.getInstance()
 
@@ -75,11 +75,11 @@ describe('Project Configuration', () => {
 
   it('should load project config when present', async () => {
     vi.mocked(fs.existsSync).mockImplementation(path => {
-      return path === '/test/project/.claude-composer/config.yaml'
+      return path === '/test/project/.coda/config.yaml'
     })
 
     vi.mocked(fs.readFileSync).mockImplementation(path => {
-      if (path === '/test/project/.claude-composer/config.yaml') {
+      if (path === '/test/project/.coda/config.yaml') {
         return `
 show_notifications: false
 toolsets: ["test-toolset"]
@@ -98,20 +98,20 @@ toolsets: ["test-toolset"]
   it('should prioritize project config over global config', async () => {
     vi.mocked(fs.existsSync).mockImplementation(path => {
       return (
-        path === '/home/test/.claude-composer/config.yaml' ||
-        path === '/test/project/.claude-composer/config.yaml'
+        path === '/home/test/.coda/config.yaml' ||
+        path === '/test/project/.coda/config.yaml'
       )
     })
 
     vi.mocked(fs.readFileSync).mockImplementation(path => {
-      if (path === '/home/test/.claude-composer/config.yaml') {
+      if (path === '/home/test/.coda/config.yaml') {
         return `
 show_notifications: true
 toolsets:
   - global
 `
       }
-      if (path === '/test/project/.claude-composer/config.yaml') {
+      if (path === '/test/project/.coda/config.yaml') {
         return `
 show_notifications: false
 yolo: true
@@ -133,11 +133,11 @@ yolo: true
 
   it('should prioritize CLI overrides over project config', async () => {
     vi.mocked(fs.existsSync).mockImplementation(path => {
-      return path === '/test/project/.claude-composer/config.yaml'
+      return path === '/test/project/.coda/config.yaml'
     })
 
     vi.mocked(fs.readFileSync).mockImplementation(path => {
-      if (path === '/test/project/.claude-composer/config.yaml') {
+      if (path === '/test/project/.coda/config.yaml') {
         return `
 show_notifications: false
 yolo: true
@@ -164,21 +164,21 @@ yolo: true
     // Mock toolset files to exist as well
     vi.mocked(fs.existsSync).mockImplementation(path => {
       return (
-        path === '/home/test/.claude-composer/config.yaml' ||
-        path === '/test/project/.claude-composer/config.yaml' ||
+        path === '/home/test/.coda/config.yaml' ||
+        path === '/test/project/.coda/config.yaml' ||
         path.includes('/toolsets/')
       )
     })
 
     vi.mocked(fs.readFileSync).mockImplementation(path => {
-      if (path === '/home/test/.claude-composer/config.yaml') {
+      if (path === '/home/test/.coda/config.yaml') {
         return `
 toolsets:
   - global-tool-1
   - global-tool-2
 `
       }
-      if (path === '/test/project/.claude-composer/config.yaml') {
+      if (path === '/test/project/.coda/config.yaml') {
         return `
 toolsets:
   - project-tool
@@ -198,7 +198,7 @@ toolsets:
 
     // Test 2: CLI replaces everything
     ConfigManager.resetInstance()
-    vi.stubEnv('CLAUDE_COMPOSER_CONFIG_DIR', '/home/test/.claude-composer')
+    vi.stubEnv('CODA_CONFIG_DIR', '/home/test/.coda')
     configManager = ConfigManager.getInstance()
     await configManager.loadConfig({
       toolsetNames: [],

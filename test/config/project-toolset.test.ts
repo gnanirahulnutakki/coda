@@ -27,13 +27,13 @@ describe('Project-level toolset loading', () => {
 
     // Create temporary project directory
     testProjectDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'claude-composer-toolset-test-'),
+      path.join(os.tmpdir(), 'coda-toolset-test-'),
     )
 
     // Create project structure
     projectToolsetsDir = path.join(
       testProjectDir,
-      '.claude-composer',
+      '.coda',
       'toolsets',
     )
     fs.mkdirSync(projectToolsetsDir, { recursive: true })

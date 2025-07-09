@@ -7,7 +7,7 @@ import * as os from 'os'
  * This ensures tests don't use the user's actual config.
  */
 export function createTempConfigDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'claude-composer-test-'))
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'coda-test-'))
 }
 
 /**
@@ -38,6 +38,6 @@ export function setupTestConfig(configContent?: string): {
 export function getTestEnv(configDirectory?: string): Record<string, string> {
   const dir = configDirectory || createTempConfigDir()
   return {
-    CLAUDE_COMPOSER_CONFIG_DIR: dir,
+    CODA_CONFIG_DIR: dir,
   }
 }

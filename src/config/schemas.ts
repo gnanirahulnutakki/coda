@@ -2,6 +2,11 @@ import { z } from 'zod'
 
 export const appConfigSchema = z
   .object({
+    // AI Provider settings
+    provider: z.string().default('claude-code').optional(), // Now supports any provider ID
+    provider_path: z.string().optional(), // Custom path to the AI provider CLI
+    always_ask_provider: z.boolean().optional(), // Always prompt for provider selection
+
     // Master notification controls
     show_notifications: z.boolean().optional(),
     sticky_notifications: z.boolean().optional(),
@@ -15,12 +20,22 @@ export const appConfigSchema = z
     // Other settings
     toolsets: z.array(z.string()).optional(),
     yolo: z.boolean().optional(),
+    quiet: z.boolean().optional(), // Suppress preflight messages
     log_all_pattern_matches: z.boolean().optional(),
     allow_buffer_snapshots: z.boolean().optional(),
+    debug: z.boolean().optional(),
     mode: z.enum(['plan', 'act']).optional(),
 
     // Trust roots - directories where trust prompts are auto-accepted
     roots: z.array(z.string()).optional(),
+
+    // Documentation settings
+    documentation: z.object({
+      paths: z.array(z.string()).optional(),
+      file_patterns: z.array(z.string()).optional(),
+      auto_include: z.boolean().optional(),
+      max_size_mb: z.number().optional(),
+    }).optional(),
   })
   .strict()
 

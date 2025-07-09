@@ -1,0 +1,35 @@
+# Example global configuration file
+# Location: ~/.coda/config.yaml
+
+# AI Provider settings
+provider: claude-code          # Options: claude-code, gemini
+# provider_path: /custom/path/to/claude  # Optional: custom path to AI CLI
+
+# Auto-accept all prompts (use with caution!)
+yolo: false
+
+# Desktop notifications
+show_notifications: true
+sticky_notifications: false    # Keep notifications on screen
+
+# Debug logging
+debug: false
+
+# Tool management - control what tools the AI can use
+toolsets:
+  - internal:core             # Built-in toolset with MCP tools
+  - backend-tools            # Custom toolset for backend development
+  # - frontend-tools         # Another custom toolset
+
+# Trusted directories (auto-accept trust prompts)
+roots:
+  - ~/projects/work
+  - ~/projects/personal
+  - ~/code
+
+# Safety settings
+dangerously_allow_in_dirty_directory: false
+dangerously_allow_without_version_control: false
+
+# Start mode
+mode: act  # or 'plan' for planning mode

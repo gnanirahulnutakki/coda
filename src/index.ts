@@ -15,7 +15,9 @@ import {
 } from './patterns/registry'
 import { type AppConfig } from './config/schemas.js'
 import { runPreflight, log, warn } from './core/preflight.js'
-import { CLAUDE_PATHS } from './config/paths.js'
+import { CLAUDE_PATHS, AI_PROVIDER_PATHS } from './config/paths.js'
+import { errorLogger } from './utils/error-logger.js'
+import { loadConfigFile } from './config/loader.js'
 import {
   showNotification,
   showPatternNotification,
@@ -27,6 +29,7 @@ import {
   calculateMd5,
   saveTerminalSnapshot,
 } from './terminal/utils'
+import { ContextMemory } from './features/context-memory.js'
 import type { TerminalConfig } from './terminal/types'
 import { isFileInProjectRoot } from './utils/file-utils.js'
 import {
@@ -42,8 +45,9 @@ let appConfig: AppConfig | undefined
 let yolo: boolean | undefined
 let confirmationPatternTriggers: string[] = []
 let positionalArgContentPath: string | undefined
+let contextMemory: ContextMemory | undefined
 
-const debugLog = util.debuglog('claude-composer')
+const debugLog = util.debuglog('coda')
 
 export { appConfig, positionalArgContentPath }
 
@@ -101,6 +105,14 @@ async function initializePatterns(): Promise<boolean> {
 }
 
 function cleanup() {
+  // Remove event listeners
+  process.stdin.removeListener('data', handleStdinData)
+  
+  const resizeHandler = (global as any).__resizeHandler
+  if (resizeHandler) {
+    process.stdout.removeListener('resize', resizeHandler)
+  }
+  
   if (terminalManager) {
     terminalManager.cleanup()
   }
@@ -108,13 +120,17 @@ function cleanup() {
   if (tempMcpConfigPath && fs.existsSync(tempMcpConfigPath)) {
     try {
       fs.unlinkSync(tempMcpConfigPath)
-    } catch (e) {}
+    } catch (e) {
+      errorLogger.debug('Failed to clean up temp MCP config file')
+    }
   }
 
   if (positionalArgContentPath && fs.existsSync(positionalArgContentPath)) {
     try {
       fs.unlinkSync(positionalArgContentPath)
-    } catch (e) {}
+    } catch (e) {
+      errorLogger.debug('Failed to clean up positional arg content file')
+    }
   }
 
   const ttyStream = (global as any).__ttyStream
@@ -122,7 +138,9 @@ function cleanup() {
     try {
       ttyStream.setRawMode(false)
       ttyStream.destroy()
-    } catch (e) {}
+    } catch (e) {
+      errorLogger.debug('Failed to clean up TTY stream')
+    }
   }
 }
 
@@ -246,23 +264,187 @@ function handleTerminalData(data: string): void {
           if (currentScreenContent) {
             handlePatternMatches(currentScreenContent, 'confirmation')
           }
-        } catch (error) {}
+        } catch (error) {
+          errorLogger.debug('Failed to capture terminal snapshot for pattern matching')
+        }
         terminalManager.setPendingPromptCheck(null)
       }, 100)
 
       terminalManager.setPendingPromptCheck(timeout)
     }
-  } catch (error) {}
+  } catch (error) {
+    errorLogger.warn('Failed to handle terminal data', error as Error)
+  }
 }
 
 function handleStdinData(data: Buffer): void {
   try {
     terminalManager.handleStdinData(data)
-  } catch (error) {}
+  } catch (error) {
+    errorLogger.warn('Failed to handle stdin data', error as Error)
+  }
 }
 
 export async function main() {
-  // Check for piped input and exit immediately
+  // Handle subcommands first, before TTY check
+  if (process.argv[2] === 'cc-init') {
+    const { handleCcInit } = await import('./cli/cc-init.js')
+    await handleCcInit(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'stats') {
+    const { handleStatsCommand } = await import('./cli/stats.js')
+    await handleStatsCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'doctor') {
+    const { handleDoctorCommand } = await import('./cli/doctor.js')
+    await handleDoctorCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'switch') {
+    const { handleSwitchCommand } = await import('./cli/switch.js')
+    await handleSwitchCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'memory') {
+    const { handleMemoryCommand } = await import('./cli/memory.js')
+    await handleMemoryCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'checkpoint') {
+    const { handleCheckpointCommand } = await import('./cli/checkpoint.js')
+    await handleCheckpointCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'docs') {
+    const { handleDocsCommand } = await import('./cli/docs.js')
+    await handleDocsCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'costs') {
+    const { handleCostsCommand } = await import('./cli/costs.js')
+    await handleCostsCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'security') {
+    const { handleSecurityCommand } = await import('./cli/security.js')
+    await handleSecurityCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'diff') {
+    const { handleDiffCommand } = await import('./cli/diff.js')
+    await handleDiffCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'repo') {
+    const { handleMultiRepoCommand } = await import('./cli/multi-repo.js')
+    await handleMultiRepoCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'workflow') {
+    const { handleWorkflowCommand } = await import('./cli/workflows.js')
+    await handleWorkflowCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'offline') {
+    const { handleOfflineCommand } = await import('./cli/offline.js')
+    await handleOfflineCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'test') {
+    const { handleTestCommand } = await import('./cli/test.js')
+    await handleTestCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'preset') {
+    const { handlePresetCommand } = await import('./cli/preset.js')
+    await handlePresetCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'wizard') {
+    const { handleWizardCommand } = await import('./cli/wizard.js')
+    await handleWizardCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv[2] === 'settings') {
+    const { handleSettingsCommand } = await import('./cli/settings.js')
+    await handleSettingsCommand(process.argv.slice(3))
+    return
+  }
+
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    const { createClaudeComposerCommand } = await import('./cli/parser.js')
+    const program = createClaudeComposerCommand()
+
+    program.outputHelp()
+    
+    const tempConfig = await loadConfigFile()
+    const provider = tempConfig.provider || 'claude-code'
+    const providerPath = tempConfig.provider_path
+    const providerName = provider === 'claude-code' ? 'Claude' : 'Gemini'
+    console.log(`\n--- ${providerName} CLI Help ---\n`)
+
+    const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
+
+    const helpProcess = spawn(childAppPath, ['--help'], {
+      stdio: 'inherit',
+      env: process.env,
+    })
+
+    helpProcess.on('exit', code => {
+      process.exit(code || 0)
+    })
+
+    return
+  }
+
+  if (process.argv.includes('--version') || process.argv.includes('-v')) {
+    try {
+      const currentFilePath = fileURLToPath(import.meta.url)
+      const currentDir = path.dirname(currentFilePath)
+      const packageJsonPath = path.resolve(currentDir, '..', 'package.json')
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+      console.log(`${packageJson.version} (Coda)`)
+    } catch (error) {
+      console.log('Coda')
+    }
+
+    // Get provider from config or default
+    const tempConfig = await loadConfigFile()
+    const provider = tempConfig.provider || 'claude-code'
+    const providerPath = tempConfig.provider_path
+    const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
+
+    const versionProcess = spawn(childAppPath, ['--version'], {
+      stdio: 'inherit',
+      env: process.env,
+    })
+
+    versionProcess.on('exit', code => {
+      process.exit(code || 0)
+    })
+
+    return
+  }
+
+  // Check for piped input and exit immediately (but only for main AI provider flow)
   if (!process.stdin.isTTY) {
     console.error(
       '\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m',
@@ -274,7 +456,7 @@ export async function main() {
       '\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m',
     )
     console.error(
-      "\x1b[31m║ Claude Composer doesn't support piped input.         ║\x1b[0m",
+      "\x1b[31m║ Coda doesn't support piped input.                    ║\x1b[0m",
     )
     console.error(
       '\x1b[31m║                                                      ║\x1b[0m',
@@ -303,58 +485,6 @@ export async function main() {
     process.exit(1)
   }
 
-  if (process.argv[2] === 'cc-init') {
-    const { handleCcInit } = await import('./cli/cc-init.js')
-    await handleCcInit(process.argv.slice(3))
-    return
-  }
-
-  if (process.argv.includes('--help') || process.argv.includes('-h')) {
-    const { createClaudeComposerCommand } = await import('./cli/parser.js')
-    const program = createClaudeComposerCommand()
-
-    program.outputHelp()
-    console.log('\n--- Claude CLI Help ---\n')
-
-    const childAppPath = CLAUDE_PATHS.findClaudeCommand()
-
-    const helpProcess = spawn(childAppPath, ['--help'], {
-      stdio: 'inherit',
-      env: process.env,
-    })
-
-    helpProcess.on('exit', code => {
-      process.exit(code || 0)
-    })
-
-    return
-  }
-
-  if (process.argv.includes('--version') || process.argv.includes('-v')) {
-    try {
-      const currentFilePath = fileURLToPath(import.meta.url)
-      const currentDir = path.dirname(currentFilePath)
-      const packageJsonPath = path.resolve(currentDir, '..', 'package.json')
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
-      console.log(`${packageJson.version} (Claude Composer)`)
-    } catch (error) {
-      console.log('Claude Composer')
-    }
-
-    const childAppPath = CLAUDE_PATHS.findClaudeCommand()
-
-    const versionProcess = spawn(childAppPath, ['--version'], {
-      stdio: 'inherit',
-      env: process.env,
-    })
-
-    versionProcess.on('exit', code => {
-      process.exit(code || 0)
-    })
-
-    return
-  }
-
   ensureBackupDirectory()
 
   const preflightResult = await runPreflight(process.argv)
@@ -367,7 +497,9 @@ export async function main() {
     }
 
     if (process.argv.includes('--print')) {
-      const childAppPath = CLAUDE_PATHS.findClaudeCommand()
+      const provider = preflightResult.appConfig.provider || 'claude-code'
+      const providerPath = preflightResult.appConfig.provider_path
+      const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
 
       const printProcess = spawn(childAppPath, preflightResult.childArgs, {
         stdio: 'inherit',
@@ -385,7 +517,9 @@ export async function main() {
 
     const args = preflightResult.childArgs
     if (args.length > 0 && !args[0].includes(' ') && !args[0].startsWith('-')) {
-      const childAppPath = CLAUDE_PATHS.findClaudeCommand()
+      const provider = preflightResult.appConfig.provider || 'claude-code'
+      const providerPath = preflightResult.appConfig.provider_path
+      const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
 
       const subcommandProcess = spawn(childAppPath, preflightResult.childArgs, {
         stdio: 'inherit',
@@ -408,25 +542,28 @@ export async function main() {
   yolo = preflightResult.yolo
   tempMcpConfigPath = preflightResult.tempMcpConfigPath
 
+  // Initialize context memory
+  contextMemory = new ContextMemory()
+  await contextMemory.loadProjectContext(process.cwd())
+
   responseQueue = new ResponseQueue()
   terminalManager = new TerminalManager(appConfig, responseQueue)
   if (tempMcpConfigPath) {
     terminalManager.setTempMcpConfigPath(tempMcpConfigPath)
   }
 
-  const childAppPath = CLAUDE_PATHS.findClaudeCommand()
+  const provider = appConfig.provider || 'claude-code'
+  const providerPath = appConfig.provider_path
+  const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
 
-  if (childAppPath === CLAUDE_PATHS.getDefaultAppPath()) {
+  if (appConfig.debug || process.env.DEBUG) {
+    log(`※ Using ${provider} provider at: ${childAppPath}`)
+  }
+
+  // Only do backup for claude-code provider
+  if (provider === 'claude-code' && childAppPath === AI_PROVIDER_PATHS.claude.getDefaultAppPath()) {
     try {
-      const childCliPath = path.join(
-        os.homedir(),
-        '.claude',
-        'local',
-        'node_modules',
-        '@anthropic-ai',
-        'claude-code',
-        'cli.js',
-      )
+      const childCliPath = AI_PROVIDER_PATHS.claude.getDefaultCliPath()
 
       if (fs.existsSync(childCliPath)) {
         const md5 = calculateMd5(childCliPath)
@@ -451,7 +588,12 @@ export async function main() {
     // Silently fail - don't output to console after child process starts
   }
 
-  log('※ Ready, Passing off control to Claude CLI')
+  // Display welcome banner
+  const { displayWelcomeBanner } = await import('./utils/banner.js')
+  displayWelcomeBanner(provider)
+  
+  const providerName = provider === 'gemini' ? 'Gemini' : 'Claude'
+  log(`※ Ready, Passing off control to ${providerName} CLI`)
 
   const childArgs = preflightResult.childArgs
 
@@ -465,8 +607,29 @@ export async function main() {
       `claude-composer-positional-${timestamp}.txt`,
     )
 
-    // Write the first positional argument to the file
-    fs.writeFileSync(positionalArgContentPath, childArgs[0])
+    // Enhance the prompt with context memory
+    let enhancedPrompt = childArgs[0]
+    
+    if (contextMemory) {
+      const contextSummary = contextMemory.getContextSummary()
+      if (contextSummary.length > 0) {
+        enhancedPrompt = `${contextSummary}\n\n---\n\nUser Request: ${childArgs[0]}`
+        
+        // Record this interaction in context
+        await contextMemory.addEntry({
+          type: 'command',
+          content: childArgs[0],
+          metadata: {
+            provider,
+            cwd: process.cwd(),
+            project: path.basename(process.cwd())
+          }
+        })
+      }
+    }
+
+    // Write the enhanced prompt to the file
+    fs.writeFileSync(positionalArgContentPath, enhancedPrompt)
 
     // Remove the argument from childArgs
     childArgs.splice(0, 1)
@@ -508,11 +671,16 @@ export async function main() {
 
   process.stdin.on('data', handleStdinData)
 
-  process.stdout.on('resize', () => {
+  const resizeHandler = () => {
     const newCols = process.stdout.columns || 80
     const newRows = process.stdout.rows || 30
     terminalManager.resize(newCols, newRows)
-  })
+  }
+  process.stdout.on('resize', resizeHandler)
+  
+  // Store handler references for cleanup
+  ;(global as any).__stdinHandler = handleStdinData
+  ;(global as any).__resizeHandler = resizeHandler
 }
 
 main().catch(error => {

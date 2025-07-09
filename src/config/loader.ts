@@ -137,7 +137,7 @@ export async function loadToolsetFile(
     const projectName = toolsetName.substring('project:'.length)
     const basePath = path.join(
       process.cwd(),
-      '.claude-composer',
+      '.coda',
       'toolsets',
       projectName,
     )
@@ -173,7 +173,7 @@ export async function loadToolsetFile(
 }
 
 export function createTempMcpConfig(mcp: Record<string, unknown>): string {
-  const tempFileName = `claude-composer-mcp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.json`
+  const tempFileName = `coda-mcp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.json`
   const tempFilePath = path.join(os.tmpdir(), tempFileName)
 
   const mcpConfig = {

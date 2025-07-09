@@ -2,20 +2,29 @@ import type { ToolsetConfig } from './schemas.js'
 import { loadToolsetFile } from './loader.js'
 import { log } from '../utils/logging.js'
 
-export function buildToolsetArgs(toolsetConfig: ToolsetConfig): string[] {
+export function buildToolsetArgs(
+  toolsetConfig: ToolsetConfig, 
+  provider: 'claude-code' | 'gemini' = 'claude-code'
+): string[] {
   const args: string[] = []
 
-  if (toolsetConfig.allowed) {
-    for (const tool of toolsetConfig.allowed) {
-      args.push('--allowedTools', tool)
+  // Only Claude Code supports these toolset arguments
+  if (provider === 'claude-code') {
+    if (toolsetConfig.allowed) {
+      for (const tool of toolsetConfig.allowed) {
+        args.push('--allowedTools', tool)
+      }
     }
-  }
 
-  if (toolsetConfig.disallowed) {
-    for (const tool of toolsetConfig.disallowed) {
-      args.push('--disallowedTools', tool)
+    if (toolsetConfig.disallowed) {
+      for (const tool of toolsetConfig.disallowed) {
+        args.push('--disallowedTools', tool)
+      }
     }
   }
+  
+  // Gemini doesn't support tool restrictions via CLI flags
+  // It has different mechanisms for this
 
   return args
 }

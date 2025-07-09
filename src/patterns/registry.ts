@@ -10,6 +10,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as os from 'os'
 import { expandPath } from '../utils/file-utils'
+import { errorLogger } from '../utils/error-logger'
 
 type ExtractedData = {
   body?: string
@@ -195,7 +196,7 @@ const confirmationPatterns: PatternConfig[] = [
 export function createAppReadyPattern(
   getAppConfig: () => { positionalArgContentPath?: string; mode?: string },
 ): PatternConfig {
-  const getAppReadyResponse = (): string[] | undefined => {
+  const getAppReadyResponse = (): (string | number)[] | undefined => {
     const config = getAppConfig()
     const positionalArgContentPath = config.positionalArgContentPath
 
@@ -209,7 +210,9 @@ export function createAppReadyPattern(
           return content
             ? [content, 400, '\x1b[Z', 400, '\x1b[Z', 500, '\r']
             : ['\x1b[Z', 400, '\x1b[Z']
-        } catch (error) {}
+        } catch (error) {
+          errorLogger.debug('Failed to read positional arg content file')
+        }
       }
       // Even without positional arg content, send SHIFT+TAB in plan mode
       return ['\x1b[Z', 400, '\x1b[Z']
@@ -225,7 +228,9 @@ export function createAppReadyPattern(
         .readFileSync(positionalArgContentPath, 'utf8')
         .trimEnd()
       return content ? [content, 500, '\r'] : undefined
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.debug('Failed to read positional arg content file')
+    }
   }
 
   return {
@@ -240,12 +245,12 @@ export function createAppReadyPattern(
 export function createTrustPromptPattern(
   getAppConfig: () => AppConfig | undefined,
 ): PatternConfig {
-  const trustPromptIfPwdParentInRoots = (): string[] | undefined => {
+  const trustPromptIfPwdParentInRoots = (): (string | number)[] | undefined => {
     try {
       const appConfig = getAppConfig()
 
-      // If dangerously_allow_in_untrusted_root is set, always accept
-      if (appConfig?.dangerously_allow_in_untrusted_root) {
+      // If YOLO mode or dangerously_allow_in_untrusted_root is set, always accept
+      if (appConfig?.yolo || appConfig?.dangerously_allow_in_untrusted_root) {
         return ['1']
       }
 
@@ -255,16 +260,23 @@ export function createTrustPromptPattern(
         return
       }
 
-      const cwd = process.cwd()
+      const cwd = fs.realpathSync(process.cwd())
       const parentDir = path.dirname(cwd)
 
       for (const root of roots) {
         const expandedRoot = expandPath(root)
-        if (parentDir === expandedRoot) {
+        // Resolve the expanded root to handle symlinks
+        const resolvedRoot = fs.existsSync(expandedRoot)
+          ? fs.realpathSync(expandedRoot)
+          : expandedRoot
+
+        if (parentDir === resolvedRoot) {
           return ['1']
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      errorLogger.debug('Failed to check trusted roots')
+    }
   }
 
   return {

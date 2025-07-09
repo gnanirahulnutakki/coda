@@ -1,28 +1,42 @@
 {
-  "name": "claude-composer",
-  "version": "0.1.14",
-  "description": "A tool that adds small enhancements to Claude Code",
-  "author": "Mike Bannister <notimpossiblemike@gmail.com>",
-  "license": "Unlicense",
-  "homepage": "https://github.com/possibilities/claude-composer#readme",
+  "name": "coda-cli",
+  "version": "1.0.0",
+  "description": "A universal orchestration layer for AI coding assistants, adding safety features, memory, cost controls, and workflow automation",
+  "author": "Coda Contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/gnanirahulnutakki/coda#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/possibilities/claude-composer.git"
+    "url": "git+https://github.com/gnanirahulnutakki/coda.git"
   },
   "bugs": {
-    "url": "https://github.com/possibilities/claude-composer/issues"
+    "url": "https://github.com/gnanirahulnutakki/coda/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "ai",
+    "coding-assistant",
+    "cli",
+    "claude",
+    "gemini",
+    "aider",
+    "safety",
+    "automation",
+    "development-tools",
+    "orchestration"
   ],
   "scripts": {
     "build": "tsup",
     "build:watch": "nodemon --watch src/ --ext ts --exec tsup",
     "format": "prettier --write \"**/*.{js,mjs,jsx,ts,tsx,json,md,mdx,css,yml,yaml}\"",
     "test": "npm run build && vitest --reporter verbose --run",
+    "test:coverage": "npm run build && vitest --coverage --run",
+    "lint": "tsc --noEmit",
     "test:watch": "npm run build && vitest --watch",
     "prepublishOnly": "npm run build",
     "release": "./scripts/release.sh",
@@ -32,7 +46,7 @@
   },
   "type": "module",
   "bin": {
-    "claude-composer": "./dist/cli.js"
+    "coda": "./dist/cli.js"
   },
   "dependencies": {
     "@homebridge/node-pty-prebuilt-multiarch": "^0.12.0",
@@ -43,17 +57,19 @@
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
     "dedent": "^1.6.0",
+    "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
     "node-notifier": "^10.0.1",
     "picomatch": "^4.0.2",
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
+    "yaml": "^2.8.0",
     "zod": "^3.25.39"
   },
   "devDependencies": {
     "@types/node": "^22.15.23",
     "prettier": "^3.5.3",
-    "tsup": "8.3.0",
+    "tsup": "8.5.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"
   },

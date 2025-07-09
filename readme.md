@@ -1,146 +1,414 @@
-# Claude Composer
+# 🎯 Coda: AI Coding Made Simple & Safe
 
----
+> A universal orchestration layer that sits between you and AI coding assistants (Claude, Gemini, Aider, etc.), adding safety features, memory, cost controls, and workflow automation.
 
-**THIS REPO HAS GRADUATED. THAT MEANS THAT I WILL NO LONGER BE USING IT AND WISH ANYONE LUCK AND JOY IF THEY WANT TO FORK IT, CONTINUE USING IT, TAKE IT OVER, OR WHATEVER OTHER ACTIVITIES MAKE A PERSON HAPPY. GOING FORWARD I AM USING HOOKS TO ACHIEVE YOLO MODE:**
+[![Tests](https://github.com/gnanirahulnutakki/coda/actions/workflows/test.yml/badge.svg)](https://github.com/gnanirahulnutakki/coda/actions/workflows/test.yml)
+[![npm version](https://badge.fury.io/js/coda-cli.svg)](https://badge.fury.io/js/coda-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](https://github.com/gnanirahulnutakki/coda)
 
-**https://github.com/possibilities/claude-code-generic-hooks**
+## 🤔 What is Coda?
 
-**AND I USE PERMISSION MODES TO START IN PLAN MODE:**
+Imagine you hired a brilliant programmer to help you write code, but:
+- They might accidentally delete important files
+- They could spend too much money (API costs)
+- They might forget what you discussed yesterday
+- They could introduce security bugs
+- You have no "undo" button if something goes wrong
 
-**https://docs.anthropic.com/en/docs/claude-code/iam#permission-modes**
+**Coda is like a safety harness and toolkit for AI programmers**. It adds:
+- 🛡️ **Safety features** - Automatic backups and rollback
+- 💰 **Cost controls** - Set spending limits
+- 🧠 **Memory** - Remembers context between sessions
+- 🔒 **Security checks** - Scans for vulnerabilities
+- 🤝 **Multi-AI support** - Use the best tool for each task
 
-ALSO I JUST RELEASED MY COMPREHENSIVE REPLACEMENT FOR EVERYTHING CLAUDE COMPOSER DOES:
+## ✨ Key Features
 
-https://github.com/possibilities/claude-code-inject
+### Core Safety & Control
+- ⏮️ **Checkpoint/Rollback System** - Create restore points before changes
+- 💰 **Cost Tracking & Limits** - Monitor API usage and set daily/monthly limits
+- 🔒 **Security Scanner** - Automatic detection of hardcoded secrets and vulnerabilities
+- 👁️ **Diff Preview** - See changes before applying them
+- 🧠 **Persistent Memory** - Save and recall important context across sessions
 
-ALSO USE `DIRTY-COMMIT` TO GET THE SAME CONFIRMATIONS THAT `CLAUDE-COMPOSER` PROVIDES AROUND NON-GIT AND DIRTY GIT DIRECTORIES:
+### AI Provider Support
+- 🤖 **Claude Code** - Anthropic's CLI-based assistant
+- 🌟 **Gemini** - Google's AI coding assistant
+- 🎯 **Aider** - Git-aware pair programming
+- 🐙 **GitHub Copilot CLI** - GitHub's command line AI
+- 🚀 **Cline.ai** - Autonomous coding agent
+- 📝 **Cody** - Sourcegraph's context-aware assistant
+- 🔧 **Amazon Q** - AWS coding assistant
+- 🎨 **Continue.dev** - Open-source extensible AI
 
-https://github.com/possibilities/dirty-commit
+### Workflow Enhancement
+- 📋 **Workflow Templates** - Automate repetitive task sequences
+- 🧪 **Test Generation** - AI-powered test creation with coverage tracking
+- 📚 **Documentation Search** - RAG-powered project documentation search
+- 🌐 **Offline Mode** - Cached responses for working without internet
+- 🎨 **Preset Configurations** - Quick switching between safety levels
+- 🔧 **Interactive Wizard** - Easy setup for beginners
 
----
+## 🚀 Quick Start
 
-> A tool that adds small enhancements to Claude Code
+### Prerequisites
 
-[![Tests](https://github.com/possibilities/claude-composer/actions/workflows/test.yml/badge.svg)](https://github.com/possibilities/claude-composer/actions/workflows/test.yml)
+- Node.js 18+ ([Download](https://nodejs.org))
+- Git (for version control features)
+- At least one AI provider installed
 
-## Features
-
-- **Reduced interruptions**: Automatic confirmation prompt acceptance
-- **Tool management**: Toolsets configure which tools Claude can use
-- **Enhanced visibility**: System notifications keep you informed (BROKEN, WILL GET BIG UPDATE SOON)
-
-## Quick Start
-
-```bash
-# Install
-npm install -g claude-composer
-
-# Initialize configuration
-claude-composer cc-init
-
-# Run with default settings
-claude-composer
-
-# Use YOLO mode (accept all prompts)
-claude-composer --yolo
-```
-
-## Installation
-
-**Prerequisites**: Node.js 18+, npm/yarn/pnpm, Claude Code installed
-
-```bash
-# Global install
-pnpm add -g claude-composer
-# or
-yarn global add claude-composer
-# or
-npm install -g claude-composer
-```
-
-## Command Line Options
-
-### Core Options
+### Installation
 
 ```bash
-# Configuration
---yolo                           # Accept all prompts automatically
---toolset <name...>              # Use specified toolsets
---mode <mode>                    # Start in 'act' or 'plan' mode
---ignore-global-config           # Ignore global config
+# Using npm (recommended)
+npm install -g coda-cli
 
-# Safety
---dangerously-allow-in-dirty-directory
---dangerously-allow-without-version-control
---dangerously-suppress-yolo-confirmation
+# Using yarn
+yarn global add coda-cli
 
-# Notifications
---show-notifications / --no-show-notifications
---sticky-notifications / --no-sticky-notifications
+# Using pnpm
+pnpm add -g coda-cli
 
-# Debug
---quiet                          # Suppress preflight messages
---allow-buffer-snapshots         # Enable Ctrl+Shift+S snapshots
---log-all-pattern-matches        # Log to ~/.claude-composer/logs/
+# On macOS with Homebrew
+brew tap coda/tap
+brew install coda-cli
 ```
 
-All unrecognized options pass through to Claude Code.
-
-See [docs/cli-reference.md](docs/cli-reference.md) for complete reference.
-
-## Configuration
-
-Run `claude-composer cc-init` to create configuration:
+### First Time Setup
 
 ```bash
-# Global config (default)
-claude-composer cc-init
+# Run the interactive wizard
+coda wizard
 
-# Project-specific config
-claude-composer cc-init --project
+# Or quick setup
+coda init
 ```
 
-### Basic Configuration
+The wizard will:
+1. Detect installed AI providers
+2. Configure safety settings
+3. Set up cost limits
+4. Create your first preset
+
+### Basic Usage
+
+```bash
+# Start a conversation with your default AI
+coda
+
+# Send a specific request
+coda "Fix the error in my React component"
+
+# Use a specific provider
+coda --provider aider "Refactor this function"
+
+# Check your setup
+coda doctor
+```
+
+## 📖 Real-World Examples
+
+### Example 1: Safe Development Workflow
+
+```bash
+# Morning routine
+coda checkpoint create "morning-start"
+coda costs show --yesterday
+
+# Before big changes
+coda checkpoint create "before-refactor"
+coda "Refactor the authentication system"
+coda security scan
+coda test generate
+
+# Oops, something broke!
+coda checkpoint rollback
+```
+
+### Example 2: Learning to Code Safely
+
+```bash
+# Safe learning environment
+coda preset apply cautious
+coda checkpoint create "learning-python"
+
+# Ask questions freely
+coda "Explain Python decorators with examples"
+coda "Help me write a web scraper"
+
+# Save important lessons
+coda memory save "python-tips" "Use requests.get() for HTTP requests"
+```
+
+### Example 3: Cost-Conscious Development
+
+```bash
+# Set spending limits
+coda costs set-limit --daily 10
+coda costs set-limit --monthly 200
+
+# Work efficiently with caching
+coda offline enable
+coda "Create a REST API endpoint"  # Uses AI
+coda "Create a REST API endpoint"  # Uses cache!
+
+# Track spending
+coda costs show --this-month
+coda costs export january-invoice.json
+```
+
+## 🛠️ All Commands
+
+### Essential Commands
+| Command | Description |
+|---------|-------------|
+| `coda` | Start interactive AI session |
+| `coda wizard` | Run setup wizard |
+| `coda doctor` | Check system health |
+| `coda switch` | Switch AI providers |
+
+### Safety & Recovery
+| Command | Description |
+|---------|-------------|
+| `coda checkpoint create <name>` | Create restore point |
+| `coda checkpoint rollback` | Undo to last checkpoint |
+| `coda checkpoint list` | Show all checkpoints |
+| `coda security scan` | Scan for vulnerabilities |
+| `coda diff preview` | Preview changes |
+
+### Memory & Context
+| Command | Description |
+|---------|-------------|
+| `coda memory save <key> <value>` | Save information |
+| `coda memory recall <key>` | Retrieve saved info |
+| `coda memory list` | Show all memories |
+| `coda docs index` | Index project docs |
+| `coda docs search <query>` | Search documentation |
+
+### Cost Management
+| Command | Description |
+|---------|-------------|
+| `coda costs show` | View current costs |
+| `coda costs set-limit --daily 20` | Set daily limit |
+| `coda costs export <file>` | Export cost report |
+
+### Workflow & Automation
+| Command | Description |
+|---------|-------------|
+| `coda workflow create <name>` | Create workflow |
+| `coda workflow run <name>` | Execute workflow |
+| `coda preset apply <name>` | Apply configuration preset |
+| `coda test generate` | Generate tests for code |
+
+## ⚙️ Configuration
+
+### Configuration Hierarchy
+1. Built-in defaults
+2. Global config: `~/.coda/config.yaml`
+3. Project config: `./.coda/config.yaml`
+4. Command line flags (highest priority)
+
+### Example Configuration
 
 ```yaml
-# config.yaml
-yolo: false # Set to true to accept all prompts
+# ~/.coda/config.yaml
+provider: claude-code          # Default AI provider
+yolo: false                   # Auto-accept prompts
+quiet: false                  # Suppress info messages
 
-toolsets:
-  - internal:core
-  - my-tools
+# Safety settings
+security:
+  auto_scan: true             # Scan after each change
+  block_on_critical: true     # Stop on critical issues
 
-roots:
-  - ~/projects/work
-  - ~/projects/personal
+# Cost controls  
+costs:
+  daily_limit: 10.00
+  monthly_limit: 200.00
+  warning_at: 80              # Warn at 80% of limit
 
-show_notifications: true
-sticky_notifications: false
+# Workflow
+checkpoint:
+  auto_create: true           # Auto-checkpoint before changes
+  keep_last: 10              # Number to retain
+
+# Memory
+memory:
+  max_size_mb: 100
+  eviction_policy: lru       # least-recently-used
 ```
 
-See [docs/configuration.md](docs/configuration.md) for details.
+## 🔒 Security Features
 
-## YOLO Mode
+Coda automatically scans for:
+- Hardcoded passwords and API keys
+- SQL injection vulnerabilities
+- Cross-site scripting (XSS) risks
+- Insecure cryptography
+- Path traversal vulnerabilities
+- Exposed environment variables
 
-When enabled with `--yolo` flag or `yolo: true` in config, Claude Composer will automatically accept all prompts without confirmation. Use with caution!
+Configure security scanning:
+```yaml
+security:
+  patterns_file: ~/.coda/security-patterns.yaml
+  custom_patterns:
+    - name: "AWS Keys"
+      pattern: "AKIA[0-9A-Z]{16}"
+      severity: critical
+```
 
-## Toolsets
+## 🤝 Multi-Provider Support
 
-Configure which tools Claude can use and MCP server connections.
+### Switching Providers
 
-See [docs/toolsets.md](docs/toolsets.md) for details.
+```bash
+# See available providers
+coda switch
 
-## Trusted roots
+# Switch interactively
+coda switch --interactive
 
-Use trusted roots to define trusted parent directories to auto-accept initial trust prompts.
+# Switch to specific provider
+coda switch aider
 
-See [docs/roots-config.md](docs/roots-config.md) for details.
+# Use provider for one command
+coda --provider gemini "Optimize this algorithm"
+```
 
-## Environment Variables
+### Provider Comparison
 
-See [docs/environment-variables.md](docs/environment-variables.md) for details.
+| Provider | Best For | Key Features |
+|----------|----------|--------------|
+| Claude Code | Complex reasoning | Deep understanding, multi-file edits |
+| Aider | Git workflows | Auto-commits, git-aware |
+| Gemini | Fast responses | Quick suggestions, image support |
+| GitHub Copilot | Terminal commands | Command explanations |
+| Cline.ai | Autonomous tasks | Multi-step execution |
 
-## License
+## 🐛 Troubleshooting
 
-This project is in the public domain. See the [UNLICENSE](UNLICENSE) file for details.
+### Common Issues
+
+**"Coda command not found"**
+```bash
+# Check Node.js installation
+node --version
+
+# Reinstall Coda
+npm install -g coda-cli
+
+# Add to PATH manually (if needed)
+export PATH="$PATH:$(npm root -g)/bin"
+```
+
+**"AI provider not found"**
+```bash
+# Check what's available
+coda doctor
+
+# Install missing provider
+# Example for Aider:
+pip install aider-install
+```
+
+**"Spending limit reached"**
+```bash
+# Check current usage
+coda costs show --today
+
+# Increase limit temporarily
+coda costs set-limit --daily 20
+
+# Use offline mode
+coda offline enable
+```
+
+## 🤖 Advanced Features
+
+### Custom Workflows
+
+Create `.coda/workflows/deploy.yaml`:
+```yaml
+name: "Safe Deployment"
+steps:
+  - checkpoint: "pre-deploy"
+  - security_scan: 
+      fail_on: ["critical", "high"]
+  - test:
+      coverage_threshold: 80
+  - command: "npm run build"
+  - command: "npm run deploy"
+  - notification: "Deployment complete!"
+```
+
+### MCP Server Integration
+
+```yaml
+# Add to config.yaml
+mcp_servers:
+  postgres:
+    command: "npx"
+    args: ["@modelcontextprotocol/server-postgres"]
+    env:
+      DATABASE_URL: "postgresql://localhost/mydb"
+```
+
+## 📊 Statistics & Monitoring
+
+```bash
+# View usage statistics
+coda stats
+
+# Monitor in real-time
+coda monitor
+
+# Export metrics
+coda stats export --format json > metrics.json
+```
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+```bash
+# Setup development environment
+git clone https://github.com/gnanirahulnutakki/coda
+cd coda
+npm install
+npm test
+```
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 🔗 Resources
+
+- [Complete User Guide](docs/CODA_COMPLETE_USER_GUIDE.md)
+- [API Documentation](docs/API.md)
+- [Security Patterns](docs/SECURITY_PATTERNS.md)
+- [Issue Tracker](https://github.com/gnanirahulnutakki/coda/issues)
+- [Discussions](https://github.com/gnanirahulnutakki/coda/discussions)
+
+## 🙏 Acknowledgments
+
+Built with inspiration from:
+- [Claude Code](https://claude.ai) by Anthropic
+- [Aider](https://aider.chat) by Paul Gauthier
+- [Continue.dev](https://continue.dev) team
+- The amazing AI coding community
+
+---
+
+<p align="center">
+Made with ❤️ to make AI coding safe and accessible for everyone
+</p>
+
+<p align="center">
+<a href="https://github.com/gnanirahulnutakki/coda">GitHub</a> •
+<a href="https://npmjs.com/package/coda-cli">NPM</a> •
+<a href="https://github.com/gnanirahulnutakki/coda/discussions">Community</a>
+</p>

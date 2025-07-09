@@ -22,6 +22,7 @@ import { CLAUDE_PATHS } from '../config/paths.js'
 import { parseCommandLineArgs, buildKnownOptionsSet } from '../cli/parser.js'
 import { detectSubcommand } from '../cli/subcommand.js'
 import { log, warn, setQuietMode, clearScreen } from '../utils/logging.js'
+import { errorLogger } from '../utils/error-logger.js'
 
 export async function runPreflight(
   argv: string[],
@@ -48,6 +49,11 @@ export async function runPreflight(
 
   if (parsedOptions.quiet) {
     setQuietMode(true)
+  }
+  
+  if (parsedOptions.debug) {
+    errorLogger.setDebugMode(true)
+    log('※ Debug mode enabled - verbose logging active')
   }
 
   const isHelp = helpRequested
@@ -87,10 +93,10 @@ export async function runPreflight(
     if (!hasGlobalConfig && !hasProjectConfig) {
       console.error('\x1b[31m※ Error: No configuration file found.\x1b[0m')
       console.error(
-        '\x1b[31m※ Claude Composer requires a configuration file to run.\x1b[0m',
+        '\x1b[31m※ Coda requires a configuration file to run.\x1b[0m',
       )
       console.error(
-        '\x1b[31m※ To create a config file, run: claude-composer cc-init\x1b[0m',
+        '\x1b[31m※ To create a config file, run: coda cc-init\x1b[0m',
       )
       return {
         appConfig,
@@ -165,6 +171,51 @@ export async function runPreflight(
   if (parsedOptions.mode !== undefined) {
     appConfig.mode = parsedOptions.mode
   }
+  // Handle provider: CLI flag takes precedence over config
+  if (parsedOptions.provider !== undefined) {
+    if (!['claude-code', 'gemini'].includes(parsedOptions.provider)) {
+      console.error(`\x1b[31m※ Error: Invalid provider '${parsedOptions.provider}'. Must be 'claude-code' or 'gemini'.\x1b[0m`)
+      return {
+        appConfig,
+        toolsetArgs: [],
+        childArgs: [],
+        shouldExit: true,
+        exitCode: 1,
+        knownOptions,
+        hasPrintOption,
+      }
+    }
+    appConfig.provider = parsedOptions.provider as 'claude-code' | 'gemini'
+  } else if (!isPrint && !isSubcommand && (appConfig.always_ask_provider || !appConfig.provider)) {
+    // No CLI flag provided and either always_ask_provider is true or no provider configured
+    const { askProviderSelection } = await import('../cli/prompts.js')
+    const { ProviderDetector } = await import('../utils/provider-detector.js')
+    
+    // Auto-detect available providers
+    const availableProviders = await ProviderDetector.detectAvailableProviders()
+    
+    const selectedProvider = await askProviderSelection(
+      appConfig.provider || 'claude-code',
+      availableProviders,
+      options?.stdin,
+      options?.stdout
+    )
+    
+    if (!selectedProvider) {
+      log('※ No provider selected. Exiting.')
+      return {
+        appConfig,
+        toolsetArgs: [],
+        childArgs: [],
+        shouldExit: true,
+        exitCode: 130, // User cancelled
+        knownOptions,
+        hasPrintOption,
+      }
+    }
+    
+    appConfig.provider = selectedProvider
+  }
   // If no CLI flag provided, config value is preserved from loadConfigFile above
 
   let toolsetArgs: string[] = []
@@ -180,9 +231,11 @@ export async function runPreflight(
   if (toolsetsToLoad.length > 0) {
     try {
       const mergedConfig = await mergeToolsets(toolsetsToLoad)
-      toolsetArgs = buildToolsetArgs(mergedConfig)
+      const provider = appConfig.provider || 'claude-code'
+      toolsetArgs = buildToolsetArgs(mergedConfig, provider)
 
-      if (mergedConfig.mcp && Object.keys(mergedConfig.mcp).length > 0) {
+      // Only add MCP config for Claude Code
+      if (provider === 'claude-code' && mergedConfig.mcp && Object.keys(mergedConfig.mcp).length > 0) {
         tempMcpConfigPath = createTempMcpConfig(mergedConfig.mcp)
         toolsetArgs.push('--mcp-config', tempMcpConfigPath)
       }
@@ -252,10 +305,21 @@ export async function runPreflight(
       i++
     } else if (arg === '--mode' && i + 1 < argv.length) {
       i++
+    } else if (arg === '--provider' && i + 1 < argv.length) {
+      i++
     }
   }
 
-  childArgs.push(...toolsetArgs)
+  // Only add toolset args if they exist (provider-specific filtering already done)
+  if (toolsetArgs.length > 0) {
+    childArgs.push(...toolsetArgs)
+  }
+  
+  // Handle provider-specific flags
+  if ((appConfig.provider || 'claude-code') === 'gemini' && appConfig.yolo) {
+    // Gemini uses -y or --yolo for YOLO mode
+    childArgs.push('--yolo')
+  }
 
   if (isPrint) {
     log(`※ Starting Claude Code in non-interactive mode due to --print option`)
@@ -272,8 +336,7 @@ export async function runPreflight(
   }
 
   if (isSubcommand) {
-    log(`※ Accepting Claude Composer`)
-    log(`※ Running Claude Code subcommand: ${subcommandResult.subcommand}`)
+    log(`※ Running subcommand: ${subcommandResult.subcommand}`)
     return {
       appConfig,
       toolsetArgs,
@@ -302,8 +365,13 @@ export async function runPreflight(
     }
   }
 
+  // Find the AI provider command based on configuration
+  const provider = appConfig.provider || 'claude-code'
+  const providerPath = appConfig.provider_path
+  
   try {
-    const childAppPath = CLAUDE_PATHS.findClaudeCommand()
+    const { AI_PROVIDER_PATHS } = await import('../config/paths.js')
+    const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
     checkChildAppPath(childAppPath)
   } catch (error) {
     console.error(`※ ${error instanceof Error ? error.message : error}`)
@@ -324,6 +392,7 @@ export async function runPreflight(
       process.cwd(),
       appConfig.dangerously_allow_without_version_control,
       options,
+      appConfig,
     )
 
     if (!hasVersionControl) {
@@ -333,6 +402,7 @@ export async function runPreflight(
         process.cwd(),
         appConfig.dangerously_allow_in_dirty_directory,
         options,
+        appConfig,
       )
 
       if (isDirty) {
@@ -376,7 +446,8 @@ export async function runPreflight(
     }
   }
 
-  log('※ Getting ready to launch Claude CLI')
+  const providerName = appConfig.provider === 'gemini' ? 'Gemini' : 'Claude'
+  log(`※ Getting ready to launch ${providerName} CLI`)
 
   return {
     appConfig,
