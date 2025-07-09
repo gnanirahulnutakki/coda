@@ -1,0 +1,36 @@
+name: Mark Stale Issues and PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v9
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        
+        # Issue settings
+        stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+        stale-issue-label: 'stale'
+        days-before-issue-stale: 30
+        days-before-issue-close: 7
+        exempt-issue-labels: 'pinned,security,bug,enhancement'
+        
+        # PR settings
+        stale-pr-message: 'This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions.'
+        stale-pr-label: 'stale'
+        days-before-pr-stale: 14
+        days-before-pr-close: 7
+        exempt-pr-labels: 'pinned,security'
+        
+        # Other settings
+        remove-stale-when-updated: true
+        delete-branch: false
+        operations-per-run: 30
