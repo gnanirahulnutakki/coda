@@ -1,6 +1,5 @@
 import { CheckpointManager } from '../features/checkpoint.js'
 import { log, warn } from '../utils/logging.js'
-import * as path from 'path'
 import * as fs from 'fs'
 
 export async function handleCheckpointCommand(args: string[]): Promise<void> {
@@ -94,7 +93,8 @@ async function createCheckpoint(manager: CheckpointManager, args: string[]): Pro
     log(`   Description: ${description}`)
     log(`   Files: ${existingFiles.length}`)
   } catch (error) {
-    warn(`Failed to create checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to create checkpoint: ${errorMessage}`)
   }
 }
 
@@ -133,7 +133,8 @@ async function listCheckpoints(manager: CheckpointManager, limitStr?: string): P
       console.log()
     })
   } catch (error) {
-    warn(`Failed to list checkpoints: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to list checkpoints: ${errorMessage}`)
   }
 }
 
@@ -176,7 +177,8 @@ async function showCheckpoint(manager: CheckpointManager, id?: string): Promise<
       console.log(`     Hash: ${file.hash.substring(0, 16)}...`)
     })
   } catch (error) {
-    warn(`Failed to show checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to show checkpoint: ${errorMessage}`)
   }
 }
 
@@ -218,7 +220,8 @@ async function rollbackCheckpoint(manager: CheckpointManager, args: string[]): P
       }
     }
   } catch (error) {
-    warn(`Failed to rollback: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to rollback: ${errorMessage}`)
   }
 }
 
@@ -237,7 +240,8 @@ async function deleteCheckpoint(manager: CheckpointManager, id?: string): Promis
       warn(`Checkpoint ${id} not found`)
     }
   } catch (error) {
-    warn(`Failed to delete checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to delete checkpoint: ${errorMessage}`)
   }
 }
 
@@ -276,7 +280,8 @@ async function showDiff(manager: CheckpointManager, id?: string): Promise<void> 
       console.log('\\x1b[32m🎉 No changes detected since checkpoint!\\x1b[0m')
     }
   } catch (error) {
-    warn(`Failed to get diff: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to get diff: ${errorMessage}`)
   }
 }
 
@@ -295,7 +300,8 @@ async function exportCheckpoint(manager: CheckpointManager, id?: string, outputP
     await manager.exportCheckpoint(id, outputPath)
     log(`✅ Checkpoint exported to: ${outputPath}`)
   } catch (error) {
-    warn(`Failed to export checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to export checkpoint: ${errorMessage}`)
   }
 }
 
@@ -309,7 +315,8 @@ async function importCheckpoint(manager: CheckpointManager, inputPath?: string):
     const newId = await manager.importCheckpoint(inputPath)
     log(`✅ Checkpoint imported with ID: ${newId}`)
   } catch (error) {
-    warn(`Failed to import checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to import checkpoint: ${errorMessage}`)
   }
 }
 
@@ -330,7 +337,8 @@ async function cleanupCheckpoints(manager: CheckpointManager, daysStr?: string):
       log('No old checkpoints found to clean up')
     }
   } catch (error) {
-    warn(`Failed to cleanup checkpoints: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to cleanup checkpoints: ${errorMessage}`)
   }
 }
 
@@ -369,6 +377,7 @@ async function createAutoCheckpoint(manager: CheckpointManager, files: string[])
     log(`✅ Auto-checkpoint created: ${id}`)
     log(`   Files: ${existingFiles.join(', ')}`)
   } catch (error) {
-    warn(`Failed to create auto-checkpoint: ${error.message}`)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    warn(`Failed to create auto-checkpoint: ${errorMessage}`)
   }
 }

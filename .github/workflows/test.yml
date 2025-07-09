@@ -27,8 +27,8 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Run TypeScript compiler check
-      run: npm run lint
+    - name: Build project to check for errors
+      run: npm run build
     
     - name: Check code formatting
       run: npx prettier --check "**/*.{js,mjs,jsx,ts,tsx,json,md,mdx,css,yml,yaml}"

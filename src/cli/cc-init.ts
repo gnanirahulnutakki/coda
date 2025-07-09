@@ -52,7 +52,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
         options.project = true
         break
       default:
-        if (arg.startsWith('-')) {
+        if (arg && arg.startsWith('-')) {
           console.error(`Unknown option: ${arg}`)
           process.exit(1)
         }
