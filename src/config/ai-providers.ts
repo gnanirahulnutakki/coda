@@ -21,40 +21,48 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
   'claude-code': {
     id: 'claude-code',
     name: 'Claude Code',
-    description: 'Anthropic\'s CLI-based AI coding assistant',
+    description: "Anthropic's CLI-based AI coding assistant",
     category: 'native-cli',
     priority: 'high',
     detectCommand: () => {
       const customPaths = [
-        path.join(os.homedir(), '.claude', 'local', 'node_modules', '@anthropic-ai', 'claude-code', 'cli.js')
+        path.join(
+          os.homedir(),
+          '.claude',
+          'local',
+          'node_modules',
+          '@anthropic-ai',
+          'claude-code',
+          'cli.js',
+        ),
       ]
       return findCommandInPaths('claude', [...customPaths, ...getPlatformPaths('claude')])
     },
     installInstructions: 'Install from: https://claude.ai/download',
     features: ['chat', 'code-generation', 'file-editing'],
     requiresAuth: true,
-    configKeys: ['anthropic_api_key']
+    configKeys: ['anthropic_api_key'],
   },
-  
-  'gemini': {
+
+  gemini: {
     id: 'gemini',
     name: 'Google Gemini',
-    description: 'Google\'s AI coding assistant',
+    description: "Google's AI coding assistant",
     category: 'native-cli',
     priority: 'high',
     detectCommand: () => {
       const customPaths = [
-        path.join(os.homedir(), '.gemini', 'bin', 'gemini' + getCommandExtension())
+        path.join(os.homedir(), '.gemini', 'bin', 'gemini' + getCommandExtension()),
       ]
       return findCommandInPaths('gemini', [...customPaths, ...getPlatformPaths('gemini')])
     },
     installInstructions: 'Install Gemini CLI from Google',
     features: ['chat', 'code-generation'],
     requiresAuth: true,
-    configKeys: ['google_api_key']
+    configKeys: ['google_api_key'],
   },
-  
-  'aider': {
+
+  aider: {
     id: 'aider',
     name: 'Aider',
     description: 'AI pair programming in your terminal',
@@ -64,26 +72,27 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
     installInstructions: 'Install with: pip install aider-install',
     features: ['git-aware', 'multi-file-editing', 'voice-input', 'auto-commit'],
     requiresAuth: true,
-    configKeys: ['openai_api_key', 'anthropic_api_key']
+    configKeys: ['openai_api_key', 'anthropic_api_key'],
   },
-  
-  'cline': {
+
+  cline: {
     id: 'cline',
     name: 'Cline.ai',
     description: 'Autonomous AI coding agent',
     category: 'ide-extension',
     priority: 'high',
     detectCommand: () => findCommandInPath('cline'),
-    installInstructions: 'Install Cline extension in VS Code, or use CLI: npm install -g @cline/cli',
+    installInstructions:
+      'Install Cline extension in VS Code, or use CLI: npm install -g @cline/cli',
     features: ['autonomous', 'multi-step-tasks', 'file-management'],
     requiresAuth: true,
-    configKeys: ['cline_api_key']
+    configKeys: ['cline_api_key'],
   },
-  
+
   'github-copilot': {
     id: 'github-copilot',
     name: 'GitHub Copilot CLI',
-    description: 'GitHub\'s AI pair programmer for the command line',
+    description: "GitHub's AI pair programmer for the command line",
     category: 'native-cli',
     priority: 'medium',
     detectCommand: () => {
@@ -104,22 +113,22 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
     installInstructions: 'Install GitHub CLI, then: gh extension install github/gh-copilot',
     features: ['explain', 'suggest', 'terminal-commands'],
     requiresAuth: true,
-    configKeys: ['github_token']
+    configKeys: ['github_token'],
   },
-  
-  'cody': {
+
+  cody: {
     id: 'cody',
     name: 'Cody',
-    description: 'Sourcegraph\'s AI coding assistant',
+    description: "Sourcegraph's AI coding assistant",
     category: 'enterprise',
     priority: 'medium',
     detectCommand: () => findCommandInPath('cody'),
     installInstructions: 'Install from: https://sourcegraph.com/docs/cody/cli',
     features: ['context-aware', 'code-search', 'enterprise'],
     requiresAuth: true,
-    configKeys: ['sourcegraph_token', 'sourcegraph_endpoint']
+    configKeys: ['sourcegraph_token', 'sourcegraph_endpoint'],
   },
-  
+
   'amazon-q': {
     id: 'amazon-q',
     name: 'Amazon Q Developer',
@@ -130,10 +139,10 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
     installInstructions: 'Install AWS CLI and configure Amazon Q',
     features: ['aws-expertise', 'security-scanning', 'iac-generation'],
     requiresAuth: true,
-    configKeys: ['aws_access_key', 'aws_secret_key']
+    configKeys: ['aws_access_key', 'aws_secret_key'],
   },
-  
-  'continue': {
+
+  continue: {
     id: 'continue',
     name: 'Continue.dev',
     description: 'Open-source AI coding assistant',
@@ -143,8 +152,8 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
     installInstructions: 'Install Continue extension or CLI from continue.dev',
     features: ['multi-llm', 'customizable', 'open-source'],
     requiresAuth: true,
-    configKeys: ['continue_config']
-  }
+    configKeys: ['continue_config'],
+  },
 }
 
 /**
@@ -173,7 +182,7 @@ function findCommandInPaths(command: string, paths: string[]): string | null {
   // First try system PATH
   const systemPath = findCommandInPath(command)
   if (systemPath) return systemPath
-  
+
   // Then try specific paths
   for (const p of paths) {
     if (fs.existsSync(p)) {
@@ -185,23 +194,23 @@ function findCommandInPaths(command: string, paths: string[]): string | null {
       }
     }
   }
-  
+
   return null
 }
 
 /**
  * Detect all available AI providers on the system
  */
-export function detectAvailableProviders(): Array<{provider: AIProvider, command: string}> {
-  const available: Array<{provider: AIProvider, command: string}> = []
-  
+export function detectAvailableProviders(): Array<{ provider: AIProvider; command: string }> {
+  const available: Array<{ provider: AIProvider; command: string }> = []
+
   for (const provider of Object.values(AI_PROVIDERS)) {
     const command = provider.detectCommand()
     if (command) {
       available.push({ provider, command })
     }
   }
-  
+
   return available.sort((a, b) => {
     // Sort by priority
     const priorityOrder = { high: 0, medium: 1, low: 2 }
@@ -222,7 +231,7 @@ export function getProvider(id: string): AIProvider | undefined {
 export function isProviderAvailable(id: string): boolean {
   const provider = AI_PROVIDERS[id]
   if (!provider) return false
-  
+
   const command = provider.detectCommand()
   return command !== null
 }
@@ -233,6 +242,6 @@ export function isProviderAvailable(id: string): boolean {
 export function getProviderCommand(id: string): string | null {
   const provider = AI_PROVIDERS[id]
   if (!provider) return null
-  
+
   return provider.detectCommand()
 }

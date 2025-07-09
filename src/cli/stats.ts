@@ -12,46 +12,62 @@ export async function showStatistics(): Promise<void> {
   console.log('\x1b[36m╔═══════════════════════════════════════════════════════════════╗\x1b[0m')
   console.log('\x1b[36m║                      Coda Statistics                          ║\x1b[0m')
   console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
-  
-  console.log(`\x1b[36m║\x1b[0m Total Commands Run:      ${stats.totalCommands.toString().padEnd(36)} \x1b[36m║\x1b[0m`)
-  console.log(`\x1b[36m║\x1b[0m Success Rate:            ${stats.successRate.toFixed(1)}%${' '.repeat(35 - stats.successRate.toFixed(1).length - 1)} \x1b[36m║\x1b[0m`)
-  console.log(`\x1b[36m║\x1b[0m Average Duration:        ${formatDuration(stats.averageDuration).padEnd(36)} \x1b[36m║\x1b[0m`)
-  
+
+  console.log(
+    `\x1b[36m║\x1b[0m Total Commands Run:      ${stats.totalCommands.toString().padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+  console.log(
+    `\x1b[36m║\x1b[0m Success Rate:            ${stats.successRate.toFixed(1)}%${' '.repeat(35 - stats.successRate.toFixed(1).length - 1)} \x1b[36m║\x1b[0m`,
+  )
+  console.log(
+    `\x1b[36m║\x1b[0m Average Duration:        ${formatDuration(stats.averageDuration).padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+
   console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
   console.log('\x1b[36m║                    Most Used Commands                         ║\x1b[0m')
   console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
-  
+
   if (stats.mostUsedCommands.length === 0) {
-    console.log('\x1b[36m║\x1b[0m No commands recorded yet                                      \x1b[36m║\x1b[0m')
+    console.log(
+      '\x1b[36m║\x1b[0m No commands recorded yet                                      \x1b[36m║\x1b[0m',
+    )
   } else {
     stats.mostUsedCommands.forEach(({ command, count }) => {
       const line = `${command}: ${count} times`
       console.log(`\x1b[36m║\x1b[0m ${line.padEnd(61)} \x1b[36m║\x1b[0m`)
     })
   }
-  
+
   // Show commands by project
   if (stats.commandsByProject.length > 0) {
     console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
     console.log('\x1b[36m║                   Commands by Project                         ║\x1b[0m')
     console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
-    
+
     stats.commandsByProject.slice(0, 5).forEach(({ project, count }) => {
       const line = `${project}: ${count} commands`
       console.log(`\x1b[36m║\x1b[0m ${line.padEnd(61)} \x1b[36m║\x1b[0m`)
     })
   }
-  
+
   console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
   console.log('\x1b[36m║                     Storage Usage                             ║\x1b[0m')
   console.log('\x1b[36m╠═══════════════════════════════════════════════════════════════╣\x1b[0m')
-  
+
   const storageStats = await calculateStorageUsage()
-  console.log(`\x1b[36m║\x1b[0m Config Directory:        ${storageStats.configDir.padEnd(36)} \x1b[36m║\x1b[0m`)
-  console.log(`\x1b[36m║\x1b[0m Log Files:               ${storageStats.logs.padEnd(36)} \x1b[36m║\x1b[0m`)
-  console.log(`\x1b[36m║\x1b[0m Session Records:         ${storageStats.sessions.padEnd(36)} \x1b[36m║\x1b[0m`)
-  console.log(`\x1b[36m║\x1b[0m Total:                   ${storageStats.total.padEnd(36)} \x1b[36m║\x1b[0m`)
-  
+  console.log(
+    `\x1b[36m║\x1b[0m Config Directory:        ${storageStats.configDir.padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+  console.log(
+    `\x1b[36m║\x1b[0m Log Files:               ${storageStats.logs.padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+  console.log(
+    `\x1b[36m║\x1b[0m Session Records:         ${storageStats.sessions.padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+  console.log(
+    `\x1b[36m║\x1b[0m Total:                   ${storageStats.total.padEnd(36)} \x1b[36m║\x1b[0m`,
+  )
+
   console.log('\x1b[36m╚═══════════════════════════════════════════════════════════════╝\x1b[0m')
 }
 
@@ -71,9 +87,12 @@ export async function showHistory(limit: number = 20): Promise<void> {
     const timeStr = date.toLocaleString()
     const cmdStr = entry.command.join(' ')
     const statusIcon = entry.exitCode === 0 ? '✓' : entry.exitCode === undefined ? '?' : '✗'
-    const statusColor = entry.exitCode === 0 ? '\x1b[32m' : entry.exitCode === undefined ? '\x1b[33m' : '\x1b[31m'
-    
-    console.log(`${statusColor}${statusIcon}\x1b[0m ${timeStr}${entry.projectName ? ` [${entry.projectName}]` : ''}`)
+    const statusColor =
+      entry.exitCode === 0 ? '\x1b[32m' : entry.exitCode === undefined ? '\x1b[33m' : '\x1b[31m'
+
+    console.log(
+      `${statusColor}${statusIcon}\x1b[0m ${timeStr}${entry.projectName ? ` [${entry.projectName}]` : ''}`,
+    )
     console.log(`  ${cmdStr}`)
     if (entry.duration) {
       console.log(`  \x1b[90mDuration: ${formatDuration(entry.duration)}\x1b[0m`)
@@ -101,12 +120,12 @@ async function calculateStorageUsage(): Promise<{
   total: string
 }> {
   const configDir = CONFIG_PATHS.getConfigDirectory()
-  
+
   const getDirSize = (dir: string): number => {
     let size = 0
     try {
       const files = fs.readdirSync(dir)
-      files.forEach(file => {
+      files.forEach((file) => {
         const filePath = path.join(dir, file)
         const stat = fs.statSync(filePath)
         if (stat.isDirectory()) {
@@ -135,7 +154,7 @@ async function calculateStorageUsage(): Promise<{
     configDir: formatSize(totalSize - logsSize - sessionsSize),
     logs: formatSize(logsSize),
     sessions: formatSize(sessionsSize),
-    total: formatSize(totalSize)
+    total: formatSize(totalSize),
   }
 }
 
@@ -206,16 +225,16 @@ function getLimit(args: string[]): number | undefined {
 
 async function displaySessionStats(): Promise<void> {
   const sessions = SessionRecorder.listSessions()
-  
+
   console.log('\n📹 Session Recording Statistics')
   console.log('═══════════════════════════════════')
   console.log(`Total Sessions: ${sessions.length}`)
-  
+
   if (sessions.length === 0) {
     console.log('No sessions recorded yet.')
     return
   }
-  
+
   // Show recent sessions
   console.log('\n📅 Recent Sessions:')
   sessions.slice(0, 10).forEach((session, i) => {
@@ -230,16 +249,16 @@ async function exportStats(exportPath: string): Promise<void> {
   const history = new CommandHistory()
   const historyStats = await history.getStatistics()
   const sessions = SessionRecorder.listSessions()
-  
+
   const exportData = {
     timestamp: new Date().toISOString(),
     commandHistory: historyStats,
     sessions: {
       total: sessions.length,
-      sessions: sessions.slice(0, 100) // Limit to avoid huge exports
-    }
+      sessions: sessions.slice(0, 100), // Limit to avoid huge exports
+    },
   }
-  
+
   try {
     fs.writeFileSync(exportPath, JSON.stringify(exportData, null, 2))
     log(`✅ Statistics exported to ${exportPath}`)

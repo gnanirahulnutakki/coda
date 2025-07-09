@@ -43,13 +43,7 @@ describe('Sticky notifications implies show notifications', () => {
     fs.writeFileSync(configPath, '{}')
 
     const result = await runPreflight(
-      [
-        'node',
-        'claude-composer',
-        '--no-sticky-notifications',
-        '--',
-        'some-prompt',
-      ],
+      ['node', 'claude-composer', '--no-sticky-notifications', '--', 'some-prompt'],
       {
         configPath,
       },
@@ -69,13 +63,7 @@ show_notifications: false
     fs.writeFileSync(configPath, configContent)
 
     const result = await runPreflight(
-      [
-        'node',
-        'claude-composer',
-        '--sticky-notifications',
-        '--',
-        'some-prompt',
-      ],
+      ['node', 'claude-composer', '--sticky-notifications', '--', 'some-prompt'],
       {
         configPath,
       },
@@ -112,13 +100,7 @@ show_notifications: false
 
     // Test 1: --sticky-notifications alone enables notifications
     const result1 = await runPreflight(
-      [
-        'node',
-        'claude-composer',
-        '--sticky-notifications',
-        '--',
-        'some-prompt',
-      ],
+      ['node', 'claude-composer', '--sticky-notifications', '--', 'some-prompt'],
       {
         configPath,
       },
@@ -168,12 +150,9 @@ sticky_notifications: true
 `
     fs.writeFileSync(configPath, configContent)
 
-    const result = await runPreflight(
-      ['node', 'claude-composer', '--', 'some-prompt'],
-      {
-        configPath,
-      },
-    )
+    const result = await runPreflight(['node', 'claude-composer', '--', 'some-prompt'], {
+      configPath,
+    })
 
     // Config file sticky_notifications is now a boolean
     expect(result.appConfig.sticky_notifications).toBe(true)

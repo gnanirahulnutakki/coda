@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  validateAppConfig,
-  validateToolsetConfig,
-} from '../../src/config/schemas'
+import { validateAppConfig, validateToolsetConfig } from '../../src/config/schemas'
 
 describe('Config Validation', () => {
   describe('AppConfig validation', () => {
@@ -42,9 +39,7 @@ describe('Config Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(
-          result.error.issues.some(issue => issue.code === 'unrecognized_keys'),
-        ).toBe(true)
+        expect(result.error.issues.some((issue) => issue.code === 'unrecognized_keys')).toBe(true)
       }
     })
 
@@ -91,9 +86,7 @@ describe('Config Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(
-          result.error.issues.some(issue => issue.path[0] === 'toolsets'),
-        ).toBe(true)
+        expect(result.error.issues.some((issue) => issue.path[0] === 'toolsets')).toBe(true)
       }
     })
 
@@ -205,9 +198,7 @@ describe('Config Validation', () => {
 
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(
-          result.error.issues.some(issue => issue.code === 'unrecognized_keys'),
-        ).toBe(true)
+        expect(result.error.issues.some((issue) => issue.code === 'unrecognized_keys')).toBe(true)
       }
     })
 

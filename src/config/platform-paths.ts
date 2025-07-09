@@ -7,32 +7,41 @@ import * as path from 'path'
 export function getPlatformPaths(provider: string): string[] {
   const platform = process.platform
   const homeDir = os.homedir()
-  
+
   const paths: string[] = []
-  
+
   switch (platform) {
     case 'win32':
       // Windows paths
       paths.push(
         path.join(process.env.PROGRAMFILES || 'C:\\Program Files', provider, `${provider}.exe`),
-        path.join(process.env.PROGRAMFILES || 'C:\\Program Files', provider, 'bin', `${provider}.exe`),
-        path.join(process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)', provider, `${provider}.exe`),
+        path.join(
+          process.env.PROGRAMFILES || 'C:\\Program Files',
+          provider,
+          'bin',
+          `${provider}.exe`,
+        ),
+        path.join(
+          process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)',
+          provider,
+          `${provider}.exe`,
+        ),
         path.join(homeDir, 'AppData', 'Local', provider, `${provider}.exe`),
         path.join(homeDir, 'AppData', 'Local', provider, 'bin', `${provider}.exe`),
         path.join(homeDir, `.${provider}`, 'bin', `${provider}.exe`),
         path.join('C:\\tools', provider, `${provider}.exe`), // Chocolatey default
-        path.join(process.env.LOCALAPPDATA || '', provider, `${provider}.exe`)
+        path.join(process.env.LOCALAPPDATA || '', provider, `${provider}.exe`),
       )
-      
+
       // Add to PATH locations
       if (process.env.PATH) {
         const pathDirs = process.env.PATH.split(path.delimiter)
-        pathDirs.forEach(dir => {
+        pathDirs.forEach((dir) => {
           paths.push(path.join(dir, `${provider}.exe`))
         })
       }
       break
-      
+
     case 'darwin':
       // macOS paths
       paths.push(
@@ -41,10 +50,10 @@ export function getPlatformPaths(provider: string): string[] {
         path.join(homeDir, `.${provider}`, 'bin', provider),
         path.join(homeDir, '.local', 'bin', provider),
         `/Applications/${provider}.app/Contents/MacOS/${provider}`,
-        `/Applications/${provider}.app/Contents/Resources/${provider}`
+        `/Applications/${provider}.app/Contents/Resources/${provider}`,
       )
       break
-      
+
     case 'linux':
       // Linux paths
       paths.push(
@@ -55,19 +64,19 @@ export function getPlatformPaths(provider: string): string[] {
         path.join(homeDir, '.local', 'bin', provider),
         path.join(homeDir, 'bin', provider),
         `/snap/bin/${provider}`, // Snap packages
-        `/var/lib/flatpak/exports/bin/${provider}` // Flatpak
+        `/var/lib/flatpak/exports/bin/${provider}`, // Flatpak
       )
       break
   }
-  
+
   // Add Python/pip paths for tools like Aider
   if (provider === 'aider') {
     const pythonPaths = getPythonPaths()
-    pythonPaths.forEach(pyPath => {
+    pythonPaths.forEach((pyPath) => {
       paths.push(path.join(pyPath, provider + (platform === 'win32' ? '.exe' : '')))
     })
   }
-  
+
   return paths
 }
 
@@ -78,14 +87,14 @@ function getPythonPaths(): string[] {
   const platform = process.platform
   const homeDir = os.homedir()
   const paths: string[] = []
-  
+
   if (platform === 'win32') {
     // Windows Python paths
     paths.push(
       path.join(homeDir, 'AppData', 'Local', 'Programs', 'Python', 'Python*', 'Scripts'),
       path.join(homeDir, 'AppData', 'Roaming', 'Python', 'Python*', 'Scripts'),
       path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Python*', 'Scripts'),
-      'C:\\Python*\\Scripts'
+      'C:\\Python*\\Scripts',
     )
   } else {
     // Unix-like Python paths
@@ -94,10 +103,10 @@ function getPythonPaths(): string[] {
       path.join(homeDir, '.pyenv', 'shims'),
       '/usr/local/bin',
       path.join(homeDir, 'anaconda3', 'bin'),
-      path.join(homeDir, 'miniconda3', 'bin')
+      path.join(homeDir, 'miniconda3', 'bin'),
     )
   }
-  
+
   return paths
 }
 

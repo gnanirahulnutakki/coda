@@ -21,9 +21,7 @@ export function validatePattern(pattern: unknown): PatternValidationResult {
     if (!result.success) {
       return {
         valid: false,
-        errors: result.error.errors.map(
-          err => `${err.path.join('.')}: ${err.message}`,
-        ),
+        errors: result.error.errors.map((err) => `${err.path.join('.')}: ${err.message}`),
       }
     }
 
@@ -80,10 +78,7 @@ export function validatePatterns(patterns: unknown[]): {
 /**
  * Strict validation that throws on any errors
  */
-export function validatePatternStrict(
-  pattern: unknown,
-  patternId?: string,
-): PatternConfig {
+export function validatePatternStrict(pattern: unknown, patternId?: string): PatternConfig {
   const result = validatePattern(pattern)
 
   if (!result.valid || !result.pattern) {
@@ -120,9 +115,7 @@ export function validateMcpConfig(config: unknown): McpConfig {
   const result = mcpConfigSchema.safeParse(config)
 
   if (!result.success) {
-    throw new Error(
-      `Invalid MCP configuration: ${formatZodError(result.error)}`,
-    )
+    throw new Error(`Invalid MCP configuration: ${formatZodError(result.error)}`)
   }
 
   return result.data

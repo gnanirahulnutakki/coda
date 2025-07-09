@@ -19,30 +19,30 @@ export class ProviderDetector {
       // Homebrew installations
       '/opt/homebrew/bin/claude',
       '/usr/local/bin/claude',
-      
+
       // npm global installations
       path.join(os.homedir(), '.npm', 'bin', 'claude'),
       '/usr/local/lib/node_modules/@anthropic-ai/claude-code/bin/claude',
-      
+
       // Local installations
       path.join(os.homedir(), '.claude', 'local', 'claude'),
       path.join(os.homedir(), '.claude', 'bin', 'claude'),
-      
+
       // Windows paths
       path.join(process.env.APPDATA || '', 'npm', 'claude.cmd'),
       path.join(process.env.LOCALAPPDATA || '', 'Programs', 'claude', 'claude.exe'),
-      
+
       // macOS Applications
       '/Applications/Claude.app/Contents/MacOS/claude',
       path.join(os.homedir(), 'Applications', 'Claude.app', 'Contents', 'MacOS', 'claude'),
     ],
-    'gemini': [
+    gemini: [
       // Common installation paths for Gemini
       '/opt/homebrew/bin/gemini',
       '/usr/local/bin/gemini',
       path.join(os.homedir(), '.gemini', 'bin', 'gemini'),
       path.join(os.homedir(), '.local', 'bin', 'gemini'),
-    ]
+    ],
   }
 
   /**
@@ -50,7 +50,7 @@ export class ProviderDetector {
    */
   static async findProviderLocations(
     provider: 'claude-code' | 'gemini',
-    customPath?: string
+    customPath?: string,
   ): Promise<ProviderLocation[]> {
     const locations: ProviderLocation[] = []
     const providerName = provider === 'claude-code' ? 'claude' : provider
@@ -61,7 +61,7 @@ export class ProviderDetector {
       locations.push({
         path: customPath,
         source: 'custom',
-        verified
+        verified,
       })
       if (verified) return locations // If custom path works, use it
     }
@@ -74,7 +74,7 @@ export class ProviderDetector {
       locations.push({
         path: envPath,
         source: 'env',
-        verified
+        verified,
       })
       if (verified) return locations
     }
@@ -91,7 +91,7 @@ export class ProviderDetector {
         locations.push({
           path: whichResult,
           source: 'path',
-          verified
+          verified,
         })
         if (verified) return locations
       }
@@ -109,11 +109,11 @@ export class ProviderDetector {
 
         const paths = whereisResult.split(':')[1]?.trim().split(' ') || []
         for (const p of paths) {
-          if (p && p !== providerName && await this.verifyExecutable(p)) {
+          if (p && p !== providerName && (await this.verifyExecutable(p))) {
             locations.push({
               path: p,
               source: 'path',
-              verified: true
+              verified: true,
             })
             return locations
           }
@@ -125,17 +125,14 @@ export class ProviderDetector {
 
     // 5. Check Homebrew specifically
     if (process.platform === 'darwin') {
-      const homebrewPaths = [
-        `/opt/homebrew/bin/${providerName}`,
-        `/usr/local/bin/${providerName}`
-      ]
-      
+      const homebrewPaths = [`/opt/homebrew/bin/${providerName}`, `/usr/local/bin/${providerName}`]
+
       for (const brewPath of homebrewPaths) {
         if (await this.verifyExecutable(brewPath)) {
           locations.push({
             path: brewPath,
             source: 'homebrew',
-            verified: true
+            verified: true,
           })
           return locations
         }
@@ -159,7 +156,7 @@ export class ProviderDetector {
           locations.push({
             path: npmPath,
             source: 'npm-global',
-            verified: true
+            verified: true,
           })
           return locations
         }
@@ -175,7 +172,7 @@ export class ProviderDetector {
         locations.push({
           path: commonPath,
           source: 'default',
-          verified: true
+          verified: true,
         })
         return locations
       }
@@ -183,11 +180,12 @@ export class ProviderDetector {
 
     // 8. If nothing found, add unverified default location
     locations.push({
-      path: provider === 'claude-code' 
-        ? path.join(os.homedir(), '.claude', 'local', 'claude')
-        : path.join(os.homedir(), '.gemini', 'bin', 'gemini'),
+      path:
+        provider === 'claude-code'
+          ? path.join(os.homedir(), '.claude', 'local', 'claude')
+          : path.join(os.homedir(), '.gemini', 'bin', 'gemini'),
       source: 'default',
-      verified: false
+      verified: false,
     })
 
     return locations
@@ -199,19 +197,19 @@ export class ProviderDetector {
   static async getBestProviderPath(
     provider: 'claude-code' | 'gemini',
     customPath?: string,
-    debug = false
+    debug = false,
   ): Promise<string> {
     const locations = await this.findProviderLocations(provider, customPath)
-    
+
     if (debug) {
       log(`※ Searching for ${provider} provider...`)
-      locations.forEach(loc => {
+      locations.forEach((loc) => {
         log(`  ${loc.verified ? '✓' : '✗'} ${loc.source}: ${loc.path}`)
       })
     }
 
     // Find first verified location
-    const verified = locations.find(loc => loc.verified)
+    const verified = locations.find((loc) => loc.verified)
     if (verified) {
       if (debug) {
         log(`※ Found ${provider} at: ${verified.path} (source: ${verified.source})`)
@@ -222,16 +220,16 @@ export class ProviderDetector {
     // If no verified location, throw helpful error
     const providerName = provider === 'claude-code' ? 'Claude Code' : 'Gemini'
     const envVarName = provider === 'claude-code' ? 'CLAUDE_APP_PATH' : 'GEMINI_APP_PATH'
-    
+
     throw new Error(
       `${providerName} CLI not found. Please ensure ${providerName} is installed.\n\n` +
-      `Searched locations:\n` +
-      locations.map(loc => `  - ${loc.source}: ${loc.path}`).join('\n') +
-      `\n\nTo fix this:\n` +
-      `1. Install ${providerName} CLI if not already installed\n` +
-      `2. Add it to your PATH, or\n` +
-      `3. Set ${envVarName} environment variable to the full path, or\n` +
-      `4. Specify the path in your config file with 'provider_path'`
+        `Searched locations:\n` +
+        locations.map((loc) => `  - ${loc.source}: ${loc.path}`).join('\n') +
+        `\n\nTo fix this:\n` +
+        `1. Install ${providerName} CLI if not already installed\n` +
+        `2. Add it to your PATH, or\n` +
+        `3. Set ${envVarName} environment variable to the full path, or\n` +
+        `4. Specify the path in your config file with 'provider_path'`,
     )
   }
 

@@ -1,8 +1,4 @@
-import {
-  type PatternConfig,
-  type AppConfig,
-  validatePatternConfigs,
-} from '../config/schemas'
+import { type PatternConfig, type AppConfig, validatePatternConfigs } from '../config/schemas'
 import { execSync } from 'child_process'
 import { stripBoxChars } from '../utils/strip-box-chars'
 import dedent from 'dedent'
@@ -17,21 +13,19 @@ type ExtractedData = {
   [key: string]: any
 }
 
-function extractCommandAndReasonFromPromptBody(
-  data: ExtractedData,
-): ExtractedData {
+function extractCommandAndReasonFromPromptBody(data: ExtractedData): ExtractedData {
   if (data.body) {
     const stripped = stripBoxChars(data.body)
     const lines = stripped
       .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
 
     const contentLines = lines
-      .map(line => {
+      .map((line) => {
         return line.replace(/[│║]/g, '').trim()
       })
-      .filter(line => line.length > 0)
+      .filter((line) => line.length > 0)
 
     if (contentLines.length >= 2) {
       let commandLines: string[] = []
@@ -204,9 +198,7 @@ export function createAppReadyPattern(
     if (config.mode === 'plan') {
       if (positionalArgContentPath && fs.existsSync(positionalArgContentPath)) {
         try {
-          const content = fs
-            .readFileSync(positionalArgContentPath, 'utf8')
-            .trimEnd()
+          const content = fs.readFileSync(positionalArgContentPath, 'utf8').trimEnd()
           return content
             ? [content, 400, '\x1b[Z', 400, '\x1b[Z', 500, '\r']
             : ['\x1b[Z', 400, '\x1b[Z']
@@ -224,9 +216,7 @@ export function createAppReadyPattern(
     }
 
     try {
-      const content = fs
-        .readFileSync(positionalArgContentPath, 'utf8')
-        .trimEnd()
+      const content = fs.readFileSync(positionalArgContentPath, 'utf8').trimEnd()
       return content ? [content, 500, '\r'] : undefined
     } catch (error) {
       errorLogger.debug('Failed to read positional arg content file')
@@ -242,9 +232,7 @@ export function createAppReadyPattern(
   }
 }
 
-export function createTrustPromptPattern(
-  getAppConfig: () => AppConfig | undefined,
-): PatternConfig {
+export function createTrustPromptPattern(getAppConfig: () => AppConfig | undefined): PatternConfig {
   const trustPromptIfPwdParentInRoots = (): (string | number)[] | undefined => {
     try {
       const appConfig = getAppConfig()

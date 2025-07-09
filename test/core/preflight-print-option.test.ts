@@ -36,15 +36,7 @@ describe('Preflight - Print Option', () => {
   })
 
   it('should detect --print among other options', async () => {
-    const argv = [
-      'node',
-      'script.js',
-      '--verbose',
-      '--print',
-      'text',
-      '--model',
-      'claude-3',
-    ]
+    const argv = ['node', 'script.js', '--verbose', '--print', 'text', '--model', 'claude-3']
     const result = await runPreflight(argv)
 
     expect(result.hasPrintOption).toBe(true)

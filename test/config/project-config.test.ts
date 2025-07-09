@@ -25,7 +25,7 @@ vi.mock('yaml', () => ({
         }
       } else if (trimmed.includes(':')) {
         // Key-value pair
-        const [key, value] = trimmed.split(':').map(s => s.trim())
+        const [key, value] = trimmed.split(':').map((s) => s.trim())
         if (!value) {
           // Start of array
           currentKey = key
@@ -74,11 +74,11 @@ describe('Project Configuration', () => {
   })
 
   it('should load project config when present', async () => {
-    vi.mocked(fs.existsSync).mockImplementation(path => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
       return path === '/test/project/.coda/config.yaml'
     })
 
-    vi.mocked(fs.readFileSync).mockImplementation(path => {
+    vi.mocked(fs.readFileSync).mockImplementation((path) => {
       if (path === '/test/project/.coda/config.yaml') {
         return `
 show_notifications: false
@@ -96,14 +96,11 @@ toolsets: ["test-toolset"]
   })
 
   it('should prioritize project config over global config', async () => {
-    vi.mocked(fs.existsSync).mockImplementation(path => {
-      return (
-        path === '/home/test/.coda/config.yaml' ||
-        path === '/test/project/.coda/config.yaml'
-      )
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
+      return path === '/home/test/.coda/config.yaml' || path === '/test/project/.coda/config.yaml'
     })
 
-    vi.mocked(fs.readFileSync).mockImplementation(path => {
+    vi.mocked(fs.readFileSync).mockImplementation((path) => {
       if (path === '/home/test/.coda/config.yaml') {
         return `
 show_notifications: true
@@ -132,11 +129,11 @@ yolo: true
   })
 
   it('should prioritize CLI overrides over project config', async () => {
-    vi.mocked(fs.existsSync).mockImplementation(path => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
       return path === '/test/project/.coda/config.yaml'
     })
 
-    vi.mocked(fs.readFileSync).mockImplementation(path => {
+    vi.mocked(fs.readFileSync).mockImplementation((path) => {
       if (path === '/test/project/.coda/config.yaml') {
         return `
 show_notifications: false
@@ -162,7 +159,7 @@ yolo: true
 
   it('should handle toolsets with complete replacement at each level', async () => {
     // Mock toolset files to exist as well
-    vi.mocked(fs.existsSync).mockImplementation(path => {
+    vi.mocked(fs.existsSync).mockImplementation((path) => {
       return (
         path === '/home/test/.coda/config.yaml' ||
         path === '/test/project/.coda/config.yaml' ||
@@ -170,7 +167,7 @@ yolo: true
       )
     })
 
-    vi.mocked(fs.readFileSync).mockImplementation(path => {
+    vi.mocked(fs.readFileSync).mockImplementation((path) => {
       if (path === '/home/test/.coda/config.yaml') {
         return `
 toolsets:

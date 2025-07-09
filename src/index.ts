@@ -18,10 +18,7 @@ import { runPreflight, log, warn } from './core/preflight.js'
 import { CLAUDE_PATHS, AI_PROVIDER_PATHS } from './config/paths.js'
 import { errorLogger } from './utils/error-logger.js'
 import { loadConfigFile } from './config/loader.js'
-import {
-  showNotification,
-  showPatternNotification,
-} from './utils/notifications.js'
+import { showNotification, showPatternNotification } from './utils/notifications.js'
 import { TerminalManager } from './terminal/manager'
 import {
   ensureBackupDirectory,
@@ -74,9 +71,7 @@ async function initializePatterns(): Promise<boolean> {
       )
     }
   }
-  patternMatcher = new PatternMatcher(
-    appConfig?.log_all_pattern_matches || false,
-  )
+  patternMatcher = new PatternMatcher(appConfig?.log_all_pattern_matches || false)
   if (!responseQueue) {
     responseQueue = new ResponseQueue()
   }
@@ -85,7 +80,7 @@ async function initializePatterns(): Promise<boolean> {
 
   const confirmationTriggers = new Set<string>()
 
-  patternsToUse.forEach(pattern => {
+  patternsToUse.forEach((pattern) => {
     if (pattern.triggerText) {
       confirmationTriggers.add(pattern.triggerText)
     }
@@ -107,12 +102,12 @@ async function initializePatterns(): Promise<boolean> {
 function cleanup() {
   // Remove event listeners
   process.stdin.removeListener('data', handleStdinData)
-  
+
   const resizeHandler = (global as any).__resizeHandler
   if (resizeHandler) {
     process.stdout.removeListener('resize', resizeHandler)
   }
-  
+
   if (terminalManager) {
     terminalManager.cleanup()
   }
@@ -161,7 +156,7 @@ process.on('SIGHUP', () => {
 
 process.on('exit', cleanup)
 
-process.on('uncaughtException', error => {
+process.on('uncaughtException', (error) => {
   cleanup()
   process.exit(1)
 })
@@ -182,9 +177,7 @@ function handlePatternMatches(data: string, filterType?: 'confirmation'): void {
     if (
       match.patternId === 'allow-trusted-root' &&
       match.response &&
-      (Array.isArray(match.response)
-        ? match.response.length > 0
-        : match.response !== '')
+      (Array.isArray(match.response) ? match.response.length > 0 : match.response !== '')
     ) {
       responseQueue.enqueue(match.response)
       actionResponse = 'Accepted'
@@ -233,12 +226,9 @@ function handlePatternMatches(data: string, filterType?: 'confirmation'): void {
         // Skip this check in yolo mode
       }
 
-      showPatternNotification(
-        match,
-        appConfig,
-        actionResponse,
-        actionResponseIcon,
-      ).catch(err => {})
+      showPatternNotification(match, appConfig, actionResponse, actionResponseIcon).catch(
+        (err) => {},
+      )
     }
   }
 }
@@ -249,9 +239,7 @@ function handleTerminalData(data: string): void {
 
     terminalManager.updateTerminalBuffer(data)
 
-    const matchedTrigger = confirmationPatternTriggers.find(trigger =>
-      data.includes(trigger),
-    )
+    const matchedTrigger = confirmationPatternTriggers.find((trigger) => data.includes(trigger))
     if (matchedTrigger) {
       const state = terminalManager.getTerminalState()
       if (state.pendingPromptCheck) {
@@ -394,7 +382,7 @@ export async function main() {
     const program = createClaudeComposerCommand()
 
     program.outputHelp()
-    
+
     const tempConfig = await loadConfigFile()
     const provider = tempConfig.provider || 'claude-code'
     const providerPath = tempConfig.provider_path
@@ -408,7 +396,7 @@ export async function main() {
       env: process.env,
     })
 
-    helpProcess.on('exit', code => {
+    helpProcess.on('exit', (code) => {
       process.exit(code || 0)
     })
 
@@ -437,7 +425,7 @@ export async function main() {
       env: process.env,
     })
 
-    versionProcess.on('exit', code => {
+    versionProcess.on('exit', (code) => {
       process.exit(code || 0)
     })
 
@@ -446,42 +434,18 @@ export async function main() {
 
   // Check for piped input and exit immediately (but only for main AI provider flow)
   if (!process.stdin.isTTY) {
-    console.error(
-      '\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║               PIPED INPUT NOT SUPPORTED              ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m',
-    )
-    console.error(
-      "\x1b[31m║ Coda doesn't support piped input.                    ║\x1b[0m",
-    )
-    console.error(
-      '\x1b[31m║                                                      ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║ Instead, pass your content as a positional argument: ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║                                                      ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║   claude "your content here"                         ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║                                                      ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║ Example:                                             ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m║   claude "explain this error: ..."                   ║\x1b[0m',
-    )
-    console.error(
-      '\x1b[31m╚══════════════════════════════════════════════════════╝\x1b[0m',
-    )
+    console.error('\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m')
+    console.error('\x1b[31m║               PIPED INPUT NOT SUPPORTED              ║\x1b[0m')
+    console.error('\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m')
+    console.error("\x1b[31m║ Coda doesn't support piped input.                    ║\x1b[0m")
+    console.error('\x1b[31m║                                                      ║\x1b[0m')
+    console.error('\x1b[31m║ Instead, pass your content as a positional argument: ║\x1b[0m')
+    console.error('\x1b[31m║                                                      ║\x1b[0m')
+    console.error('\x1b[31m║   claude "your content here"                         ║\x1b[0m')
+    console.error('\x1b[31m║                                                      ║\x1b[0m')
+    console.error('\x1b[31m║ Example:                                             ║\x1b[0m')
+    console.error('\x1b[31m║   claude "explain this error: ..."                   ║\x1b[0m')
+    console.error('\x1b[31m╚══════════════════════════════════════════════════════╝\x1b[0m')
     process.exit(1)
   }
 
@@ -506,7 +470,7 @@ export async function main() {
         env: process.env,
       })
 
-      printProcess.on('exit', code => {
+      printProcess.on('exit', (code) => {
         setImmediate(() => {
           process.exit(code || 0)
         })
@@ -526,7 +490,7 @@ export async function main() {
         env: process.env,
       })
 
-      subcommandProcess.on('exit', code => {
+      subcommandProcess.on('exit', (code) => {
         setImmediate(() => {
           process.exit(code || 0)
         })
@@ -591,7 +555,7 @@ export async function main() {
   // Display welcome banner
   const { displayWelcomeBanner } = await import('./utils/banner.js')
   displayWelcomeBanner(provider)
-  
+
   const providerName = provider === 'gemini' ? 'Gemini' : 'Claude'
   log(`※ Ready, Passing off control to ${providerName} CLI`)
 
@@ -602,19 +566,16 @@ export async function main() {
     // Save the positional argument to a file
     const tmpDir = os.tmpdir()
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    positionalArgContentPath = path.join(
-      tmpDir,
-      `claude-composer-positional-${timestamp}.txt`,
-    )
+    positionalArgContentPath = path.join(tmpDir, `claude-composer-positional-${timestamp}.txt`)
 
     // Enhance the prompt with context memory
     let enhancedPrompt = childArgs[0]
-    
+
     if (contextMemory) {
       const contextSummary = contextMemory.getContextSummary()
       if (contextSummary.length > 0) {
         enhancedPrompt = `${contextSummary}\n\n---\n\nUser Request: ${childArgs[0]}`
-        
+
         // Record this interaction in context
         await contextMemory.addEntry({
           type: 'command',
@@ -622,8 +583,8 @@ export async function main() {
           metadata: {
             provider,
             cwd: process.cwd(),
-            project: path.basename(process.cwd())
-          }
+            project: path.basename(process.cwd()),
+          },
         })
       }
     }
@@ -677,13 +638,13 @@ export async function main() {
     terminalManager.resize(newCols, newRows)
   }
   process.stdout.on('resize', resizeHandler)
-  
+
   // Store handler references for cleanup
   ;(global as any).__stdinHandler = handleStdinData
   ;(global as any).__resizeHandler = resizeHandler
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('Failed to start CLI:', error)
   process.exit(1)
 })

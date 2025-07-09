@@ -30,7 +30,7 @@ export class DocumentationLoader {
    */
   async loadDocumentation(): Promise<void> {
     log('※ Loading documentation...')
-    
+
     for (const docPath of this.docPaths) {
       if (docPath.startsWith('http://') || docPath.startsWith('https://')) {
         // TODO: Implement web documentation fetching
@@ -39,13 +39,13 @@ export class DocumentationLoader {
       }
 
       const resolvedPath = path.resolve(docPath)
-      
+
       if (!fs.existsSync(resolvedPath)) {
         continue
       }
 
       const stats = fs.statSync(resolvedPath)
-      
+
       if (stats.isFile()) {
         await this.loadFile(resolvedPath)
       } else if (stats.isDirectory()) {
@@ -62,7 +62,7 @@ export class DocumentationLoader {
   private async loadFile(filePath: string): Promise<void> {
     try {
       const stats = fs.statSync(filePath)
-      
+
       if (stats.size > this.maxSizeBytes) {
         warn(`※ Skipping large file: ${filePath} (${(stats.size / 1024 / 1024).toFixed(1)}MB)`)
         return
@@ -70,7 +70,7 @@ export class DocumentationLoader {
 
       const content = fs.readFileSync(filePath, 'utf-8')
       const relativePath = path.relative(process.cwd(), filePath)
-      
+
       this.indexedDocs.set(relativePath, content)
     } catch (error) {
       warn(`※ Failed to load documentation file: ${filePath}`)
@@ -82,10 +82,10 @@ export class DocumentationLoader {
    */
   private async loadDirectory(dirPath: string): Promise<void> {
     for (const pattern of this.filePatterns) {
-      const files = glob.sync(pattern, { 
+      const files = glob.sync(pattern, {
         cwd: dirPath,
         absolute: true,
-        nodir: true
+        nodir: true,
       })
 
       for (const file of files) {
@@ -97,10 +97,13 @@ export class DocumentationLoader {
   /**
    * Search documentation for relevant content
    */
-  searchDocumentation(query: string, maxResults: number = 5): Array<{path: string, snippet: string, score: number}> {
-    const results: Array<{path: string, snippet: string, score: number}> = []
+  searchDocumentation(
+    query: string,
+    maxResults: number = 5,
+  ): Array<{ path: string; snippet: string; score: number }> {
+    const results: Array<{ path: string; snippet: string; score: number }> = []
     const queryLower = query.toLowerCase()
-    const queryWords = queryLower.split(/\s+/).filter(w => w.length > 2)
+    const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 2)
 
     for (const [docPath, content] of this.indexedDocs) {
       const contentLower = content.toLowerCase()
@@ -114,26 +117,24 @@ export class DocumentationLoader {
 
       if (score > 0) {
         // Extract relevant snippet around first match
-        const firstMatch = queryWords.find(w => contentLower.includes(w))
+        const firstMatch = queryWords.find((w) => contentLower.includes(w))
         if (firstMatch) {
           const index = contentLower.indexOf(firstMatch)
           const start = Math.max(0, index - 100)
           const end = Math.min(content.length, index + 200)
           const snippet = content.substring(start, end).trim()
-          
+
           results.push({
             path: docPath,
             snippet: snippet.length > 200 ? snippet.substring(0, 200) + '...' : snippet,
-            score
+            score,
           })
         }
       }
     }
 
     // Sort by score and return top results
-    return results
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxResults)
+    return results.sort((a, b) => b.score - a.score).slice(0, maxResults)
   }
 
   /**
@@ -142,25 +143,25 @@ export class DocumentationLoader {
   getDocumentationContext(maxTokens: number = 4000): string {
     let context = '# Project Documentation\n\n'
     let currentTokens = 0
-    
+
     // Rough token estimation (1 token ≈ 4 characters)
     const estimateTokens = (text: string) => Math.ceil(text.length / 4)
 
     for (const [docPath, content] of this.indexedDocs) {
       const header = `\n## ${docPath}\n\n`
       const tokens = estimateTokens(header + content)
-      
+
       if (currentTokens + tokens > maxTokens) {
         // Try to fit a snippet
         const remainingTokens = maxTokens - currentTokens
         const snippetLength = remainingTokens * 4
-        
+
         if (snippetLength > 200) {
           context += header + content.substring(0, snippetLength) + '...\n'
         }
         break
       }
-      
+
       context += header + content + '\n'
       currentTokens += tokens
     }

@@ -5,6 +5,7 @@ Based on extensive research of real engineer frustrations, here's how we're maki
 ## 1. 🛠️ Similar Tool Options We Can Integrate
 
 ### AI Providers We Should Add:
+
 - **Cursor** - The most popular AI code editor (VSCode fork)
 - **Aider** - Git-aware AI pair programmer with excellent diff handling
 - **Continue** - Open-source AI assistant with strong community
@@ -13,6 +14,7 @@ Based on extensive research of real engineer frustrations, here's how we're maki
 - **Codeium** - Fast, free alternative
 
 ### Why Multiple Providers Matter:
+
 - **Cost optimization**: Switch between free/paid based on task complexity
 - **Specialized strengths**: Cursor for refactoring, Aider for git operations
 - **Redundancy**: When one service is down, keep coding
@@ -21,29 +23,32 @@ Based on extensive research of real engineer frustrations, here's how we're maki
 ## 2. 📚 Default Documentation Path Implementation
 
 ### Configuration:
+
 ```yaml
 # ~/.coda/config.yaml
 documentation:
   paths:
-    - ./docs           # Project docs
-    - ./README.md      # Main readme
-    - ./wiki          # Team wiki
-    - https://docs.mycompany.com  # External docs
+    - ./docs # Project docs
+    - ./README.md # Main readme
+    - ./wiki # Team wiki
+    - https://docs.mycompany.com # External docs
   file_patterns:
-    - "**/*.md"
-    - "**/*.txt"
-    - "API.yml"
-  auto_include: true   # Auto-inject relevant docs into AI context
-  max_size_mb: 10     # Don't load huge files
+    - '**/*.md'
+    - '**/*.txt'
+    - 'API.yml'
+  auto_include: true # Auto-inject relevant docs into AI context
+  max_size_mb: 10 # Don't load huge files
 ```
 
 ### Benefits:
+
 - **AI knows your standards**: No more explaining coding conventions
 - **API awareness**: AI can reference your actual API docs
 - **Team knowledge**: Shared documentation = consistent AI suggestions
 - **Reduced hallucinations**: Real docs prevent made-up APIs
 
 ### Usage:
+
 ```bash
 # AI automatically includes relevant docs
 coda "implement user authentication"
@@ -61,6 +66,7 @@ coda --with-docs ./docs/security.md "add password reset"
 ### Based on Research: Top 10 Features Engineers Actually Need
 
 #### 1. **Persistent Memory** (65% want this)
+
 ```bash
 # Monday: Explain complex refactor plan
 coda "let's refactor the auth system to use OAuth"
@@ -71,6 +77,7 @@ coda "continue the auth refactor"
 ```
 
 #### 2. **Checkpoint & Rollback** (Only Replit has this!)
+
 ```bash
 # Before risky changes
 coda checkpoint "before major refactor"
@@ -84,6 +91,7 @@ coda rollback
 ```
 
 #### 3. **Cost Tracking** ($200/mo anxiety)
+
 ```bash
 coda stats --cost
 ┌─────────────────────────────────┐
@@ -95,6 +103,7 @@ coda stats --cost
 ```
 
 #### 4. **Security Scanning** (86% worry about this)
+
 ```bash
 coda --secure "add payment processing"
 # 🔒 Security scan:
@@ -105,6 +114,7 @@ coda --secure "add payment processing"
 ```
 
 #### 5. **Diff Preview** (See changes before disaster)
+
 ```bash
 coda --preview "optimize database queries"
 # Shows exact changes:
@@ -114,6 +124,7 @@ coda --preview "optimize database queries"
 ```
 
 #### 6. **Multi-Repo Context** (Microservices reality)
+
 ```bash
 # Link related repos
 coda link ../frontend ../backend ../shared
@@ -124,6 +135,7 @@ coda "update user model across all services"
 ```
 
 #### 7. **Offline Mode** (Network issues happen)
+
 ```bash
 coda --offline "explain this error"
 # Uses cached knowledge and local models
@@ -131,6 +143,7 @@ coda --offline "explain this error"
 ```
 
 #### 8. **Test Generation** (Stop skipping tests)
+
 ```bash
 coda test ./src/auth --coverage
 # ✅ Generated 23 tests
@@ -139,6 +152,7 @@ coda test ./src/auth --coverage
 ```
 
 #### 9. **Workflow Templates** (Consistent quality)
+
 ```bash
 coda workflow "feature"
 # 1. Create feature branch ✓
@@ -149,6 +163,7 @@ coda workflow "feature"
 ```
 
 #### 10. **Smart Context Injection** (Stop re-explaining)
+
 ```bash
 # AI automatically includes:
 # - Recent changes (git log)
@@ -161,19 +176,22 @@ coda workflow "feature"
 ## 🚀 Why These Features Matter
 
 ### Current Pain Points:
+
 - **Claude Code**: Expensive, but polished
 - **Gemini**: Free, but unstable (timeout loops, 50% tokens on lint)
 - **Both**: Lose context, no rollback, security concerns
 
 ### What Coda Fixes:
+
 1. **Memory**: Never explain your project twice
-2. **Safety**: Undo anything instantly  
+2. **Safety**: Undo anything instantly
 3. **Cost**: Know exactly what you're spending
 4. **Quality**: Security scanning + test generation
 5. **Speed**: Offline mode + cached responses
 6. **Trust**: Preview changes before applying
 
 ### Developer Impact:
+
 > "65% of developers say missing context is their #1 AI frustration"
 
 > "86% worry about security of AI-generated code"
@@ -185,6 +203,7 @@ coda workflow "feature"
 ## 📊 Success Metrics
 
 When we've succeeded, developers will:
+
 - **Re-explain context**: 90% less often
 - **Rollback disasters**: Within 5 seconds
 - **Track costs**: In real-time
@@ -205,9 +224,10 @@ coda "implement OAuth with our security standards"
 ```
 
 No more:
+
 - Lost context between sessions
 - Surprise bills
-- Security vulnerabilities  
+- Security vulnerabilities
 - Manual rollbacks
 - Re-explaining everything
 

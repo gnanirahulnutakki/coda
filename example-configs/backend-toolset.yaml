@@ -8,7 +8,7 @@ allowed:
   - execute_bash
   - list_files
   - search_files
-  
+
 # Tools the AI is NOT allowed to use
 disallowed:
   - delete_file
@@ -19,13 +19,13 @@ mcp:
   postgres:
     type: stdio
     command: npx
-    args: ["-y", "@modelcontextprotocol/server-postgres"]
+    args: ['-y', '@modelcontextprotocol/server-postgres']
     env:
-      DATABASE_URL: "postgresql://localhost/mydb"
-      
+      DATABASE_URL: 'postgresql://localhost/mydb'
+
   redis:
     type: stdio
     command: npx
-    args: ["-y", "@modelcontextprotocol/server-redis"]
+    args: ['-y', '@modelcontextprotocol/server-redis']
     env:
-      REDIS_URL: "redis://localhost:6379"
+      REDIS_URL: 'redis://localhost:6379'

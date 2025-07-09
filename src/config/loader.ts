@@ -48,7 +48,7 @@ function handleValidationError<Input, Output>(
   if (!result.success) {
     console.error(`\nError: Invalid ${errorType} in ${filePath}`)
     console.error('\nValidation errors:')
-    result.error.issues.forEach(issue => {
+    result.error.issues.forEach((issue) => {
       const fieldPath = issue.path.length > 0 ? issue.path.join('.') : 'root'
       console.error(`  • ${fieldPath}: ${issue.message}`)
     })
@@ -68,9 +68,7 @@ export function ensureConfigDirectory(): void {
   }
 }
 
-export async function loadConfigFile(
-  configPath?: string,
-): Promise<Partial<AppConfig>> {
+export async function loadConfigFile(configPath?: string): Promise<Partial<AppConfig>> {
   const finalConfigPath = configPath || CONFIG_PATHS.getConfigFilePath()
 
   if (!fs.existsSync(finalConfigPath)) {
@@ -86,19 +84,14 @@ export async function loadConfigFile(
 
     return result.data
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'configuration validation failed'
-    ) {
+    if (error instanceof Error && error.message === 'configuration validation failed') {
       throw error
     }
     throw new Error(`Error loading configuration file: ${error}`)
   }
 }
 
-export async function loadToolsetFile(
-  toolsetName: string,
-): Promise<ToolsetConfig> {
+export async function loadToolsetFile(toolsetName: string): Promise<ToolsetConfig> {
   let toolsetPath: string
 
   // Check if this is an absolute or relative path
@@ -118,11 +111,7 @@ export async function loadToolsetFile(
     // Look for internal toolsets in the dist/internal-toolsets directory
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = path.dirname(__filename)
-    toolsetPath = path.join(
-      __dirname,
-      'internal-toolsets',
-      `${internalName}.yaml`,
-    )
+    toolsetPath = path.join(__dirname, 'internal-toolsets', `${internalName}.yaml`)
 
     // In development/test, check src directory if dist doesn't exist
     if (!fs.existsSync(toolsetPath)) {
@@ -135,12 +124,7 @@ export async function loadToolsetFile(
   } else if (toolsetName.startsWith('project:')) {
     // Project-level toolset
     const projectName = toolsetName.substring('project:'.length)
-    const basePath = path.join(
-      process.cwd(),
-      '.coda',
-      'toolsets',
-      projectName,
-    )
+    const basePath = path.join(process.cwd(), '.coda', 'toolsets', projectName)
     toolsetPath = resolveYamlPath(basePath)
   } else {
     // Regular user toolset
@@ -162,10 +146,7 @@ export async function loadToolsetFile(
 
     return result.data
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'toolset configuration validation failed'
-    ) {
+    if (error instanceof Error && error.message === 'toolset configuration validation failed') {
       throw error
     }
     throw new Error(`Error loading toolset file: ${error}`)

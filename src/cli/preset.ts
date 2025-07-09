@@ -64,13 +64,15 @@ function formatPreset(preset: any, detailed: boolean = false): void {
   } else {
     const icon = preset.isBuiltIn ? '📦' : '✏️'
     const tags = preset.tags.length > 0 ? ` [${preset.tags.join(', ')}]` : ''
-    console.log(`${icon} ${preset.id.padEnd(20)} ${preset.name.padEnd(25)} ${preset.description}${tags}`)
+    console.log(
+      `${icon} ${preset.id.padEnd(20)} ${preset.name.padEnd(25)} ${preset.description}${tags}`,
+    )
   }
 }
 
 export async function handlePresetCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     printHelp()
     return
@@ -83,29 +85,32 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
       case 'list': {
         const category = args[1]
         const presets = manager.getPresets(category)
-        
+
         if (presets.length === 0) {
           console.log('No presets found.')
           return
         }
-        
+
         console.log('\nAvailable Presets:')
         console.log('─'.repeat(80))
-        
+
         // Group by category
-        const grouped = presets.reduce((acc, preset) => {
-          if (!acc[preset.category]) {
-            acc[preset.category] = []
-          }
-          acc[preset.category].push(preset)
-          return acc
-        }, {} as Record<string, any[]>)
-        
+        const grouped = presets.reduce(
+          (acc, preset) => {
+            if (!acc[preset.category]) {
+              acc[preset.category] = []
+            }
+            acc[preset.category].push(preset)
+            return acc
+          },
+          {} as Record<string, any[]>,
+        )
+
         Object.entries(grouped).forEach(([cat, catPresets]) => {
           console.log(`\n${cat.charAt(0).toUpperCase() + cat.slice(1)}:`)
-          catPresets.forEach(preset => formatPreset(preset, false))
+          catPresets.forEach((preset) => formatPreset(preset, false))
         })
-        
+
         const stats = manager.getStats()
         console.log(`\nTotal: ${stats.totalPresets} presets`)
         if (stats.lastUsed) {
@@ -121,15 +126,15 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset show <id>')
           process.exit(1)
         }
-        
+
         const preset = manager.getPreset(id)
         if (!preset) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         formatPreset(preset, true)
-        
+
         // Show if it's a favorite
         const stats = manager.getStats()
         if (stats.favorites.includes(id)) {
@@ -145,23 +150,23 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset apply <id>')
           process.exit(1)
         }
-        
+
         const preset = manager.getPreset(id)
         if (!preset) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         console.log(`Applying preset: ${preset.name}`)
-        
+
         await manager.applyPreset(id)
-        
+
         console.log('✓ Preset applied successfully')
         console.log('\nApplied configuration:')
         Object.entries(preset.config).forEach(([key, value]) => {
           console.log(`  ${key}: ${JSON.stringify(value)}`)
         })
-        
+
         console.log('\nRestart your session for changes to take effect.')
         break
       }
@@ -173,23 +178,23 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset create <name> [options]')
           process.exit(1)
         }
-        
+
         // Parse options
         let description = `Custom preset created on ${new Date().toLocaleDateString()}`
         let tags: string[] = []
         let author: string | undefined
         let category: any = 'custom'
-        
+
         for (let i = 2; i < args.length; i += 2) {
           const option = args[i]
           const value = args[i + 1]
-          
+
           switch (option) {
             case '--description':
               description = value || description
               break
             case '--tags':
-              tags = value ? value.split(',').map(t => t.trim()) : []
+              tags = value ? value.split(',').map((t) => t.trim()) : []
               break
             case '--author':
               author = value
@@ -201,15 +206,15 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
               break
           }
         }
-        
+
         console.log('Creating preset from current configuration...')
-        
+
         const preset = await manager.createFromCurrent(name, description, {
           category,
           tags,
-          author
+          author,
         })
-        
+
         console.log(`✓ Preset '${preset.id}' created successfully`)
         formatPreset(preset, true)
         break
@@ -222,30 +227,30 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset update <id>')
           process.exit(1)
         }
-        
+
         const existing = manager.getPreset(id)
         if (!existing) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         if (existing.isBuiltIn) {
           console.error('Error: Cannot modify built-in presets')
           console.log('Tip: Use "coda preset duplicate" to create a customizable copy')
           process.exit(1)
         }
-        
+
         // For now, just update from current config
         // In a real implementation, this could open an editor
         console.log('Updating preset from current configuration...')
-        
+
         const { loadConfigFile } = await import('../config/loader.js')
         const currentConfig = await loadConfigFile()
-        
+
         const updated = manager.updatePreset(id, {
-          config: currentConfig
+          config: currentConfig,
         })
-        
+
         console.log(`✓ Preset '${id}' updated successfully`)
         formatPreset(updated, true)
         break
@@ -258,27 +263,27 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset delete <id>')
           process.exit(1)
         }
-        
+
         const preset = manager.getPreset(id)
         if (!preset) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         if (preset.isBuiltIn) {
           console.error('Error: Cannot delete built-in presets')
           process.exit(1)
         }
-        
+
         // Simple confirmation
         console.log(`This will delete preset: ${preset.name}`)
         console.log('Are you sure? Type "yes" to confirm:')
-        
+
         // In a real implementation, we'd use readline for user input
         console.log('\n(In production, this would wait for confirmation)')
-        
+
         const success = manager.deletePreset(id)
-        
+
         if (success) {
           console.log(`✓ Preset '${id}' deleted successfully`)
         }
@@ -288,23 +293,23 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
       case 'duplicate': {
         const id = args[1]
         const newName = args[2]
-        
+
         if (!id || !newName) {
           console.error('Error: Preset ID and new name required')
           console.log('Usage: coda preset duplicate <id> <new-name>')
           process.exit(1)
         }
-        
+
         const original = manager.getPreset(id)
         if (!original) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         console.log(`Duplicating preset: ${original.name}`)
-        
+
         const duplicate = manager.duplicatePreset(id, newName)
-        
+
         console.log(`✓ Created duplicate preset '${duplicate.id}'`)
         formatPreset(duplicate, true)
         break
@@ -317,12 +322,12 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset import <file>')
           process.exit(1)
         }
-        
+
         console.log(`Importing preset from: ${file}`)
-        
+
         try {
           const imported = manager.importPreset(file)
-          
+
           console.log(`✓ Preset '${imported.id}' imported successfully`)
           formatPreset(imported, true)
         } catch (error) {
@@ -335,21 +340,21 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
       case 'export': {
         const id = args[1]
         const file = args[2]
-        
+
         if (!id || !file) {
           console.error('Error: Preset ID and output file required')
           console.log('Usage: coda preset export <id> <file>')
           process.exit(1)
         }
-        
+
         const preset = manager.getPreset(id)
         if (!preset) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         console.log(`Exporting preset: ${preset.name}`)
-        
+
         try {
           manager.exportPreset(id, file)
           console.log(`✓ Preset exported to: ${file}`)
@@ -367,16 +372,16 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset search <query>')
           process.exit(1)
         }
-        
+
         const results = manager.searchPresets(query)
-        
+
         if (results.length === 0) {
           console.log(`No presets found matching: ${query}`)
           return
         }
-        
+
         console.log(`\nFound ${results.length} preset(s) matching "${query}":\n`)
-        results.forEach(preset => formatPreset(preset, false))
+        results.forEach((preset) => formatPreset(preset, false))
         break
       }
 
@@ -387,15 +392,15 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
           console.log('Usage: coda preset favorite <id>')
           process.exit(1)
         }
-        
+
         const preset = manager.getPreset(id)
         if (!preset) {
           console.error(`Error: Preset '${id}' not found`)
           process.exit(1)
         }
-        
+
         const added = manager.toggleFavorite(id)
-        
+
         if (added) {
           console.log(`⭐ Added '${preset.name}' to favorites`)
         } else {
@@ -406,36 +411,36 @@ export async function handlePresetCommand(args: string[]): Promise<void> {
 
       case 'favorites': {
         const favorites = manager.getFavorites()
-        
+
         if (favorites.length === 0) {
           console.log('No favorite presets.')
           console.log('Use "coda preset favorite <id>" to add favorites.')
           return
         }
-        
+
         console.log('\n⭐ Favorite Presets:\n')
-        favorites.forEach(preset => formatPreset(preset, false))
+        favorites.forEach((preset) => formatPreset(preset, false))
         break
       }
 
       case 'recommend': {
         const projectPath = process.cwd()
         const recommendations = manager.getRecommendedPresets(projectPath)
-        
+
         if (recommendations.length === 0) {
           console.log('No specific recommendations for this project.')
           return
         }
-        
+
         console.log('\n💡 Recommended Presets for this Project:\n')
-        
+
         recommendations.forEach((preset, index) => {
           console.log(`${index + 1}. ${preset.name}`)
           console.log(`   ${preset.description}`)
           console.log(`   Use: coda preset apply ${preset.id}`)
           console.log()
         })
-        
+
         // Show why they're recommended
         if (process.env.CI) {
           console.log('ℹ️  CI environment detected')

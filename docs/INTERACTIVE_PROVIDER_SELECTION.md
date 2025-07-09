@@ -29,6 +29,7 @@ With this setting, Coda will prompt you to select a provider every time you run 
 ### Default Behavior
 
 Without `always_ask_provider`, Coda will:
+
 1. Use the `--provider` flag if specified
 2. Use the provider from your config file
 3. Only prompt if no provider is configured
@@ -36,15 +37,17 @@ Without `always_ask_provider`, Coda will:
 ## Command-Line Options
 
 ### Skip the prompt with `--provider` flag
+
 ```bash
 # Use Claude Code directly
 coda --provider claude-code "your prompt"
 
-# Use Gemini directly  
+# Use Gemini directly
 coda --provider gemini "your prompt"
 ```
 
 ### Permanent switch
+
 ```bash
 # Change default provider
 coda switch gemini
@@ -57,6 +60,7 @@ coda switch gemini
 ## Examples
 
 ### Interactive Selection Every Time
+
 ```yaml
 # ~/.coda/config.yaml
 provider: claude-code
@@ -64,6 +68,7 @@ always_ask_provider: true
 ```
 
 Now every `coda` command will ask:
+
 ```
 ※ Select AI provider
 ❯ Claude Code (current)
@@ -71,13 +76,15 @@ Now every `coda` command will ask:
 ```
 
 ### Project-Specific Behavior
+
 ```yaml
 # .coda/config.yaml (in project)
 provider: gemini
-always_ask_provider: false  # Don't ask in this project
+always_ask_provider: false # Don't ask in this project
 ```
 
 ### Mixed Workflow
+
 ```bash
 # Morning: Interactive selection
 coda
@@ -89,13 +96,14 @@ coda --provider gemini "implement the plan"
 
 # Evening: Back to interactive
 coda
-# Select: Claude Code  
+# Select: Claude Code
 # "review and commit changes"
 ```
 
 ## Provider Detection
 
 The selection menu shows which providers are available:
+
 - `Claude Code` - If found on system
 - `Gemini` - If found on system
 - `(current)` - Shows your current default
@@ -119,7 +127,9 @@ To go back to using your default provider without prompts:
 ## Use Cases
 
 ### 1. Comparing Providers
+
 When you want to quickly test the same prompt with different providers:
+
 ```bash
 coda  # Select Claude Code
 "explain this error"
@@ -129,7 +139,9 @@ coda  # Select Gemini
 ```
 
 ### 2. Task-Based Selection
+
 Different providers for different tasks:
+
 ```bash
 coda  # Select Claude Code for careful code edits
 "refactor with minimal changes"
@@ -139,7 +151,9 @@ coda  # Select Gemini for broad analysis
 ```
 
 ### 3. Learning and Experimentation
+
 New users can explore both providers without memorizing flags:
+
 ```bash
 coda  # Try Claude Code
 coda  # Try Gemini

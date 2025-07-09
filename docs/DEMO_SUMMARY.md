@@ -3,6 +3,7 @@
 ## What We've Demonstrated
 
 ### 1. **Installation & Initialization**
+
 - Created configuration directory at `~/.coda/`
 - Interactive setup process choosing:
   - AI Provider (Claude Code or Gemini)
@@ -11,6 +12,7 @@
 - Generated `config.yaml` with sensible defaults
 
 ### 2. **Basic Usage**
+
 ```bash
 # Standard usage
 coda "explain this error: TypeError..."
@@ -29,18 +31,21 @@ coda --debug "why is this test failing?"
 ```
 
 ### 3. **Statistics & Tracking**
+
 - Command history tracking with success rates
 - Duration measurements for performance analysis
 - Project-based usage breakdown
 - Storage usage monitoring
 
 ### 4. **Multi-Provider Support**
+
 - Global config uses Claude Code
 - Project can override to use Gemini
 - Custom paths supported for both providers
 - Environment variables for flexibility
 
 ### 5. **Toolset System**
+
 - Control which tools AI can access
 - Custom toolsets for different workflows
 - MCP server integration for specialized tools
@@ -51,29 +56,32 @@ coda --debug "why is this test failing?"
 ```
 ~/.coda/
 ├── config.yaml          # Global configuration
-├── history/            
+├── history/
 │   └── commands.jsonl   # Command history tracking
 ├── logs/                # Debug and error logs
 ├── sessions/            # Session recordings
-└── toolsets/           
+└── toolsets/
     └── backend.yaml     # Custom toolset example
 ```
 
 ## Key Features in Action
 
 ### Safety Features
+
 - ✅ Version control checks
 - ✅ Uncommitted changes warnings
 - ✅ Trust prompts for directories
 - ✅ Configurable safety overrides
 
 ### Automation Features
+
 - ✅ YOLO mode for CI/CD pipelines
 - ✅ Pattern matching for auto-responses
 - ✅ Session recording for audit trails
 - ✅ Statistics for usage optimization
 
 ### Developer Experience
+
 - ✅ Project-specific configurations
 - ✅ Debug mode for troubleshooting
 - ✅ Desktop notifications
@@ -82,6 +90,7 @@ coda --debug "why is this test failing?"
 ## Real-World Usage Scenarios
 
 ### 1. **Development Workflow**
+
 ```bash
 # Morning: Check what you did yesterday
 coda stats --history --limit 20
@@ -94,6 +103,7 @@ coda --debug "why is this integration test flaky?"
 ```
 
 ### 2. **Team Collaboration**
+
 ```bash
 # Create shared toolset
 echo "Create ~/.coda/toolsets/team-standards.yaml"
@@ -103,18 +113,20 @@ coda --toolset team-standards "refactor to match our style guide"
 ```
 
 ### 3. **CI/CD Integration**
+
 ```bash
 # In GitHub Actions or similar
 coda --yolo --quiet "update dependencies and fix any breaking changes"
 ```
 
 ### 4. **Multi-Project Setup**
+
 ```yaml
 # Project A (.coda/config.yaml)
 provider: claude-code
 toolsets: [backend]
 
-# Project B (.coda/config.yaml)  
+# Project B (.coda/config.yaml)
 provider: gemini
 yolo: true  # This project allows auto-accept
 ```

@@ -31,12 +31,12 @@ describe('Internal Toolset Loading', () => {
   describe('loadToolsetFile', () => {
     it('should load internal toolset when prefixed with internal:', async () => {
       // Mock the path resolution that happens in loader.ts
-      vi.mocked(fs.existsSync).mockImplementation(filePath => {
+      vi.mocked(fs.existsSync).mockImplementation((filePath) => {
         // The loader will look for internal toolsets relative to its own location
         return filePath.endsWith('internal-toolsets/core.yaml')
       })
 
-      vi.mocked(fs.readFileSync).mockImplementation(filePath => {
+      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
         if (filePath.endsWith('internal-toolsets/core.yaml')) {
           return `
 allowed:
@@ -58,10 +58,7 @@ mcp:
       const toolset = await loadToolsetFile('internal:core')
 
       expect(toolset).toEqual({
-        allowed: [
-          'mcp__context7__resolve-library-id',
-          'mcp__context7__get-library-docs',
-        ],
+        allowed: ['mcp__context7__resolve-library-id', 'mcp__context7__get-library-docs'],
         mcp: {
           context7: {
             type: 'stdio',
@@ -73,16 +70,12 @@ mcp:
     })
 
     it('should load regular toolset when not prefixed with internal:', async () => {
-      vi.mocked(fs.existsSync).mockImplementation(filePath => {
-        return (
-          filePath === '/home/test/.coda/toolsets/mytoolset.yaml'
-        )
+      vi.mocked(fs.existsSync).mockImplementation((filePath) => {
+        return filePath === '/home/test/.coda/toolsets/mytoolset.yaml'
       })
 
-      vi.mocked(fs.readFileSync).mockImplementation(filePath => {
-        if (
-          filePath === '/home/test/.coda/toolsets/mytoolset.yaml'
-        ) {
+      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
+        if (filePath === '/home/test/.coda/toolsets/mytoolset.yaml') {
           return `
 allowed:
   - tool1
@@ -111,14 +104,14 @@ allowed:
   describe('ConfigManager toolset loading', () => {
     it('should load internal toolsets through config', async () => {
       // Mock config file with internal toolset
-      vi.mocked(fs.existsSync).mockImplementation(filePath => {
+      vi.mocked(fs.existsSync).mockImplementation((filePath) => {
         return (
           filePath === '/test/project/.coda/config.yaml' ||
           filePath.includes('internal-toolsets/core.yaml')
         )
       })
 
-      vi.mocked(fs.readFileSync).mockImplementation(filePath => {
+      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
         if (filePath === '/test/project/.coda/config.yaml') {
           return `
 toolsets:
@@ -152,7 +145,7 @@ mcp:
     })
 
     it('should load mix of internal and regular toolsets', async () => {
-      vi.mocked(fs.existsSync).mockImplementation(filePath => {
+      vi.mocked(fs.existsSync).mockImplementation((filePath) => {
         return (
           filePath === '/test/project/.coda/config.yaml' ||
           filePath.includes('internal-toolsets/core.yaml') ||
@@ -160,7 +153,7 @@ mcp:
         )
       })
 
-      vi.mocked(fs.readFileSync).mockImplementation(filePath => {
+      vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
         if (filePath === '/test/project/.coda/config.yaml') {
           return `
 toolsets:

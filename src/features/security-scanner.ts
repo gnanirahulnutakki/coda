@@ -49,7 +49,7 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'String concatenation in SQL query may lead to SQL injection',
     suggestion: 'Use parameterized queries or prepared statements',
     cwe: 'CWE-89',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs'],
   },
   {
     id: 'sql-injection-2',
@@ -59,9 +59,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'String concatenation in SQL query may lead to SQL injection',
     suggestion: 'Use parameterized queries or prepared statements',
     cwe: 'CWE-89',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs'],
   },
-  
+
   // XSS patterns
   {
     id: 'xss-1',
@@ -71,7 +71,7 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Setting innerHTML with user input may lead to XSS attacks',
     suggestion: 'Use textContent or sanitize HTML input',
     cwe: 'CWE-79',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx'],
   },
   {
     id: 'xss-2',
@@ -81,9 +81,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Using document.write with user input may lead to XSS attacks',
     suggestion: 'Avoid document.write or sanitize input',
     cwe: 'CWE-79',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx'],
   },
-  
+
   // Hardcoded secrets
   {
     id: 'hardcoded-password',
@@ -93,19 +93,20 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Hardcoded password found in source code',
     suggestion: 'Use environment variables or secure configuration',
     cwe: 'CWE-798',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cs', '.php', '.rb']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cs', '.php', '.rb'],
   },
   {
     id: 'hardcoded-api-key',
     name: 'Hardcoded API Key',
     severity: 'critical',
-    pattern: /(?:api[_-]?key|apikey|access[_-]?token|secret[_-]?key)\s*[:=]\s*["`'][A-Za-z0-9_\-]{10,}["`']/gi,
+    pattern:
+      /(?:api[_-]?key|apikey|access[_-]?token|secret[_-]?key)\s*[:=]\s*["`'][A-Za-z0-9_\-]{10,}["`']/gi,
     description: 'Hardcoded API key or access token found in source code',
     suggestion: 'Use environment variables or secure configuration',
     cwe: 'CWE-798',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cs', '.php', '.rb']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cs', '.php', '.rb'],
   },
-  
+
   // Command injection
   {
     id: 'command-injection-1',
@@ -115,9 +116,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Command execution with user input may lead to command injection',
     suggestion: 'Validate and sanitize input, use safe alternatives',
     cwe: 'CWE-78',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.rb']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.rb'],
   },
-  
+
   // Path traversal
   {
     id: 'path-traversal',
@@ -127,9 +128,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Path traversal vulnerability may allow access to unauthorized files',
     suggestion: 'Validate and sanitize file paths, use path.join() safely',
     cwe: 'CWE-22',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs'],
   },
-  
+
   // Weak cryptography
   {
     id: 'weak-crypto-md5',
@@ -139,7 +140,7 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'MD5 is cryptographically broken and should not be used',
     suggestion: 'Use SHA-256 or SHA-3 for cryptographic purposes',
     cwe: 'CWE-327',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs', '.rb']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs', '.rb'],
   },
   {
     id: 'weak-crypto-sha1',
@@ -149,9 +150,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'SHA-1 is cryptographically weak and should be avoided',
     suggestion: 'Use SHA-256 or SHA-3 for cryptographic purposes',
     cwe: 'CWE-327',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs', '.rb']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.py', '.php', '.java', '.cs', '.rb'],
   },
-  
+
   // Insecure random
   {
     id: 'insecure-random',
@@ -161,9 +162,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Math.random() is not cryptographically secure',
     suggestion: 'Use crypto.randomBytes() or crypto.getRandomValues() for security purposes',
     cwe: 'CWE-338',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx'],
   },
-  
+
   // CORS issues
   {
     id: 'cors-wildcard',
@@ -173,9 +174,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Wildcard CORS policy allows requests from any origin',
     suggestion: 'Specify allowed origins explicitly',
     cwe: 'CWE-942',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py', '.java', '.cs'],
   },
-  
+
   // Dangerous functions
   {
     id: 'dangerous-eval',
@@ -185,9 +186,9 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'eval() can execute arbitrary code and is dangerous',
     suggestion: 'Avoid eval(), use JSON.parse() for JSON or other safe alternatives',
     cwe: 'CWE-95',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx']
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx'],
   },
-  
+
   // Cookie security
   {
     id: 'insecure-cookie',
@@ -197,8 +198,8 @@ export const SECURITY_RULES: SecurityRule[] = [
     description: 'Cookie missing Secure and HttpOnly flags',
     suggestion: 'Add Secure and HttpOnly flags to cookies',
     cwe: 'CWE-614',
-    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py']
-  }
+    fileTypes: ['.js', '.ts', '.jsx', '.tsx', '.php', '.py'],
+  },
 ]
 
 export class SecurityScanner {
@@ -215,22 +216,41 @@ export class SecurityScanner {
     }
   }
 
-  async scanDirectory(directoryPath: string, options: {
-    includePatterns?: string[]
-    excludePatterns?: string[]
-    maxFileSize?: number
-    followSymlinks?: boolean
-  } = {}): Promise<SecurityScanResult> {
+  async scanDirectory(
+    directoryPath: string,
+    options: {
+      includePatterns?: string[]
+      excludePatterns?: string[]
+      maxFileSize?: number
+      followSymlinks?: boolean
+    } = {},
+  ): Promise<SecurityScanResult> {
     const startTime = Date.now()
     const scanId = this.generateScanId()
     const issues: SecurityIssue[] = []
     const scannedFiles: string[] = []
 
     const {
-      includePatterns = ['**/*.js', '**/*.ts', '**/*.jsx', '**/*.tsx', '**/*.py', '**/*.php', '**/*.java', '**/*.cs', '**/*.rb'],
-      excludePatterns = ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/vendor/**'],
+      includePatterns = [
+        '**/*.js',
+        '**/*.ts',
+        '**/*.jsx',
+        '**/*.tsx',
+        '**/*.py',
+        '**/*.php',
+        '**/*.java',
+        '**/*.cs',
+        '**/*.rb',
+      ],
+      excludePatterns = [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/build/**',
+        '**/.git/**',
+        '**/vendor/**',
+      ],
       maxFileSize = 10 * 1024 * 1024, // 10MB
-      followSymlinks = false
+      followSymlinks = false,
     } = options
 
     try {
@@ -239,7 +259,7 @@ export class SecurityScanner {
         includePatterns,
         excludePatterns,
         maxFileSize,
-        followSymlinks
+        followSymlinks,
       )
 
       for (const filePath of filesToScan) {
@@ -257,13 +277,13 @@ export class SecurityScanner {
         scanId,
         timestamp: new Date().toISOString(),
         totalIssues: issues.length,
-        criticalIssues: issues.filter(i => i.severity === 'critical').length,
-        highIssues: issues.filter(i => i.severity === 'high').length,
-        mediumIssues: issues.filter(i => i.severity === 'medium').length,
-        lowIssues: issues.filter(i => i.severity === 'low').length,
+        criticalIssues: issues.filter((i) => i.severity === 'critical').length,
+        highIssues: issues.filter((i) => i.severity === 'high').length,
+        mediumIssues: issues.filter((i) => i.severity === 'medium').length,
+        lowIssues: issues.filter((i) => i.severity === 'low').length,
         issues,
         scannedFiles,
-        scanDuration
+        scanDuration,
       }
 
       // Save scan result
@@ -278,7 +298,7 @@ export class SecurityScanner {
   async scanFile(filePath: string): Promise<SecurityIssue[]> {
     const issues: SecurityIssue[] = []
     const fileExtension = path.extname(filePath)
-    
+
     try {
       const content = fs.readFileSync(filePath, 'utf8')
       const lines = content.split('\n')
@@ -305,7 +325,7 @@ export class SecurityScanner {
               column: match.index - content.lastIndexOf('\n', match.index) - 1,
               code: lineContent,
               suggestion: rule.suggestion,
-              cwe: rule.cwe
+              cwe: rule.cwe,
             })
           }
         }
@@ -315,7 +335,6 @@ export class SecurityScanner {
       if (fileExtension === '.js' || fileExtension === '.ts') {
         issues.push(...this.scanJavaScriptSpecific(filePath, content, lines))
       }
-
     } catch (error) {
       throw new Error(`Failed to scan file ${filePath}: ${error.message}`)
     }
@@ -323,7 +342,11 @@ export class SecurityScanner {
     return issues
   }
 
-  private scanJavaScriptSpecific(filePath: string, content: string, lines: string[]): SecurityIssue[] {
+  private scanJavaScriptSpecific(
+    filePath: string,
+    content: string,
+    lines: string[],
+  ): SecurityIssue[] {
     const issues: SecurityIssue[] = []
 
     // Check for dangerous npm packages
@@ -331,7 +354,7 @@ export class SecurityScanner {
     for (const pkg of dangerousPackages) {
       const importRegex = new RegExp(`(?:import|require)\\s*\\(?\\s*['"]\s*${pkg}\s*['"]`, 'gi')
       const matches = content.matchAll(importRegex)
-      
+
       for (const match of matches) {
         if (match.index !== undefined) {
           const lineNumber = this.getLineNumber(content, match.index)
@@ -344,7 +367,7 @@ export class SecurityScanner {
             line: lineNumber,
             code: lines[lineNumber - 1]?.trim(),
             suggestion: 'Review the necessity of this package and consider safer alternatives',
-            cwe: 'CWE-829'
+            cwe: 'CWE-829',
           })
         }
       }
@@ -353,7 +376,7 @@ export class SecurityScanner {
     // Check for prototype pollution
     const prototypePattern = /(\w+)\.prototype\s*\[\s*[^[\]]*\s*\]\s*=/gi
     const prototypeMatches = content.matchAll(prototypePattern)
-    
+
     for (const match of prototypeMatches) {
       if (match.index !== undefined) {
         const lineNumber = this.getLineNumber(content, match.index)
@@ -366,7 +389,7 @@ export class SecurityScanner {
           line: lineNumber,
           code: lines[lineNumber - 1]?.trim(),
           suggestion: 'Use Object.defineProperty() or avoid prototype modification',
-          cwe: 'CWE-1321'
+          cwe: 'CWE-1321',
         })
       }
     }
@@ -379,27 +402,27 @@ export class SecurityScanner {
     includePatterns: string[],
     excludePatterns: string[],
     maxFileSize: number,
-    followSymlinks: boolean
+    followSymlinks: boolean,
   ): Promise<string[]> {
     const files: string[] = []
-    
+
     const walk = (dir: string) => {
       const entries = fs.readdirSync(dir, { withFileTypes: true })
-      
+
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name)
         const relativePath = path.relative(directoryPath, fullPath)
-        
+
         // Check exclude patterns
-        if (excludePatterns.some(pattern => this.matchGlob(relativePath, pattern))) {
+        if (excludePatterns.some((pattern) => this.matchGlob(relativePath, pattern))) {
           continue
         }
-        
+
         if (entry.isDirectory()) {
           walk(fullPath)
         } else if (entry.isFile() || (followSymlinks && entry.isSymbolicLink())) {
           // Check include patterns
-          if (includePatterns.some(pattern => this.matchGlob(relativePath, pattern))) {
+          if (includePatterns.some((pattern) => this.matchGlob(relativePath, pattern))) {
             try {
               const stats = fs.statSync(fullPath)
               if (stats.size <= maxFileSize) {
@@ -412,7 +435,7 @@ export class SecurityScanner {
         }
       }
     }
-    
+
     walk(directoryPath)
     return files
   }
@@ -423,7 +446,7 @@ export class SecurityScanner {
       .replace(/\*\*/g, '.*')
       .replace(/\*/g, '[^/]*')
       .replace(/\?/g, '[^/]')
-    
+
     return new RegExp(`^${regexPattern}$`).test(filePath)
   }
 
@@ -442,7 +465,7 @@ export class SecurityScanner {
   async saveScanResult(result: SecurityScanResult): Promise<void> {
     const filePath = path.join(this.dataDir, `${result.scanId}.json`)
     fs.writeFileSync(filePath, JSON.stringify(result, null, 2))
-    
+
     // Also append to scan history
     const historyPath = path.join(this.dataDir, 'scan-history.jsonl')
     const historySummary = {
@@ -452,19 +475,19 @@ export class SecurityScanner {
       criticalIssues: result.criticalIssues,
       highIssues: result.highIssues,
       scannedFiles: result.scannedFiles.length,
-      scanDuration: result.scanDuration
+      scanDuration: result.scanDuration,
     }
-    
+
     fs.appendFileSync(historyPath, JSON.stringify(historySummary) + '\n')
   }
 
   async loadScanResult(scanId: string): Promise<SecurityScanResult | null> {
     const filePath = path.join(this.dataDir, `${scanId}.json`)
-    
+
     if (!fs.existsSync(filePath)) {
       return null
     }
-    
+
     try {
       const content = fs.readFileSync(filePath, 'utf8')
       return JSON.parse(content)
@@ -475,20 +498,23 @@ export class SecurityScanner {
 
   async loadScanHistory(limit: number = 20): Promise<any[]> {
     const historyPath = path.join(this.dataDir, 'scan-history.jsonl')
-    
+
     if (!fs.existsSync(historyPath)) {
       return []
     }
-    
+
     try {
       const content = fs.readFileSync(historyPath, 'utf8')
-      const lines = content.trim().split('\n').filter(line => line)
-      
+      const lines = content
+        .trim()
+        .split('\n')
+        .filter((line) => line)
+
       const history = lines
-        .map(line => JSON.parse(line))
+        .map((line) => JSON.parse(line))
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0, limit)
-      
+
       return history
     } catch (error) {
       console.warn('Failed to load scan history:', error.message)
@@ -498,11 +524,11 @@ export class SecurityScanner {
 
   async deleteScanResult(scanId: string): Promise<boolean> {
     const filePath = path.join(this.dataDir, `${scanId}.json`)
-    
+
     if (!fs.existsSync(filePath)) {
       return false
     }
-    
+
     try {
       fs.unlinkSync(filePath)
       return true
@@ -513,14 +539,14 @@ export class SecurityScanner {
 
   async exportScanResult(scanId: string, outputPath: string): Promise<void> {
     const result = await this.loadScanResult(scanId)
-    
+
     if (!result) {
       throw new Error(`Scan result ${scanId} not found`)
     }
-    
+
     // Create different export formats based on file extension
     const ext = path.extname(outputPath).toLowerCase()
-    
+
     if (ext === '.csv') {
       await this.exportToCSV(result, outputPath)
     } else if (ext === '.html') {
@@ -534,7 +560,7 @@ export class SecurityScanner {
   private async exportToCSV(result: SecurityScanResult, outputPath: string): Promise<void> {
     const headers = ['File', 'Line', 'Severity', 'Type', 'Description', 'CWE', 'Suggestion']
     const rows = [headers.join(',')]
-    
+
     for (const issue of result.issues) {
       const row = [
         `"${issue.file}"`,
@@ -543,11 +569,11 @@ export class SecurityScanner {
         `"${issue.type}"`,
         `"${issue.description}"`,
         issue.cwe || '',
-        `"${issue.suggestion || ''}"`
+        `"${issue.suggestion || ''}"`,
       ]
       rows.push(row.join(','))
     }
-    
+
     fs.writeFileSync(outputPath, rows.join('\n'))
   }
 
@@ -615,7 +641,9 @@ export class SecurityScanner {
             </tr>
         </thead>
         <tbody>
-            ${result.issues.map(issue => `
+            ${result.issues
+              .map(
+                (issue) => `
                 <tr class="severity-${issue.severity}">
                     <td>${issue.severity.toUpperCase()}</td>
                     <td>${issue.type}</td>
@@ -624,12 +652,14 @@ export class SecurityScanner {
                     <td>${issue.description}</td>
                     <td>${issue.cwe || ''}</td>
                 </tr>
-            `).join('')}
+            `,
+              )
+              .join('')}
         </tbody>
     </table>
 </body>
 </html>`
-    
+
     fs.writeFileSync(outputPath, html)
   }
 }

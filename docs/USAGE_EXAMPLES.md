@@ -45,12 +45,14 @@ coda --debug "why is this test failing?"
 ## Working with Different Providers
 
 ### Claude Code (default)
+
 ```bash
 # Using Claude Code
 coda "help me understand this React component"
 ```
 
 ### Gemini
+
 ```bash
 # If you configured Gemini as your provider
 coda "optimize this SQL query"
@@ -83,9 +85,10 @@ coda stats --history --limit 50
 ### Project-Specific Configuration
 
 1. Create `.coda/config.yaml` in your project:
+
 ```yaml
-provider: gemini  # Use Gemini for this project
-yolo: true       # Auto-accept prompts
+provider: gemini # Use Gemini for this project
+yolo: true # Auto-accept prompts
 toolsets:
   - project:custom-tools
 ```
@@ -93,16 +96,18 @@ toolsets:
 ### Custom Toolsets
 
 1. Create `~/.coda/toolsets/frontend.yaml`:
+
 ```yaml
 allowed:
   - read_file
   - write_file
   - search_files
 disallowed:
-  - execute_bash  # No shell commands for frontend work
+  - execute_bash # No shell commands for frontend work
 ```
 
 2. Use it:
+
 ```bash
 coda --toolset frontend "convert this component to TypeScript"
 ```
@@ -150,16 +155,19 @@ DEBUG=1 coda "debug this issue"
 ## Common Workflows
 
 ### 1. Quick Fix with Auto-Accept
+
 ```bash
 coda --yolo "fix the TypeError in app.js line 42"
 ```
 
 ### 2. Planning a Feature
+
 ```bash
 coda --mode plan "add user authentication with JWT"
 ```
 
 ### 3. Batch Processing
+
 ```bash
 # In a script
 for file in src/*.js; do
@@ -168,6 +176,7 @@ done
 ```
 
 ### 4. Project Setup
+
 ```bash
 # Initialize project config
 cd my-project
@@ -178,6 +187,7 @@ coda --toolset project:api-tools "set up REST endpoints"
 ```
 
 ### 5. Analyzing Code Quality
+
 ```bash
 # Review and get suggestions
 coda "review this code for potential issues and suggest improvements"

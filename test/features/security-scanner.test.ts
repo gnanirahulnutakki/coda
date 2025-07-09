@@ -11,13 +11,13 @@ describe('SecurityScanner', () => {
   let securityScanner: SecurityScanner
   const mockConfigDir = '/test/.coda'
   const mockDataDir = '/test/.coda/security-scans'
-  
+
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock CONFIG_PATHS
     vi.mocked(CONFIG_PATHS.getConfigDirectory).mockReturnValue(mockConfigDir)
-    
+
     // Mock fs methods
     vi.mocked(fs.existsSync).mockReturnValue(false)
     vi.mocked(fs.mkdirSync).mockReturnValue(undefined)
@@ -27,7 +27,7 @@ describe('SecurityScanner', () => {
     vi.mocked(fs.unlinkSync).mockReturnValue(undefined)
     vi.mocked(fs.readdirSync).mockReturnValue([])
     vi.mocked(fs.statSync).mockReturnValue({ size: 1000 } as any)
-    
+
     securityScanner = new SecurityScanner()
   })
 
@@ -43,9 +43,9 @@ describe('SecurityScanner', () => {
     it('should not create directory if it already exists', () => {
       vi.clearAllMocks()
       vi.mocked(fs.existsSync).mockReturnValue(true)
-      
+
       new SecurityScanner()
-      
+
       expect(fs.mkdirSync).not.toHaveBeenCalled()
     })
   })
@@ -56,11 +56,11 @@ describe('SecurityScanner', () => {
         const query = "SELECT * FROM users WHERE id = " + userId
         const result = await db.query(query)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Potential SQL Injection')
       expect(issues[0].severity).toBe('critical')
@@ -71,11 +71,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         element.innerHTML = \`<div>\${userInput}</div>\`
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Potential XSS Vulnerability')
       expect(issues[0].severity).toBe('high')
@@ -90,11 +90,11 @@ describe('SecurityScanner', () => {
           }
         }
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Hardcoded Password')
       expect(issues[0].severity).toBe('critical')
@@ -105,11 +105,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         const apiKey = "sk-1234567890abcdef1234567890abcdef"
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Hardcoded API Key')
       expect(issues[0].severity).toBe('critical')
@@ -120,11 +120,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         exec(\`ls -la \${userInput}\`)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Potential Command Injection')
       expect(issues[0].severity).toBe('critical')
@@ -135,11 +135,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         fs.readFile("../../../etc/passwd", callback)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Potential Path Traversal')
       expect(issues[0].severity).toBe('high')
@@ -150,11 +150,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         const hash = md5(password)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Weak Cryptographic Hash')
       expect(issues[0].severity).toBe('medium')
@@ -165,11 +165,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         const token = Math.random().toString(36)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Insecure Random Number Generation')
       expect(issues[0].severity).toBe('medium')
@@ -180,11 +180,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         response.setHeader('Access-Control-Allow-Origin', '*')
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Permissive CORS Policy')
       expect(issues[0].severity).toBe('high')
@@ -195,11 +195,11 @@ describe('SecurityScanner', () => {
       const vulnerableCode = `
         const result = eval(userCode)
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Dangerous Function Usage')
       expect(issues[0].severity).toBe('high')
@@ -211,25 +211,25 @@ describe('SecurityScanner', () => {
         const vm = require('vm2')
         import { eval } from 'eval'
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(2)
-      expect(issues.every(issue => issue.type === 'Dangerous Package Import')).toBe(true)
-      expect(issues.every(issue => issue.severity === 'high')).toBe(true)
+      expect(issues.every((issue) => issue.type === 'Dangerous Package Import')).toBe(true)
+      expect(issues.every((issue) => issue.severity === 'high')).toBe(true)
     })
 
     it('should detect prototype pollution', async () => {
       const vulnerableCode = `
         Object.prototype['isAdmin'] = true
       `
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].type).toBe('Potential Prototype Pollution')
       expect(issues[0].severity).toBe('medium')
@@ -238,13 +238,13 @@ describe('SecurityScanner', () => {
 
     it('should only scan files with matching extensions', async () => {
       const vulnerableCode = `eval(userInput)`
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       // Test JavaScript file - should detect issue
       const jsIssues = await securityScanner.scanFile('/test/file.js')
       expect(jsIssues).toHaveLength(1)
-      
+
       // Test text file - should not detect issue
       const txtIssues = await securityScanner.scanFile('/test/file.txt')
       expect(txtIssues).toHaveLength(0)
@@ -256,11 +256,11 @@ const safe = "this is safe"
 const password = "hardcoded123password"
 const alsoSafe = "this is also safe"
       `.trim()
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue(vulnerableCode)
-      
+
       const issues = await securityScanner.scanFile('/test/file.js')
-      
+
       expect(issues).toHaveLength(1)
       expect(issues[0].line).toBe(2)
       expect(issues[0].code).toBe('const password = "hardcoded123password"')
@@ -270,7 +270,7 @@ const alsoSafe = "this is also safe"
       vi.mocked(fs.readFileSync).mockImplementation(() => {
         throw new Error('Permission denied')
       })
-      
+
       await expect(securityScanner.scanFile('/test/file.js')).rejects.toThrow('Failed to scan file')
     })
   })
@@ -281,14 +281,29 @@ const alsoSafe = "this is also safe"
       vi.mocked(fs.readdirSync).mockImplementation((dirPath) => {
         if (dirPath === '/test/project') {
           return [
-            { name: 'file1.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false },
-            { name: 'file2.ts', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false },
-            { name: 'node_modules', isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false }
+            {
+              name: 'file1.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+            {
+              name: 'file2.ts',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+            {
+              name: 'node_modules',
+              isDirectory: () => true,
+              isFile: () => false,
+              isSymbolicLink: () => false,
+            },
           ] as any
         }
         return []
       })
-      
+
       // Mock file content with vulnerabilities
       vi.mocked(fs.readFileSync).mockImplementation((filePath) => {
         if (filePath.includes('file1.js')) {
@@ -299,9 +314,9 @@ const alsoSafe = "this is also safe"
         }
         return ''
       })
-      
+
       const result = await securityScanner.scanDirectory('/test/project')
-      
+
       expect(result.totalIssues).toBe(2)
       expect(result.scannedFiles).toHaveLength(2)
       expect(result.scannedFiles).toContain('/test/project/file1.js')
@@ -312,37 +327,70 @@ const alsoSafe = "this is also safe"
       vi.mocked(fs.readdirSync).mockImplementation((dirPath) => {
         if (dirPath === '/test/project') {
           return [
-            { name: 'src', isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false },
-            { name: 'node_modules', isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false }
+            {
+              name: 'src',
+              isDirectory: () => true,
+              isFile: () => false,
+              isSymbolicLink: () => false,
+            },
+            {
+              name: 'node_modules',
+              isDirectory: () => true,
+              isFile: () => false,
+              isSymbolicLink: () => false,
+            },
           ] as any
         }
         if (dirPath === '/test/project/src') {
           return [
-            { name: 'app.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false }
+            {
+              name: 'app.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
           ] as any
         }
         if (dirPath === '/test/project/node_modules') {
           return [
-            { name: 'package.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false }
+            {
+              name: 'package.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
           ] as any
         }
         return []
       })
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue('safe code')
-      
+
       const result = await securityScanner.scanDirectory('/test/project')
-      
+
       expect(result.scannedFiles).toHaveLength(1)
       expect(result.scannedFiles[0]).toBe('/test/project/src/app.js')
     })
 
     it('should respect file size limits', async () => {
-      vi.mocked(fs.readdirSync).mockImplementation(() => [
-        { name: 'small.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false },
-        { name: 'large.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false }
-      ] as any)
-      
+      vi.mocked(fs.readdirSync).mockImplementation(
+        () =>
+          [
+            {
+              name: 'small.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+            {
+              name: 'large.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+          ] as any,
+      )
+
       vi.mocked(fs.statSync).mockImplementation((filePath) => {
         if (filePath.includes('small.js')) {
           return { size: 1000 } as any
@@ -352,30 +400,38 @@ const alsoSafe = "this is also safe"
         }
         return { size: 1000 } as any
       })
-      
+
       vi.mocked(fs.readFileSync).mockReturnValue('safe code')
-      
+
       const result = await securityScanner.scanDirectory('/test/project', {
-        maxFileSize: 10 * 1024 * 1024 // 10MB limit
+        maxFileSize: 10 * 1024 * 1024, // 10MB limit
       })
-      
+
       expect(result.scannedFiles).toHaveLength(1)
       expect(result.scannedFiles[0]).toContain('small.js')
     })
 
     it('should generate scan result with correct statistics', async () => {
-      vi.mocked(fs.readdirSync).mockImplementation(() => [
-        { name: 'file.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false }
-      ] as any)
-      
+      vi.mocked(fs.readdirSync).mockImplementation(
+        () =>
+          [
+            {
+              name: 'file.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+          ] as any,
+      )
+
       vi.mocked(fs.readFileSync).mockReturnValue(`
         eval(userInput)  // high severity
         const password = "hardcoded123"  // critical severity
         Math.random()  // medium severity
       `)
-      
+
       const result = await securityScanner.scanDirectory('/test/project')
-      
+
       expect(result.totalIssues).toBe(3)
       expect(result.criticalIssues).toBe(1)
       expect(result.highIssues).toBe(1)
@@ -387,23 +443,31 @@ const alsoSafe = "this is also safe"
     })
 
     it('should handle scanning errors gracefully', async () => {
-      vi.mocked(fs.readdirSync).mockImplementation(() => [
-        { name: 'file.js', isDirectory: () => false, isFile: () => true, isSymbolicLink: () => false }
-      ] as any)
-      
+      vi.mocked(fs.readdirSync).mockImplementation(
+        () =>
+          [
+            {
+              name: 'file.js',
+              isDirectory: () => false,
+              isFile: () => true,
+              isSymbolicLink: () => false,
+            },
+          ] as any,
+      )
+
       vi.mocked(fs.readFileSync).mockImplementation(() => {
         throw new Error('File read error')
       })
-      
+
       // Mock console.warn to avoid test output
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       const result = await securityScanner.scanDirectory('/test/project')
-      
+
       expect(result.totalIssues).toBe(0)
       expect(result.scannedFiles).toHaveLength(0)
       expect(warnSpy).toHaveBeenCalled()
-      
+
       warnSpy.mockRestore()
     })
   })
@@ -420,19 +484,19 @@ const alsoSafe = "this is also safe"
         lowIssues: 0,
         issues: [],
         scannedFiles: [],
-        scanDuration: 1000
+        scanDuration: 1000,
       }
-      
+
       await securityScanner.saveScanResult(mockResult)
-      
+
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         path.join(mockDataDir, 'test-scan-123.json'),
-        JSON.stringify(mockResult, null, 2)
+        JSON.stringify(mockResult, null, 2),
       )
-      
+
       expect(fs.appendFileSync).toHaveBeenCalledWith(
         path.join(mockDataDir, 'scan-history.jsonl'),
-        expect.stringContaining('test-scan-123')
+        expect.stringContaining('test-scan-123'),
       )
     })
   })
@@ -441,33 +505,33 @@ const alsoSafe = "this is also safe"
     it('should load scan result from file', async () => {
       const mockResult = {
         scanId: 'test-scan-123',
-        issues: []
+        issues: [],
       }
-      
+
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(mockResult))
-      
+
       const result = await securityScanner.loadScanResult('test-scan-123')
-      
+
       expect(result).toEqual(mockResult)
       expect(fs.readFileSync).toHaveBeenCalledWith(
         path.join(mockDataDir, 'test-scan-123.json'),
-        'utf8'
+        'utf8',
       )
     })
 
     it('should return null if scan result does not exist', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false)
-      
+
       const result = await securityScanner.loadScanResult('nonexistent')
-      
+
       expect(result).toBeNull()
     })
 
     it('should handle corrupted scan result file', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue('invalid json')
-      
+
       await expect(securityScanner.loadScanResult('test-scan-123')).rejects.toThrow()
     })
   })
@@ -476,16 +540,16 @@ const alsoSafe = "this is also safe"
     it('should load scan history', async () => {
       const mockHistory = [
         { scanId: 'scan-1', timestamp: '2024-01-01T10:00:00Z' },
-        { scanId: 'scan-2', timestamp: '2024-01-01T11:00:00Z' }
+        { scanId: 'scan-2', timestamp: '2024-01-01T11:00:00Z' },
       ]
-      
+
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue(
-        mockHistory.map(h => JSON.stringify(h)).join('\n')
+        mockHistory.map((h) => JSON.stringify(h)).join('\n'),
       )
-      
+
       const history = await securityScanner.loadScanHistory()
-      
+
       expect(history).toHaveLength(2)
       expect(history[0].scanId).toBe('scan-2') // Most recent first
       expect(history[1].scanId).toBe('scan-1')
@@ -493,39 +557,39 @@ const alsoSafe = "this is also safe"
 
     it('should return empty array if history file does not exist', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false)
-      
+
       const history = await securityScanner.loadScanHistory()
-      
+
       expect(history).toEqual([])
     })
 
     it('should limit number of history entries', async () => {
       const mockHistory = Array.from({ length: 50 }, (_, i) => ({
         scanId: `scan-${i}`,
-        timestamp: `2024-01-01T${String(i).padStart(2, '0')}:00:00Z`
+        timestamp: `2024-01-01T${String(i).padStart(2, '0')}:00:00Z`,
       }))
-      
+
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue(
-        mockHistory.map(h => JSON.stringify(h)).join('\n')
+        mockHistory.map((h) => JSON.stringify(h)).join('\n'),
       )
-      
+
       const history = await securityScanner.loadScanHistory(10)
-      
+
       expect(history).toHaveLength(10)
     })
 
     it('should handle corrupted history file', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true)
       vi.mocked(fs.readFileSync).mockReturnValue('invalid json\n{broken')
-      
+
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       const history = await securityScanner.loadScanHistory()
-      
+
       expect(history).toEqual([])
       expect(warnSpy).toHaveBeenCalled()
-      
+
       warnSpy.mockRestore()
     })
   })
@@ -533,20 +597,18 @@ const alsoSafe = "this is also safe"
   describe('deleteScanResult', () => {
     it('should delete scan result file', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true)
-      
+
       const result = await securityScanner.deleteScanResult('test-scan-123')
-      
+
       expect(result).toBe(true)
-      expect(fs.unlinkSync).toHaveBeenCalledWith(
-        path.join(mockDataDir, 'test-scan-123.json')
-      )
+      expect(fs.unlinkSync).toHaveBeenCalledWith(path.join(mockDataDir, 'test-scan-123.json'))
     })
 
     it('should return false if scan result does not exist', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false)
-      
+
       const result = await securityScanner.deleteScanResult('nonexistent')
-      
+
       expect(result).toBe(false)
       expect(fs.unlinkSync).not.toHaveBeenCalled()
     })
@@ -556,7 +618,7 @@ const alsoSafe = "this is also safe"
       vi.mocked(fs.unlinkSync).mockImplementation(() => {
         throw new Error('Permission denied')
       })
-      
+
       await expect(securityScanner.deleteScanResult('test-scan-123')).rejects.toThrow()
     })
   })
@@ -579,7 +641,7 @@ const alsoSafe = "this is also safe"
           file: '/test/file.js',
           line: 10,
           cwe: 'CWE-89',
-          suggestion: 'Use parameterized queries'
+          suggestion: 'Use parameterized queries',
         },
         {
           id: 'issue-2',
@@ -589,11 +651,11 @@ const alsoSafe = "this is also safe"
           file: '/test/file.js',
           line: 20,
           cwe: 'CWE-79',
-          suggestion: 'Sanitize user input'
-        }
+          suggestion: 'Sanitize user input',
+        },
       ],
       scannedFiles: ['/test/file.js'],
-      scanDuration: 1000
+      scanDuration: 1000,
     }
 
     beforeEach(() => {
@@ -603,20 +665,20 @@ const alsoSafe = "this is also safe"
 
     it('should export to JSON by default', async () => {
       await securityScanner.exportScanResult('test-scan-123', '/export/result.json')
-      
+
       expect(fs.writeFileSync).toHaveBeenCalledWith(
         '/export/result.json',
-        JSON.stringify(mockResult, null, 2)
+        JSON.stringify(mockResult, null, 2),
       )
     })
 
     it('should export to CSV format', async () => {
       await securityScanner.exportScanResult('test-scan-123', '/export/result.csv')
-      
-      const writeCall = vi.mocked(fs.writeFileSync).mock.calls.find(
-        call => call[0] === '/export/result.csv'
-      )
-      
+
+      const writeCall = vi
+        .mocked(fs.writeFileSync)
+        .mock.calls.find((call) => call[0] === '/export/result.csv')
+
       expect(writeCall).toBeDefined()
       const csvContent = writeCall![1] as string
       expect(csvContent).toContain('File,Line,Severity,Type,Description,CWE,Suggestion')
@@ -626,11 +688,11 @@ const alsoSafe = "this is also safe"
 
     it('should export to HTML format', async () => {
       await securityScanner.exportScanResult('test-scan-123', '/export/result.html')
-      
-      const writeCall = vi.mocked(fs.writeFileSync).mock.calls.find(
-        call => call[0] === '/export/result.html'
-      )
-      
+
+      const writeCall = vi
+        .mocked(fs.writeFileSync)
+        .mock.calls.find((call) => call[0] === '/export/result.html')
+
       expect(writeCall).toBeDefined()
       const htmlContent = writeCall![1] as string
       expect(htmlContent).toContain('<!DOCTYPE html>')
@@ -641,9 +703,9 @@ const alsoSafe = "this is also safe"
 
     it('should handle nonexistent scan result', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(false)
-      
+
       await expect(
-        securityScanner.exportScanResult('nonexistent', '/export/result.json')
+        securityScanner.exportScanResult('nonexistent', '/export/result.json'),
       ).rejects.toThrow('Scan result nonexistent not found')
     })
   })
@@ -651,14 +713,14 @@ const alsoSafe = "this is also safe"
   describe('security rules', () => {
     it('should have comprehensive security rules', () => {
       expect(SECURITY_RULES.length).toBeGreaterThan(10)
-      
+
       // Check for essential security rule categories
-      const ruleTypes = SECURITY_RULES.map(rule => rule.name.toLowerCase())
-      expect(ruleTypes.some(type => type.includes('sql injection'))).toBe(true)
-      expect(ruleTypes.some(type => type.includes('xss'))).toBe(true)
-      expect(ruleTypes.some(type => type.includes('hardcoded'))).toBe(true)
-      expect(ruleTypes.some(type => type.includes('command injection'))).toBe(true)
-      expect(ruleTypes.some(type => type.includes('path traversal'))).toBe(true)
+      const ruleTypes = SECURITY_RULES.map((rule) => rule.name.toLowerCase())
+      expect(ruleTypes.some((type) => type.includes('sql injection'))).toBe(true)
+      expect(ruleTypes.some((type) => type.includes('xss'))).toBe(true)
+      expect(ruleTypes.some((type) => type.includes('hardcoded'))).toBe(true)
+      expect(ruleTypes.some((type) => type.includes('command injection'))).toBe(true)
+      expect(ruleTypes.some((type) => type.includes('path traversal'))).toBe(true)
     })
 
     it('should have valid rule structure', () => {

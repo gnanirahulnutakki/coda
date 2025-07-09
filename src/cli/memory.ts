@@ -3,7 +3,7 @@ import { log, warn } from '../utils/logging.js'
 
 export async function handleMemoryCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command) {
     console.log('Memory management commands:')
     console.log('  coda memory show          - Show current project context')
@@ -49,7 +49,7 @@ export async function handleMemoryCommand(args: string[]): Promise<void> {
 
 async function showContext(memory: ContextMemory): Promise<void> {
   const summary = memory.getContextSummary()
-  
+
   if (!summary) {
     console.log('No context memory found for this project.')
     return
@@ -58,9 +58,9 @@ async function showContext(memory: ContextMemory): Promise<void> {
   console.log('\x1b[36m╔══════════════════════════════════════════════════════╗\x1b[0m')
   console.log('\x1b[36m║                 Project Context Memory               ║\x1b[0m')
   console.log('\x1b[36m╚══════════════════════════════════════════════════════╝\x1b[0m\n')
-  
+
   console.log(summary)
-  
+
   const recent = memory.getRecentContext(10)
   if (recent.length > 0) {
     console.log('\n\x1b[33m📝 Recent Activity:\x1b[0m')
@@ -78,14 +78,14 @@ async function searchContext(memory: ContextMemory, query?: string): Promise<voi
   }
 
   const results = memory.searchContext(query)
-  
+
   if (results.length === 0) {
     console.log(`No results found for: "${query}"`)
     return
   }
 
   console.log(`\x1b[32m Found ${results.length} results for "${query}":\x1b[0m\n`)
-  
+
   results.forEach((entry, index) => {
     const time = new Date(entry.timestamp).toLocaleDateString()
     console.log(`${index + 1}. [${time}] ${entry.type.toUpperCase()}`)
@@ -103,10 +103,12 @@ async function searchContext(memory: ContextMemory, query?: string): Promise<voi
 async function clearContext(memory: ContextMemory): Promise<void> {
   // We can't directly clear from the ContextMemory class, so we'll create a new empty context
   const projectPath = process.cwd()
-  
-  console.log('\x1b[33m⚠️  This will permanently delete all context memory for this project.\x1b[0m')
+
+  console.log(
+    '\x1b[33m⚠️  This will permanently delete all context memory for this project.\x1b[0m',
+  )
   console.log('This action cannot be undone.')
-  
+
   // For now, just show a warning. In a real implementation, we'd add a clear method
   warn('Context clearing not yet implemented. Use "coda memory export" to backup first.')
 }
@@ -158,13 +160,13 @@ async function updateSummary(memory: ContextMemory, summaryArgs: string[]): Prom
   }
 
   const metadata: any = {}
-  
+
   for (let i = 0; i < summaryArgs.length; i += 2) {
     const flag = summaryArgs[i]
     const value = summaryArgs[i + 1]
-    
+
     if (!value) continue
-    
+
     switch (flag) {
       case '--summary':
         metadata.summary = value
@@ -178,12 +180,12 @@ async function updateSummary(memory: ContextMemory, summaryArgs: string[]): Prom
         break
     }
   }
-  
+
   if (Object.keys(metadata).length === 0) {
     warn('No valid metadata provided')
     return
   }
-  
+
   await memory.updateProjectMetadata(metadata)
   log('✅ Project metadata updated')
 }

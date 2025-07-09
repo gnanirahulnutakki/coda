@@ -22,12 +22,7 @@ describe('detectSubcommand', () => {
     })
 
     it('detects subcommand with mixed arguments', () => {
-      const result = detectSubcommand([
-        '--flag',
-        'build',
-        '--another-flag',
-        'some text',
-      ])
+      const result = detectSubcommand(['--flag', 'build', '--another-flag', 'some text'])
       expect(result.isSubcommand).toBe(true)
       expect(result.subcommand).toBe('build')
     })

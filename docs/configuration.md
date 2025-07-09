@@ -20,11 +20,9 @@ Claude Composer uses YAML files for configuration:
 Toolsets can be specified in several ways:
 
 1. **By Name**: References files in predefined directories
-
    - `my-toolset` → `~/.claude-composer/toolsets/my-toolset.yaml`
 
 2. **With Prefix**: Special location prefixes
-
    - `internal:core` → Built-in toolset
    - `project:backend` → `.claude-composer/toolsets/backend.yaml`
 

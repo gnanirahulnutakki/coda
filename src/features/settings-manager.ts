@@ -40,11 +40,14 @@ export class SettingsManager {
   /**
    * Export all settings to a bundle file
    */
-  async exportSettings(outputPath: string, options: {
-    includePresets?: boolean
-    includeWorkflows?: boolean
-    description?: string
-  } = {}): Promise<void> {
+  async exportSettings(
+    outputPath: string,
+    options: {
+      includePresets?: boolean
+      includeWorkflows?: boolean
+      description?: string
+    } = {},
+  ): Promise<void> {
     const bundle: SettingsBundle = {
       version: '1.0.0',
       exported: new Date().toISOString(),
@@ -54,8 +57,8 @@ export class SettingsManager {
         exportedBy: process.env.USER || 'unknown',
         description: options.description,
         platform: process.platform,
-        nodeVersion: process.version
-      }
+        nodeVersion: process.version,
+      },
     }
 
     // Include presets if requested
@@ -80,7 +83,10 @@ export class SettingsManager {
   /**
    * Import settings from a bundle file
    */
-  async importSettings(inputPath: string, options: ImportOptions = {}): Promise<{
+  async importSettings(
+    inputPath: string,
+    options: ImportOptions = {},
+  ): Promise<{
     success: boolean
     imported: {
       config: boolean
@@ -95,9 +101,9 @@ export class SettingsManager {
       imported: {
         config: false,
         presets: 0,
-        workflows: 0
+        workflows: 0,
       },
-      errors
+      errors,
     }
 
     try {
@@ -108,7 +114,8 @@ export class SettingsManager {
       // Verify checksum if present
       if (bundle.checksum && options.validate !== false) {
         const bundleWithoutChecksum = { ...bundle, checksum: '' }
-        const calculatedChecksum = crypto.createHash('sha256')
+        const calculatedChecksum = crypto
+          .createHash('sha256')
           .update(JSON.stringify(bundleWithoutChecksum, null, 2))
           .digest('hex')
 
@@ -140,7 +147,6 @@ export class SettingsManager {
         const count = await this.importWorkflows(bundle.workflows, options)
         result.imported.workflows = count
       }
-
     } catch (error) {
       errors.push(`Failed to import settings: ${error.message}`)
       result.success = false
@@ -165,7 +171,7 @@ export class SettingsManager {
     await this.exportSettings(backupPath, {
       includePresets: true,
       includeWorkflows: true,
-      description: 'Automatic backup before import'
+      description: 'Automatic backup before import',
     })
 
     return backupPath
@@ -181,22 +187,23 @@ export class SettingsManager {
     created: Date
   }> {
     const backupDir = path.join(this.configDir, 'backups')
-    
+
     if (!fs.existsSync(backupDir)) {
       return []
     }
 
-    const files = fs.readdirSync(backupDir)
-      .filter(f => f.startsWith('settings-backup-') && f.endsWith('.json'))
-      .map(filename => {
+    const files = fs
+      .readdirSync(backupDir)
+      .filter((f) => f.startsWith('settings-backup-') && f.endsWith('.json'))
+      .map((filename) => {
         const filepath = path.join(backupDir, filename)
         const stats = fs.statSync(filepath)
-        
+
         return {
           filename,
           path: filepath,
           size: stats.size,
-          created: stats.birthtime
+          created: stats.birthtime,
         }
       })
       .sort((a, b) => b.created.getTime() - a.created.getTime())
@@ -245,18 +252,27 @@ export class SettingsManager {
       }
 
       // Check for unknown fields
-      const knownFields = ['version', 'exported', 'checksum', 'config', 'presets', 'workflows', 'metadata']
-      const unknownFields = Object.keys(bundle).filter(k => !knownFields.includes(k))
-      
+      const knownFields = [
+        'version',
+        'exported',
+        'checksum',
+        'config',
+        'presets',
+        'workflows',
+        'metadata',
+      ]
+      const unknownFields = Object.keys(bundle).filter((k) => !knownFields.includes(k))
+
       if (unknownFields.length > 0) {
         warnings.push(`Unknown fields in bundle: ${unknownFields.join(', ')}`)
       }
 
       // Check metadata
       if (bundle.metadata?.platform && bundle.metadata.platform !== process.platform) {
-        warnings.push(`Bundle was exported on ${bundle.metadata.platform}, current platform is ${process.platform}`)
+        warnings.push(
+          `Bundle was exported on ${bundle.metadata.platform}, current platform is ${process.platform}`,
+        )
       }
-
     } catch (error) {
       errors.push(`Failed to parse bundle: ${error.message}`)
     }
@@ -264,7 +280,7 @@ export class SettingsManager {
     return {
       valid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     }
   }
 
@@ -272,7 +288,7 @@ export class SettingsManager {
 
   private async loadConfig(): Promise<AppConfig> {
     const configPath = path.join(this.configDir, 'config.yaml')
-    
+
     if (!fs.existsSync(configPath)) {
       throw new Error('No configuration file found')
     }
@@ -294,10 +310,10 @@ export class SettingsManager {
       // Merge with existing config
       const existingContent = fs.readFileSync(configPath, 'utf8')
       const existingConfig = yaml.parse(existingContent) as AppConfig
-      
+
       const mergedConfig = {
         ...existingConfig,
-        ...config
+        ...config,
       }
 
       fs.writeFileSync(configPath, yaml.stringify(mergedConfig))
@@ -312,8 +328,9 @@ export class SettingsManager {
     const presets: any[] = []
 
     if (fs.existsSync(presetsDir)) {
-      const files = fs.readdirSync(presetsDir)
-        .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+      const files = fs
+        .readdirSync(presetsDir)
+        .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
 
       for (const file of files) {
         try {
@@ -333,7 +350,7 @@ export class SettingsManager {
 
   private async importPresets(presets: any[], options: ImportOptions): Promise<number> {
     const presetsDir = path.join(this.configDir, 'presets')
-    
+
     if (!fs.existsSync(presetsDir)) {
       fs.mkdirSync(presetsDir, { recursive: true })
     }
@@ -366,8 +383,9 @@ export class SettingsManager {
     const workflows: any[] = []
 
     if (fs.existsSync(workflowsDir)) {
-      const files = fs.readdirSync(workflowsDir)
-        .filter(f => f.endsWith('.yaml') || f.endsWith('.yml'))
+      const files = fs
+        .readdirSync(workflowsDir)
+        .filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'))
 
       for (const file of files) {
         try {
@@ -385,7 +403,7 @@ export class SettingsManager {
 
   private async importWorkflows(workflows: any[], options: ImportOptions): Promise<number> {
     const workflowsDir = path.join(this.configDir, 'workflows')
-    
+
     if (!fs.existsSync(workflowsDir)) {
       fs.mkdirSync(workflowsDir, { recursive: true })
     }

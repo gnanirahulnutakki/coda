@@ -84,36 +84,39 @@ export class TerminalManager {
     if (this.appConfig && this.shouldInitializeXterm()) {
       await this.initializeXterm(cols, rows)
     }
-    
+
     // Buffer to collect early error messages
     let earlyErrorBuffer = ''
     let earlyErrorTimeout: NodeJS.Timeout | null = null
-    
+
     const dataHandler = (data: string) => {
       // Collect early data to check for errors
       if (earlyErrorTimeout) {
         earlyErrorBuffer += data
-        
+
         // Check for known error patterns
-        if (earlyErrorBuffer.includes('Error: Unable to find helper app') ||
-            earlyErrorBuffer.includes('Could not automatically determine the current application\'s identifier') ||
-            earlyErrorBuffer.includes('Squirrel.Windows') ||
-            earlyErrorBuffer.includes('ENOENT')) {
-          
+        if (
+          earlyErrorBuffer.includes('Error: Unable to find helper app') ||
+          earlyErrorBuffer.includes(
+            "Could not automatically determine the current application's identifier",
+          ) ||
+          earlyErrorBuffer.includes('Squirrel.Windows') ||
+          earlyErrorBuffer.includes('ENOENT')
+        ) {
           clearTimeout(earlyErrorTimeout)
           earlyErrorTimeout = null
-          
+
           console.error('\x1b[31m╔══════════════════════════════════════════════════════╗\x1b[0m')
-          console.error('\x1b[31m║         AI Provider Startup Error                    ║\x1b[0m')  
+          console.error('\x1b[31m║         AI Provider Startup Error                    ║\x1b[0m')
           console.error('\x1b[31m╠══════════════════════════════════════════════════════╣\x1b[0m')
           console.error('\x1b[31m║ The AI provider encountered startup errors.          ║\x1b[0m')
           console.error('\x1b[31m║                                                      ║\x1b[0m')
-          
+
           if (earlyErrorBuffer.includes('Squirrel.Windows')) {
             console.error('\x1b[31m║ This appears to be an Electron/Squirrel issue.      ║\x1b[0m')
             console.error('\x1b[31m║ The app may need to be properly installed first.    ║\x1b[0m')
           }
-          
+
           console.error('\x1b[31m║                                                      ║\x1b[0m')
           console.error('\x1b[31m║ Try running the provider directly:                  ║\x1b[0m')
           console.error(`\x1b[31m║   ${childAppPath}\x1b[0m`)
@@ -122,31 +125,31 @@ export class TerminalManager {
           console.error(earlyErrorBuffer)
         }
       }
-      
-      this.dataHandlers.forEach(handler => handler(data))
+
+      this.dataHandlers.forEach((handler) => handler(data))
     }
-    
+
     // Set up early error detection timeout
     earlyErrorTimeout = setTimeout(() => {
       earlyErrorTimeout = null
       earlyErrorBuffer = ''
     }, 3000) // Clear buffer after 3 seconds if no errors detected
-    
+
     const exitHandler = (exitCode: { exitCode: number }) => {
       if (earlyErrorTimeout) {
         clearTimeout(earlyErrorTimeout)
         earlyErrorTimeout = null
       }
-      this.exitHandlers.forEach(handler => handler(exitCode.exitCode || 0))
+      this.exitHandlers.forEach((handler) => handler(exitCode.exitCode || 0))
     }
-    
+
     this.state.ptyProcess.onData(dataHandler)
     this.state.ptyProcess.onExit(exitHandler)
-    
+
     // Track event listeners for cleanup
     this.eventListeners.push(
       { target: this.state.ptyProcess, event: 'data', handler: dataHandler },
-      { target: this.state.ptyProcess, event: 'exit', handler: exitHandler }
+      { target: this.state.ptyProcess, event: 'exit', handler: exitHandler },
     )
 
     if (process.stdin.isTTY) {
@@ -196,35 +199,30 @@ export class TerminalManager {
 
     const stdoutHandler = (data: Buffer) => {
       const dataStr = data.toString()
-      this.dataHandlers.forEach(handler => handler(dataStr))
+      this.dataHandlers.forEach((handler) => handler(dataStr))
     }
     const exitHandler = (code: number | null) => {
-      this.exitHandlers.forEach(handler => handler(code || 0))
+      this.exitHandlers.forEach((handler) => handler(code || 0))
     }
-    
+
     this.state.childProcess.stdout!.on('data', stdoutHandler)
     this.state.childProcess.stderr!.pipe(process.stderr)
     this.state.childProcess.on('exit', exitHandler)
-    
+
     // Track event listeners for cleanup
     this.eventListeners.push(
       { target: this.state.childProcess.stdout, event: 'data', handler: stdoutHandler },
-      { target: this.state.childProcess, event: 'exit', handler: exitHandler }
+      { target: this.state.childProcess, event: 'exit', handler: exitHandler },
     )
   }
 
   private async initializeXterm(cols: number, rows: number): Promise<void> {
     try {
       const xtermModule = await import('@xterm/xterm')
-      const Terminal =
-        xtermModule.Terminal ||
-        xtermModule.default?.Terminal ||
-        xtermModule.default
+      const Terminal = xtermModule.Terminal || xtermModule.default?.Terminal || xtermModule.default
       const addonModule = await import('@xterm/addon-serialize')
       const SerializeAddon =
-        addonModule.SerializeAddon ||
-        addonModule.default?.SerializeAddon ||
-        addonModule.default
+        addonModule.SerializeAddon || addonModule.default?.SerializeAddon || addonModule.default
 
       this.state.terminal = new Terminal({
         cols,
@@ -245,16 +243,8 @@ export class TerminalManager {
 
   handleStdinData(data: Buffer): void {
     try {
-      if (
-        this.appConfig?.allow_buffer_snapshots &&
-        data.length === 1 &&
-        data[0] === 19
-      ) {
-        saveTerminalSnapshot(
-          this.state.terminal,
-          this.state.serializeAddon,
-          this.appConfig,
-        )
+      if (this.appConfig?.allow_buffer_snapshots && data.length === 1 && data[0] === 19) {
+        saveTerminalSnapshot(this.state.terminal, this.state.serializeAddon, this.appConfig)
         return
       }
 
@@ -294,7 +284,7 @@ export class TerminalManager {
       if (this.state.terminal) {
         this.state.terminal.resize(cols, rows)
       }
-      this.resizeHandlers.forEach(handler => handler(cols, rows))
+      this.resizeHandlers.forEach((handler) => handler(cols, rows))
     } catch (error) {
       errorLogger.debug('Failed to resize terminal', error as Error)
     }
@@ -328,12 +318,12 @@ export class TerminalManager {
       }
     })
     this.eventListeners = []
-    
+
     // Clear handler arrays
     this.dataHandlers = []
     this.exitHandlers = []
     this.resizeHandlers = []
-    
+
     if (this.state.isRawMode && process.stdin.isTTY) {
       process.stdin.setRawMode(false)
       this.state.isRawMode = false

@@ -17,9 +17,7 @@ describe('Glob Pattern Matching with picomatch', () => {
 
       // Should not match subdirectories
       expect(matchesGlobPattern('src/utils/helper.js', pattern)).toBe(false)
-      expect(matchesGlobPattern('src/components/button.js', pattern)).toBe(
-        false,
-      )
+      expect(matchesGlobPattern('src/components/button.js', pattern)).toBe(false)
 
       // Should not match different extensions
       expect(matchesGlobPattern('src/index.ts', pattern)).toBe(false)
@@ -54,9 +52,7 @@ describe('Glob Pattern Matching with picomatch', () => {
       expect(matchesGlobPattern('test.js', pattern)).toBe(true)
       expect(matchesGlobPattern('src/test.js', pattern)).toBe(true)
       expect(matchesGlobPattern('src/utils/test.js', pattern)).toBe(true)
-      expect(matchesGlobPattern('src/components/button/test.js', pattern)).toBe(
-        true,
-      )
+      expect(matchesGlobPattern('src/components/button/test.js', pattern)).toBe(true)
 
       expect(matchesGlobPattern('test.ts', pattern)).toBe(false)
       expect(matchesGlobPattern('src/test-file.js', pattern)).toBe(false)
@@ -87,15 +83,9 @@ describe('Glob Pattern Matching with picomatch', () => {
     it('should handle multiple globstars', () => {
       const pattern = '**/node_modules/**'
 
-      expect(matchesGlobPattern('node_modules/package/index.js', pattern)).toBe(
-        true,
-      )
-      expect(matchesGlobPattern('src/node_modules/lib/test.js', pattern)).toBe(
-        true,
-      )
-      expect(matchesGlobPattern('a/b/node_modules/c/d/e.js', pattern)).toBe(
-        true,
-      )
+      expect(matchesGlobPattern('node_modules/package/index.js', pattern)).toBe(true)
+      expect(matchesGlobPattern('src/node_modules/lib/test.js', pattern)).toBe(true)
+      expect(matchesGlobPattern('a/b/node_modules/c/d/e.js', pattern)).toBe(true)
 
       expect(matchesGlobPattern('src/index.js', pattern)).toBe(false)
       expect(matchesGlobPattern('node_module/test.js', pattern)).toBe(false)
@@ -108,9 +98,7 @@ describe('Glob Pattern Matching with picomatch', () => {
 
       expect(matchesGlobPattern('example.test.ts', pattern)).toBe(true)
       expect(matchesGlobPattern('src/utils.test.ts', pattern)).toBe(true)
-      expect(matchesGlobPattern('test/unit/component.test.ts', pattern)).toBe(
-        true,
-      )
+      expect(matchesGlobPattern('test/unit/component.test.ts', pattern)).toBe(true)
 
       expect(matchesGlobPattern('example.test.js', pattern)).toBe(false)
       expect(matchesGlobPattern('example.spec.ts', pattern)).toBe(false)
@@ -145,16 +133,10 @@ describe('Glob Pattern Matching with picomatch', () => {
     it('should match specific absolute paths', () => {
       const pattern = '/home/user/projects/*.js'
 
-      expect(matchesGlobPattern('/home/user/projects/index.js', pattern)).toBe(
-        true,
-      )
-      expect(matchesGlobPattern('/home/user/projects/app.js', pattern)).toBe(
-        true,
-      )
+      expect(matchesGlobPattern('/home/user/projects/index.js', pattern)).toBe(true)
+      expect(matchesGlobPattern('/home/user/projects/app.js', pattern)).toBe(true)
 
-      expect(
-        matchesGlobPattern('/home/user/projects/src/index.js', pattern),
-      ).toBe(false)
+      expect(matchesGlobPattern('/home/user/projects/src/index.js', pattern)).toBe(false)
       expect(matchesGlobPattern('/home/user/index.js', pattern)).toBe(false)
     })
   })

@@ -1,15 +1,7 @@
 import * as os from 'os'
 import * as path from 'path'
-import type {
-  PreflightOptions,
-  PreflightResult,
-  AppConfig,
-} from '../types/preflight.js'
-import {
-  ensureConfigDirectory,
-  loadConfigFile,
-  createTempMcpConfig,
-} from '../config/loader.js'
+import type { PreflightOptions, PreflightResult, AppConfig } from '../types/preflight.js'
+import { ensureConfigDirectory, loadConfigFile, createTempMcpConfig } from '../config/loader.js'
 import { buildToolsetArgs, mergeToolsets } from '../config/toolsets.js'
 import {
   checkGitInstalled,
@@ -50,7 +42,7 @@ export async function runPreflight(
   if (parsedOptions.quiet) {
     setQuietMode(true)
   }
-  
+
   if (parsedOptions.debug) {
     errorLogger.setDebugMode(true)
     log('※ Debug mode enabled - verbose logging active')
@@ -92,12 +84,8 @@ export async function runPreflight(
 
     if (!hasGlobalConfig && !hasProjectConfig) {
       console.error('\x1b[31m※ Error: No configuration file found.\x1b[0m')
-      console.error(
-        '\x1b[31m※ Coda requires a configuration file to run.\x1b[0m',
-      )
-      console.error(
-        '\x1b[31m※ To create a config file, run: coda cc-init\x1b[0m',
-      )
+      console.error('\x1b[31m※ Coda requires a configuration file to run.\x1b[0m')
+      console.error('\x1b[31m※ To create a config file, run: coda cc-init\x1b[0m')
       return {
         appConfig,
         toolsetArgs: [],
@@ -147,8 +135,7 @@ export async function runPreflight(
     appConfig.show_notifications = parsedOptions.showNotifications
   }
   if (parsedOptions.dangerouslyAllowInDirtyDirectory !== undefined) {
-    appConfig.dangerously_allow_in_dirty_directory =
-      parsedOptions.dangerouslyAllowInDirtyDirectory
+    appConfig.dangerously_allow_in_dirty_directory = parsedOptions.dangerouslyAllowInDirtyDirectory
   }
   if (parsedOptions.dangerouslyAllowWithoutVersionControl !== undefined) {
     appConfig.dangerously_allow_without_version_control =
@@ -174,7 +161,9 @@ export async function runPreflight(
   // Handle provider: CLI flag takes precedence over config
   if (parsedOptions.provider !== undefined) {
     if (!['claude-code', 'gemini'].includes(parsedOptions.provider)) {
-      console.error(`\x1b[31m※ Error: Invalid provider '${parsedOptions.provider}'. Must be 'claude-code' or 'gemini'.\x1b[0m`)
+      console.error(
+        `\x1b[31m※ Error: Invalid provider '${parsedOptions.provider}'. Must be 'claude-code' or 'gemini'.\x1b[0m`,
+      )
       return {
         appConfig,
         toolsetArgs: [],
@@ -190,17 +179,17 @@ export async function runPreflight(
     // No CLI flag provided and either always_ask_provider is true or no provider configured
     const { askProviderSelection } = await import('../cli/prompts.js')
     const { ProviderDetector } = await import('../utils/provider-detector.js')
-    
+
     // Auto-detect available providers
     const availableProviders = await ProviderDetector.detectAvailableProviders()
-    
+
     const selectedProvider = await askProviderSelection(
       appConfig.provider || 'claude-code',
       availableProviders,
       options?.stdin,
-      options?.stdout
+      options?.stdout,
     )
-    
+
     if (!selectedProvider) {
       log('※ No provider selected. Exiting.')
       return {
@@ -213,7 +202,7 @@ export async function runPreflight(
         hasPrintOption,
       }
     }
-    
+
     appConfig.provider = selectedProvider
   }
   // If no CLI flag provided, config value is preserved from loadConfigFile above
@@ -235,14 +224,16 @@ export async function runPreflight(
       toolsetArgs = buildToolsetArgs(mergedConfig, provider)
 
       // Only add MCP config for Claude Code
-      if (provider === 'claude-code' && mergedConfig.mcp && Object.keys(mergedConfig.mcp).length > 0) {
+      if (
+        provider === 'claude-code' &&
+        mergedConfig.mcp &&
+        Object.keys(mergedConfig.mcp).length > 0
+      ) {
         tempMcpConfigPath = createTempMcpConfig(mergedConfig.mcp)
         toolsetArgs.push('--mcp-config', tempMcpConfigPath)
       }
     } catch (error) {
-      console.error(
-        `\x1b[31m※ Error: ${error instanceof Error ? error.message : error}\x1b[0m`,
-      )
+      console.error(`\x1b[31m※ Error: ${error instanceof Error ? error.message : error}\x1b[0m`)
       return {
         appConfig,
         toolsetArgs: [],
@@ -255,20 +246,13 @@ export async function runPreflight(
     }
   }
 
-  const hasToolsetFlag =
-    parsedOptions.toolset && parsedOptions.toolset.length > 0
+  const hasToolsetFlag = parsedOptions.toolset && parsedOptions.toolset.length > 0
   const hasToolsetConfig = appConfig.toolsets && appConfig.toolsets.length > 0
   const hasToolsetConfiguration = hasToolsetFlag || hasToolsetConfig
 
-  const mutuallyExclusiveFlags = [
-    '--mcp-config',
-    '--allowed-tools',
-    '--disallowed-tools',
-  ]
-  const usedMutuallyExclusiveFlags = argv.filter(arg => {
-    return mutuallyExclusiveFlags.some(
-      flag => arg === flag || arg.startsWith(flag + '='),
-    )
+  const mutuallyExclusiveFlags = ['--mcp-config', '--allowed-tools', '--disallowed-tools']
+  const usedMutuallyExclusiveFlags = argv.filter((arg) => {
+    return mutuallyExclusiveFlags.some((flag) => arg === flag || arg.startsWith(flag + '='))
   })
 
   if (hasToolsetConfiguration && usedMutuallyExclusiveFlags.length > 0) {
@@ -314,7 +298,7 @@ export async function runPreflight(
   if (toolsetArgs.length > 0) {
     childArgs.push(...toolsetArgs)
   }
-  
+
   // Handle provider-specific flags
   if ((appConfig.provider || 'claude-code') === 'gemini' && appConfig.yolo) {
     // Gemini uses -y or --yolo for YOLO mode
@@ -368,7 +352,7 @@ export async function runPreflight(
   // Find the AI provider command based on configuration
   const provider = appConfig.provider || 'claude-code'
   const providerPath = appConfig.provider_path
-  
+
   try {
     const { AI_PROVIDER_PATHS } = await import('../config/paths.js')
     const childAppPath = AI_PROVIDER_PATHS.findProviderCommand(provider, providerPath)
@@ -410,9 +394,7 @@ export async function runPreflight(
       }
     }
   } catch (error) {
-    console.error(
-      `※ Exiting: ${error instanceof Error ? error.message : error}`,
-    )
+    console.error(`※ Exiting: ${error instanceof Error ? error.message : error}`)
     return {
       appConfig,
       toolsetArgs,
@@ -429,10 +411,7 @@ export async function runPreflight(
     log('※ Notifications are enabled')
   }
 
-  const automaticAcceptanceConfirmed = await handleAutomaticAcceptanceWarning(
-    appConfig,
-    options,
-  )
+  const automaticAcceptanceConfirmed = await handleAutomaticAcceptanceWarning(appConfig, options)
   if (!automaticAcceptanceConfirmed) {
     return {
       appConfig,

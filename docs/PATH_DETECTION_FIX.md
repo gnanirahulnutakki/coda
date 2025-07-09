@@ -9,7 +9,9 @@
 ## Solutions Implemented
 
 ### 1. Smart Provider Detection (`src/utils/provider-detector.ts`)
+
 Created a comprehensive provider detection system that checks multiple locations in order:
+
 - Custom path (from config)
 - Environment variables (CLAUDE_APP_PATH, GEMINI_APP_PATH)
 - System PATH (using `which`)
@@ -19,24 +21,30 @@ Created a comprehensive provider detection system that checks multiple locations
 - Platform-specific locations (Windows, macOS Applications)
 
 ### 2. Updated Path Finding (`src/config/paths.ts`)
+
 Modified `findProviderCommand` to:
+
 - Prioritize system-installed versions (PATH) over local installations
 - Check executable permissions
 - Provide detailed error messages showing all checked locations
 
 ### 3. Enhanced Initialization (`src/cli/cc-init.ts`)
+
 - Auto-detects available providers during setup
 - Shows checkmarks (✓) for found providers
 - Disables selection for providers not found
 - Still allows configuration for later installation
 
 ### 4. Better Error Handling (`src/terminal/manager.ts`)
+
 - Catches spawn errors with helpful messages
 - Detects early startup errors (Electron/Squirrel issues)
 - Provides actionable solutions
 
 ### 5. New Diagnostic Command (`coda doctor`)
+
 Added a diagnostic command that:
+
 - Checks configuration files
 - Detects all AI providers
 - Shows which paths were checked
@@ -45,17 +53,20 @@ Added a diagnostic command that:
 ## Usage
 
 ### Run diagnostics
+
 ```bash
 coda doctor
 ```
 
 This will show:
+
 - Configuration status
 - AI provider detection results
 - Environment information
 - Recommendations for fixing issues
 
 ### Force path detection (debug mode)
+
 ```bash
 coda --debug "your prompt"
 ```
@@ -63,7 +74,9 @@ coda --debug "your prompt"
 This will show which provider path is being used.
 
 ### Manual path configuration
+
 If automatic detection fails, users can:
+
 1. Set environment variable: `export CLAUDE_APP_PATH=/path/to/claude`
 2. Add to config file:
    ```yaml

@@ -13,14 +13,14 @@ export function createClaudeComposerCommand(): Command {
       'Use predefined toolsets from ~/.coda/toolsets/ directory or specify an absolute path (can be specified multiple times)',
     )
     .option('--yolo', 'Accept all prompts automatically (use with caution)')
-    .option(
-      '--ignore-global-config',
-      'Ignore configuration from ~/.coda/config.yaml',
-    )
+    .option('--ignore-global-config', 'Ignore configuration from ~/.coda/config.yaml')
     .option('--quiet', 'Suppress preflight messages')
     .option('--debug', 'Enable debug mode with verbose logging')
     .option('--mode <mode>', 'Start mode (act or plan)')
-    .option('--provider <provider>', 'Use a specific AI provider for this session (claude-code or gemini)')
+    .option(
+      '--provider <provider>',
+      'Use a specific AI provider for this session (claude-code or gemini)',
+    )
     .option(
       '--allow-buffer-snapshots',
       'Enable Ctrl+Shift+S to save terminal buffer snapshots to ~/.coda/logs/',
@@ -71,10 +71,7 @@ export function createClaudeComposerCommand(): Command {
       '--sticky-notifications',
       'Enable notifications that stay on screen until manually dismissed (also enables --show-notifications)',
     )
-    .option(
-      '--no-sticky-notifications',
-      'Make notifications auto-dismiss after timeout (default)',
-    )
+    .option('--no-sticky-notifications', 'Make notifications auto-dismiss after timeout (default)')
     .allowUnknownOption()
     .argument('[args...]', 'Arguments to pass to `claude`')
 
@@ -91,9 +88,7 @@ export function parseCommandLineArgs(argv: string[]): {
 } {
   const helpRequested = argv.includes('--help') || argv.includes('-h')
   const versionRequested = argv.includes('--version') || argv.includes('-v')
-  const hasPrintOption = argv.some(
-    arg => arg === '--print' || arg.startsWith('--print='),
-  )
+  const hasPrintOption = argv.some((arg) => arg === '--print' || arg.startsWith('--print='))
 
   const program = createClaudeComposerCommand()
 
@@ -134,7 +129,7 @@ export function parseCommandLineArgs(argv: string[]): {
 export function buildKnownOptionsSet(program: Command): Set<string> {
   const knownOptions = new Set<string>()
 
-  program.options.forEach(option => {
+  program.options.forEach((option) => {
     if (option.long) knownOptions.add(option.long)
   })
 

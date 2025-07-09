@@ -18,10 +18,7 @@ export type NotificationType =
   | 'accepted_confirmation'
   | 'terminal_snapshot'
 
-export function getNotificationStickiness(
-  type: NotificationType,
-  appConfig?: AppConfig,
-): boolean {
+export function getNotificationStickiness(type: NotificationType, appConfig?: AppConfig): boolean {
   if (!appConfig) return false
 
   // Check per-type stickiness fields first
@@ -71,13 +68,7 @@ export async function showNotification(
 
 export function getPatternType(
   patternId: string,
-):
-  | 'edit_file'
-  | 'create_file'
-  | 'bash_command'
-  | 'read_file'
-  | 'fetch_content'
-  | undefined {
+): 'edit_file' | 'create_file' | 'bash_command' | 'read_file' | 'fetch_content' | undefined {
   switch (patternId) {
     case 'edit-file-prompt':
       return 'edit_file'
@@ -129,12 +120,7 @@ export async function showPatternNotification(
     ? 'accepted_confirmation'
     : 'prompted_confirmation'
 
-  const message = replacePlaceholders(
-    match.notification,
-    match,
-    actionResponse,
-    actionResponseIcon,
-  )
+  const message = replacePlaceholders(match.notification, match, actionResponse, actionResponseIcon)
 
   await showNotification(
     {

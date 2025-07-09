@@ -105,8 +105,7 @@ describe('Sticky notifications', () => {
 
     expect(mockNotify).toHaveBeenCalledWith({
       title: '📸 Claude Composer',
-      message:
-        'Terminal snapshot saved\nProject: my-project\nPath to snapshot copied to clipboard',
+      message: 'Terminal snapshot saved\nProject: my-project\nPath to snapshot copied to clipboard',
       timeout: 86400, // 24 hours for sticky
       wait: false,
       sound: false,

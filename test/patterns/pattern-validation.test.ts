@@ -71,9 +71,7 @@ describe('PatternConfig validation', () => {
       const result = validatePatternConfig(pattern)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain(
-          'Pattern ID cannot be empty',
-        )
+        expect(result.error.errors[0].message).toContain('Pattern ID cannot be empty')
       }
     })
 
@@ -88,9 +86,7 @@ describe('PatternConfig validation', () => {
       const result = validatePatternConfig(pattern)
       expect(result.success).toBe(false)
       if (!result.success) {
-        expect(result.error.errors[0].message).toContain(
-          'Pattern title cannot be empty',
-        )
+        expect(result.error.errors[0].message).toContain('Pattern title cannot be empty')
       }
     })
 

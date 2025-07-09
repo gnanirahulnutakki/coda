@@ -29,29 +29,20 @@ describe('allowTrustedRootPattern', () => {
 
   it('should have correct pattern configuration', () => {
     const mockAppConfig: AppConfig = { roots: [] }
-    const allowTrustedRootPattern = createTrustPromptPattern(
-      () => mockAppConfig,
-    )
+    const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
 
     expect(allowTrustedRootPattern.id).toBe('allow-trusted-root')
     expect(allowTrustedRootPattern.title).toBe('Allow trusted root')
-    expect(allowTrustedRootPattern.pattern).toEqual([
-      'Do you trust the files in this folder?',
-    ])
-    expect(allowTrustedRootPattern.triggerText).toBe(
-      'Do you trust the files in this folder?',
-    )
+    expect(allowTrustedRootPattern.pattern).toEqual(['Do you trust the files in this folder?'])
+    expect(allowTrustedRootPattern.triggerText).toBe('Do you trust the files in this folder?')
     expect(typeof allowTrustedRootPattern.response).toBe('function')
   })
 
   describe('checkIfPwdParentInRoots', () => {
     it('should return empty array when no roots are configured', () => {
       const mockAppConfig: AppConfig = { roots: [] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       const result = checkIfPwdParentInRoots()
       expect(result).toBeUndefined()
@@ -63,11 +54,8 @@ describe('allowTrustedRootPattern', () => {
       fs.mkdirSync(testDir, { recursive: true })
 
       const mockAppConfig: AppConfig = { roots: [testRoot] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 
@@ -81,11 +69,8 @@ describe('allowTrustedRootPattern', () => {
       fs.mkdirSync(testDir, { recursive: true })
 
       const mockAppConfig: AppConfig = { roots: [testRoot] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 
@@ -100,11 +85,8 @@ describe('allowTrustedRootPattern', () => {
       fs.mkdirSync(testDir, { recursive: true })
 
       const mockAppConfig: AppConfig = { roots: [testRoot] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 
@@ -118,11 +100,8 @@ describe('allowTrustedRootPattern', () => {
       fs.mkdirSync(testDir, { recursive: true })
 
       const mockAppConfig: AppConfig = { roots: ['~/test-root'] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 
@@ -140,11 +119,8 @@ describe('allowTrustedRootPattern', () => {
       const mockAppConfig: AppConfig = {
         roots: [firstRoot, secondRoot, thirdRoot],
       }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 
@@ -154,11 +130,8 @@ describe('allowTrustedRootPattern', () => {
 
     it('should return empty array on error', () => {
       const mockAppConfig: AppConfig = { roots: ['/some/root'] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       const originalCwd = process.cwd
       process.cwd = () => {
@@ -178,11 +151,8 @@ describe('allowTrustedRootPattern', () => {
       fs.mkdirSync(testDir, { recursive: true })
 
       const mockAppConfig: AppConfig = { roots: [testRoot] }
-      const allowTrustedRootPattern = createTrustPromptPattern(
-        () => mockAppConfig,
-      )
-      const checkIfPwdParentInRoots =
-        allowTrustedRootPattern.response as Function
+      const allowTrustedRootPattern = createTrustPromptPattern(() => mockAppConfig)
+      const checkIfPwdParentInRoots = allowTrustedRootPattern.response as Function
 
       process.chdir(testDir)
 

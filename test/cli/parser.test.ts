@@ -24,14 +24,7 @@ describe('CLI Parser', () => {
     it('should parse mode flag with other options', () => {
       const program = createClaudeComposerCommand()
       program.parse(
-        [
-          'node',
-          'claude-composer',
-          '--quiet',
-          '--mode',
-          'plan',
-          '--ignore-global-config',
-        ],
+        ['node', 'claude-composer', '--quiet', '--mode', 'plan', '--ignore-global-config'],
         { from: 'user' },
       )
       const opts = program.opts()
@@ -70,15 +63,9 @@ describe('CLI Parser', () => {
   describe('other CLI options', () => {
     it('should parse all notification-related flags', () => {
       const program = createClaudeComposerCommand()
-      program.parse(
-        [
-          'node',
-          'claude-composer',
-          '--show-notifications',
-          '--sticky-notifications',
-        ],
-        { from: 'user' },
-      )
+      program.parse(['node', 'claude-composer', '--show-notifications', '--sticky-notifications'], {
+        from: 'user',
+      })
       const opts = program.opts()
       expect(opts.showNotifications).toBe(true)
       expect(opts.stickyNotifications).toBe(true)
@@ -102,10 +89,9 @@ describe('CLI Parser', () => {
 
     it('should parse toolset and yolo flags', () => {
       const program = createClaudeComposerCommand()
-      program.parse(
-        ['node', 'claude-composer', '--toolset', 'custom-tools', '--yolo'],
-        { from: 'user' },
-      )
+      program.parse(['node', 'claude-composer', '--toolset', 'custom-tools', '--yolo'], {
+        from: 'user',
+      })
       const opts = program.opts()
       expect(opts.toolset).toEqual(['custom-tools'])
       expect(opts.yolo).toBe(true)

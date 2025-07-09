@@ -24,11 +24,11 @@ Examples:
 
 async function getRecommendations(wizard: ConfigWizard): Promise<void> {
   console.log('\n🎯 Let me help you find the right configuration preset!\n')
-  
+
   const readline = await import('readline')
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   const ask = (question: string): Promise<string> => {
@@ -46,9 +46,9 @@ async function getRecommendations(wizard: ConfigWizard): Promise<void> {
     console.log('2. Intermediate - Comfortable with basics')
     console.log('3. Expert - Very experienced')
     const expAnswer = await ask('Your choice (1-3): ')
-    
-    const experience = expAnswer === '1' ? 'beginner' : 
-                      expAnswer === '3' ? 'expert' : 'intermediate'
+
+    const experience =
+      expAnswer === '1' ? 'beginner' : expAnswer === '3' ? 'expert' : 'intermediate'
 
     // Ask about workflow preference
     console.log('\nHow would you describe your preferred workflow?')
@@ -56,9 +56,9 @@ async function getRecommendations(wizard: ConfigWizard): Promise<void> {
     console.log('2. Balanced - Some automation with oversight')
     console.log('3. Fast - Maximum automation and speed')
     const workflowAnswer = await ask('Your choice (1-3): ')
-    
-    const workflow = workflowAnswer === '1' ? 'careful' :
-                    workflowAnswer === '3' ? 'fast' : 'balanced'
+
+    const workflow =
+      workflowAnswer === '1' ? 'careful' : workflowAnswer === '3' ? 'fast' : 'balanced'
 
     // Ask about environment
     console.log('\nWhere will you primarily use this?')
@@ -66,22 +66,21 @@ async function getRecommendations(wizard: ConfigWizard): Promise<void> {
     console.log('2. Team collaboration')
     console.log('3. CI/CD pipelines')
     const envAnswer = await ask('Your choice (1-3): ')
-    
-    const environment = envAnswer === '2' ? 'team' :
-                       envAnswer === '3' ? 'ci' : 'personal'
+
+    const environment = envAnswer === '2' ? 'team' : envAnswer === '3' ? 'ci' : 'personal'
 
     // Get recommendations
     const recommendations = wizard.getRecommendedPresets({
       experience,
       workflow,
-      environment
+      environment,
     })
 
     console.log('\n✨ Based on your preferences, I recommend these presets:\n')
-    
+
     const presetManager = await import('../features/preset-manager.js')
     const manager = new presetManager.PresetManager()
-    
+
     recommendations.forEach((presetId, index) => {
       const preset = manager.getPreset(presetId)
       if (preset) {
@@ -93,7 +92,6 @@ async function getRecommendations(wizard: ConfigWizard): Promise<void> {
     })
 
     console.log('💡 Tip: You can also browse all presets with: coda preset list')
-
   } finally {
     rl.close()
   }
@@ -128,65 +126,67 @@ export async function handleWizardCommand(args: string[]): Promise<void> {
     const config = await wizard.runWizard({
       interactive,
       useDefaults,
-      preset
+      preset,
     })
 
     // Save configuration
     const savedPath = await wizard.saveConfig(config, savePath)
-    
+
     console.log(`\n✅ Configuration saved to: ${savedPath}`)
-    
+
     if (preset) {
       console.log(`\n📦 Based on preset: ${preset}`)
     }
-    
+
     // Ask if user wants to start an AI session
     if (interactive) {
       const rl = createInterface({
         input: process.stdin,
-        output: process.stdout
+        output: process.stdout,
       })
-      
+
       const startSession = await new Promise<boolean>((resolve) => {
         rl.question('\n🚀 Would you like to start an AI session now? [Y/n]: ', (answer) => {
           rl.close()
           resolve(answer.toLowerCase() !== 'n')
         })
       })
-      
+
       if (startSession) {
         console.log('\n✨ Starting AI session...\n')
-        
+
         // Import and run the main function to start AI session
         const { spawn } = await import('child_process')
         const { AI_PROVIDER_PATHS } = await import('../config/paths.js')
-        
+
         const provider = config.provider || 'claude-code'
-        const providerCommand = AI_PROVIDER_PATHS.findProviderCommand(provider, config.provider_path)
-        
+        const providerCommand = AI_PROVIDER_PATHS.findProviderCommand(
+          provider,
+          config.provider_path,
+        )
+
         if (!providerCommand) {
           warn(`Could not find ${provider} command. Please ensure it's installed.`)
           return
         }
-        
+
         // Start the AI provider with inherited stdio so it's interactive
         const child = spawn(providerCommand, [], {
           stdio: 'inherit',
-          shell: true
+          shell: true,
         })
-        
+
         // Exit when the AI session ends
         child.on('exit', (code) => {
           process.exit(code || 0)
         })
-        
+
         return
       }
     }
-    
+
     console.log('\n🚀 You can now use Coda with your new configuration!')
     console.log('   Run: coda "your prompt here"')
-
   } catch (error) {
     warn(`Configuration wizard failed: ${error.message}`)
     process.exit(1)

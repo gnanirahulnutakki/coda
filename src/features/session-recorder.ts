@@ -5,7 +5,14 @@ import { errorLogger } from '../utils/error-logger.js'
 
 export interface SessionEvent {
   timestamp: string
-  type: 'command' | 'output' | 'pattern_match' | 'file_edit' | 'error' | 'terminal_output' | 'response'
+  type:
+    | 'command'
+    | 'output'
+    | 'pattern_match'
+    | 'file_edit'
+    | 'error'
+    | 'terminal_output'
+    | 'response'
   data: any
 }
 
@@ -32,14 +39,14 @@ export class SessionRecorder {
   constructor(commandArgs: string[]) {
     this.sessionId = this.generateSessionId()
     const sessionsDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'sessions')
-    
+
     if (!fs.existsSync(sessionsDir)) {
       fs.mkdirSync(sessionsDir, { recursive: true })
     }
-    
+
     this.sessionFile = path.join(sessionsDir, `${this.sessionId}.jsonl`)
     this.metadataFile = path.join(sessionsDir, `${this.sessionId}.meta.json`)
-    
+
     this.metadata = {
       id: this.sessionId,
       startTime: new Date().toISOString(),
@@ -59,20 +66,20 @@ export class SessionRecorder {
     if (this.recording) {
       return
     }
-    
+
     this.recording = true
     this.saveMetadata()
-    
+
     this.recordEvent('command', {
       args: this.metadata.commandArgs,
       cwd: this.metadata.projectPath,
       env: {
         NODE_VERSION: process.version,
         PLATFORM: process.platform,
-        ARCH: process.arch
-      }
+        ARCH: process.arch,
+      },
     })
-    
+
     errorLogger.debug('Session recording started:', this.sessionId)
   }
 
@@ -80,10 +87,10 @@ export class SessionRecorder {
     if (!this.recording) {
       return
     }
-    
+
     this.recording = false
     this.flush()
-    
+
     // Update final metadata
     this.metadata.endTime = new Date().toISOString()
     if (this.metadata.startTime) {
@@ -93,9 +100,9 @@ export class SessionRecorder {
     }
     this.metadata.eventsCount = this.eventCount
     this.metadata.exitCode = exitCode
-    
+
     this.saveMetadata()
-    
+
     errorLogger.debug('Session recording stopped:', this.sessionId)
   }
 
@@ -105,7 +112,7 @@ export class SessionRecorder {
     const event: SessionEvent = {
       timestamp: new Date().toISOString(),
       type,
-      data
+      data,
     }
 
     this.events.push(event)
@@ -121,7 +128,7 @@ export class SessionRecorder {
     this.recordEvent('pattern_match', {
       patternId,
       matched,
-      response
+      response,
     })
   }
 
@@ -129,7 +136,7 @@ export class SessionRecorder {
     this.recordEvent('error', {
       message: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
     })
   }
 
@@ -137,7 +144,7 @@ export class SessionRecorder {
     if (this.events.length === 0) return
 
     try {
-      const lines = this.events.map(event => JSON.stringify(event) + '\n').join('')
+      const lines = this.events.map((event) => JSON.stringify(event) + '\n').join('')
       fs.appendFileSync(this.sessionFile, lines)
       this.events = []
     } catch (error) {
@@ -155,10 +162,7 @@ export class SessionRecorder {
 
   private saveMetadata(): void {
     try {
-      fs.writeFileSync(
-        this.metadataFile,
-        JSON.stringify(this.metadata, null, 2)
-      )
+      fs.writeFileSync(this.metadataFile, JSON.stringify(this.metadata, null, 2))
     } catch (error) {
       errorLogger.error('Failed to save session metadata:', error)
     }
@@ -167,17 +171,17 @@ export class SessionRecorder {
   // Static methods for session management
   static listSessions(): SessionMetadata[] {
     const sessionDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'sessions')
-    
+
     if (!fs.existsSync(sessionDir)) {
       return []
     }
 
     try {
       const files = fs.readdirSync(sessionDir)
-      const metaFiles = files.filter(f => f.endsWith('.meta.json'))
-      
+      const metaFiles = files.filter((f) => f.endsWith('.meta.json'))
+
       return metaFiles
-        .map(file => {
+        .map((file) => {
           const content = fs.readFileSync(path.join(sessionDir, file), 'utf8')
           return JSON.parse(content) as SessionMetadata
         })
@@ -191,7 +195,7 @@ export class SessionRecorder {
   static loadSession(sessionId: string): SessionEvent[] {
     const sessionDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'sessions')
     const sessionFile = path.join(sessionDir, `${sessionId}.jsonl`)
-    
+
     if (!fs.existsSync(sessionFile)) {
       throw new Error(`Session not found: ${sessionId}`)
     }
@@ -200,8 +204,8 @@ export class SessionRecorder {
       const content = fs.readFileSync(sessionFile, 'utf8')
       return content
         .split('\n')
-        .filter(line => line.trim())
-        .map(line => JSON.parse(line) as SessionEvent)
+        .filter((line) => line.trim())
+        .map((line) => JSON.parse(line) as SessionEvent)
     } catch (error) {
       errorLogger.error('Failed to load session:', error)
       throw error
@@ -210,20 +214,20 @@ export class SessionRecorder {
 
   static deleteOldSessions(daysToKeep: number = 30): void {
     const sessionDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'sessions')
-    
+
     if (!fs.existsSync(sessionDir)) {
       return
     }
 
-    const cutoffTime = Date.now() - (daysToKeep * 24 * 60 * 60 * 1000)
-    
+    const cutoffTime = Date.now() - daysToKeep * 24 * 60 * 60 * 1000
+
     try {
       const files = fs.readdirSync(sessionDir)
-      
-      files.forEach(file => {
+
+      files.forEach((file) => {
         const filePath = path.join(sessionDir, file)
         const stats = fs.statSync(filePath)
-        
+
         if (stats.mtime.getTime() < cutoffTime) {
           fs.unlinkSync(filePath)
           errorLogger.debug('Deleted old session file:', file)

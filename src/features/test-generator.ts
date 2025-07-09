@@ -61,12 +61,12 @@ export class TestGenerator {
       includeEdgeCases: true,
       includeErrorHandling: true,
       generateSnapshots: false,
-      ...options
+      ...options,
     }
 
     this.configDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'test-generation')
     this.coverageDir = path.join(this.configDir, 'coverage')
-    
+
     this.ensureDirectories()
   }
 
@@ -84,7 +84,7 @@ export class TestGenerator {
    */
   detectFramework(projectPath: string): string {
     const packageJsonPath = path.join(projectPath, 'package.json')
-    
+
     if (!fs.existsSync(packageJsonPath)) {
       return 'vitest' // Default
     }
@@ -93,7 +93,7 @@ export class TestGenerator {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
       const allDeps = {
         ...packageJson.dependencies,
-        ...packageJson.devDependencies
+        ...packageJson.devDependencies,
       }
 
       // Check for test frameworks in order of preference
@@ -121,10 +121,10 @@ export class TestGenerator {
   getTestFilePath(sourcePath: string, projectPath: string): string {
     const relativePath = path.relative(projectPath, sourcePath)
     const parsed = path.parse(relativePath)
-    
+
     // Common test directory patterns
     const testDirs = ['test', 'tests', '__tests__', 'spec']
-    
+
     // Check if test directory exists
     let testDir = 'test' // Default
     for (const dir of testDirs) {
@@ -157,7 +157,7 @@ export class TestGenerator {
   analyzeFile(filePath: string): FileAnalysis {
     const content = fs.readFileSync(filePath, 'utf8')
     const ext = path.extname(filePath)
-    
+
     const analysis: FileAnalysis = {
       filePath,
       language: this.detectLanguage(ext),
@@ -167,13 +167,14 @@ export class TestGenerator {
       functions: [],
       constants: [],
       hasDefaultExport: false,
-      isTestFile: false
+      isTestFile: false,
     }
 
     // Basic pattern matching for TypeScript/JavaScript
     if (analysis.language === 'typescript' || analysis.language === 'javascript') {
       // Detect exports
-      const exportRegex = /export\s+(?:(?:default\s+)?(?:class|function|const|let|var)\s+(\w+)|{\s*([^}]+)\s*})/g
+      const exportRegex =
+        /export\s+(?:(?:default\s+)?(?:class|function|const|let|var)\s+(\w+)|{\s*([^}]+)\s*})/g
       let match
       while ((match = exportRegex.exec(content)) !== null) {
         if (match[1]) {
@@ -183,7 +184,7 @@ export class TestGenerator {
           }
         } else if (match[2]) {
           // Named exports
-          analysis.exports.push(...match[2].split(',').map(e => e.trim()))
+          analysis.exports.push(...match[2].split(',').map((e) => e.trim()))
         }
       }
 
@@ -194,16 +195,18 @@ export class TestGenerator {
       }
 
       // Detect functions
-      const functionRegex = /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s+)?(?:\([^)]*\)\s*=>|\([^)]*\):\s*\w+\s*=>)/g
+      const functionRegex =
+        /(?:export\s+)?(?:async\s+)?function\s+(\w+)|(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s+)?(?:\([^)]*\)\s*=>|\([^)]*\):\s*\w+\s*=>)/g
       while ((match = functionRegex.exec(content)) !== null) {
         analysis.functions.push(match[1] || match[2])
       }
 
       // Check if it's already a test file
-      analysis.isTestFile = /\.(test|spec)\.(ts|js|tsx|jsx)$/.test(filePath) ||
-                           content.includes('describe(') ||
-                           content.includes('it(') ||
-                           content.includes('test(')
+      analysis.isTestFile =
+        /\.(test|spec)\.(ts|js|tsx|jsx)$/.test(filePath) ||
+        content.includes('describe(') ||
+        content.includes('it(') ||
+        content.includes('test(')
     }
 
     return analysis
@@ -216,20 +219,22 @@ export class TestGenerator {
     const imports = this.generateImports(analysis, framework)
     const setup = this.generateSetup(analysis, framework)
     const tests = this.generateTestCases(analysis, framework)
-    
+
     return `${imports}\n\n${setup}\n\n${tests}`
   }
 
   private generateImports(analysis: FileAnalysis, framework: string): string {
     const lines: string[] = []
-    
+
     // Framework-specific imports
     switch (framework) {
       case 'vitest':
         lines.push("import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'")
         break
       case 'jest':
-        lines.push("import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'")
+        lines.push(
+          "import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'",
+        )
         break
       case 'mocha':
         lines.push("import { describe, it, beforeEach, afterEach } from 'mocha'")
@@ -256,11 +261,11 @@ export class TestGenerator {
       lines.push('')
       lines.push('// Mock dependencies')
       if (framework === 'vitest') {
-        analysis.imports.forEach(imp => {
+        analysis.imports.forEach((imp) => {
           lines.push(`vi.mock('${imp}')`)
         })
       } else if (framework === 'jest') {
-        analysis.imports.forEach(imp => {
+        analysis.imports.forEach((imp) => {
           lines.push(`jest.mock('${imp}')`)
         })
       }
@@ -271,7 +276,7 @@ export class TestGenerator {
 
   private generateSetup(analysis: FileAnalysis, framework: string): string {
     const lines: string[] = []
-    
+
     if (analysis.classes.length > 0) {
       lines.push('// Test setup')
       lines.push('let instance: any')
@@ -296,18 +301,18 @@ export class TestGenerator {
 
   private generateTestCases(analysis: FileAnalysis, framework: string): string {
     const lines: string[] = []
-    
+
     // Generate describe blocks for each exported item
     const allItems = analysis.classes.concat(analysis.functions)
-    allItems.forEach(item => {
+    allItems.forEach((item) => {
       lines.push(`describe('${item}', () => {`)
-      
+
       if (analysis.classes.includes(item)) {
         lines.push(this.generateClassTests(item, framework))
       } else {
         lines.push(this.generateFunctionTests(item, framework))
       }
-      
+
       lines.push('})')
       lines.push('')
     })
@@ -317,12 +322,12 @@ export class TestGenerator {
 
   private generateClassTests(className: string, framework: string): string {
     const lines: string[] = []
-    
+
     lines.push(`  it('should create an instance of ${className}', () => {`)
     lines.push(`    expect(instance).toBeInstanceOf(${className})`)
     lines.push('  })')
     lines.push('')
-    
+
     if (this.options.includeEdgeCases) {
       lines.push('  // Edge cases')
       lines.push(`  it('should handle null/undefined inputs gracefully', () => {`)
@@ -330,7 +335,7 @@ export class TestGenerator {
       lines.push('  })')
       lines.push('')
     }
-    
+
     if (this.options.includeErrorHandling) {
       lines.push('  // Error handling')
       lines.push(`  it('should throw error for invalid inputs', () => {`)
@@ -343,21 +348,21 @@ export class TestGenerator {
 
   private generateFunctionTests(functionName: string, framework: string): string {
     const lines: string[] = []
-    
+
     lines.push(`  it('should execute ${functionName} successfully', () => {`)
     lines.push(`    // TODO: Add test implementation`)
     lines.push(`    const result = ${functionName}()`)
     lines.push('    expect(result).toBeDefined()')
     lines.push('  })')
     lines.push('')
-    
+
     if (this.options.includeEdgeCases) {
       lines.push(`  it('should handle edge cases in ${functionName}', () => {`)
       lines.push('    // TODO: Add edge case tests')
       lines.push('  })')
       lines.push('')
     }
-    
+
     if (this.options.includeErrorHandling) {
       lines.push(`  it('should handle errors in ${functionName}', () => {`)
       lines.push('    // TODO: Add error handling tests')
@@ -382,9 +387,9 @@ export class TestGenerator {
       '.py': 'python',
       '.java': 'java',
       '.go': 'go',
-      '.rs': 'rust'
+      '.rs': 'rust',
     }
-    
+
     return langMap[ext] || 'unknown'
   }
 
@@ -392,31 +397,32 @@ export class TestGenerator {
    * Generate tests for a single file
    */
   async generateTestsForFile(filePath: string, projectPath: string): Promise<TestFile> {
-    const framework = this.options.framework === 'auto' 
-      ? this.detectFramework(projectPath)
-      : this.options.framework!
+    const framework =
+      this.options.framework === 'auto'
+        ? this.detectFramework(projectPath)
+        : this.options.framework!
 
     const testPath = this.getTestFilePath(filePath, projectPath)
     const exists = fs.existsSync(testPath)
-    
+
     const testFile: TestFile = {
       sourcePath: filePath,
       testPath,
       framework,
       exists,
-      needsUpdate: false
+      needsUpdate: false,
     }
 
     if (!exists || this.options.style === 'all') {
       const analysis = this.analyzeFile(filePath)
       const testContent = this.generateTestContent(analysis, framework)
-      
+
       // Ensure test directory exists
       const testDir = path.dirname(testPath)
       if (!fs.existsSync(testDir)) {
         fs.mkdirSync(testDir, { recursive: true })
       }
-      
+
       fs.writeFileSync(testPath, testContent)
       testFile.needsUpdate = exists
     }
@@ -432,14 +438,14 @@ export class TestGenerator {
       filesGenerated: 0,
       filesUpdated: 0,
       testFiles: [],
-      errors: []
+      errors: [],
     }
 
     for (const filePath of filePaths) {
       try {
         const testFile = await this.generateTestsForFile(filePath, projectPath)
         result.testFiles.push(testFile)
-        
+
         if (testFile.needsUpdate) {
           result.filesUpdated++
         } else if (!testFile.exists) {
@@ -485,23 +491,26 @@ export class TestGenerator {
     try {
       execSync(coverageCommand, {
         cwd: projectPath,
-        stdio: 'pipe'
+        stdio: 'pipe',
       })
 
       // Parse coverage report (assuming it's in coverage/coverage-summary.json)
       const coveragePath = path.join(projectPath, 'coverage', 'coverage-summary.json')
       if (fs.existsSync(coveragePath)) {
         const coverageData = JSON.parse(fs.readFileSync(coveragePath, 'utf8'))
-        
+
         return {
           total: this.parseCoverageData(coverageData.total),
           files: Object.entries(coverageData)
             .filter(([key]) => key !== 'total')
-            .reduce((acc, [file, data]: [string, any]) => {
-              acc[file] = this.parseCoverageData(data)
-              return acc
-            }, {} as Record<string, CoverageInfo>),
-          timestamp: new Date().toISOString()
+            .reduce(
+              (acc, [file, data]: [string, any]) => {
+                acc[file] = this.parseCoverageData(data)
+                return acc
+              },
+              {} as Record<string, CoverageInfo>,
+            ),
+          timestamp: new Date().toISOString(),
         }
       }
     } catch (error) {
@@ -513,10 +522,10 @@ export class TestGenerator {
         statements: 0,
         branches: 0,
         functions: 0,
-        lines: 0
+        lines: 0,
       },
       files: {},
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
   }
 
@@ -525,7 +534,7 @@ export class TestGenerator {
       statements: data.statements?.pct || 0,
       branches: data.branches?.pct || 0,
       functions: data.functions?.pct || 0,
-      lines: data.lines?.pct || 0
+      lines: data.lines?.pct || 0,
     }
   }
 
@@ -534,7 +543,7 @@ export class TestGenerator {
    */
   getCoverageTrends(projectPath: string, days: number = 30): CoverageTrend[] {
     const trendsFile = path.join(this.coverageDir, 'trends.json')
-    
+
     if (!fs.existsSync(trendsFile)) {
       return []
     }
@@ -543,10 +552,8 @@ export class TestGenerator {
       const trends = JSON.parse(fs.readFileSync(trendsFile, 'utf8'))
       const cutoffDate = new Date()
       cutoffDate.setDate(cutoffDate.getDate() - days)
-      
-      return trends.filter((t: CoverageTrend) => 
-        new Date(t.timestamp) >= cutoffDate
-      )
+
+      return trends.filter((t: CoverageTrend) => new Date(t.timestamp) >= cutoffDate)
     } catch (error) {
       return []
     }
@@ -558,7 +565,7 @@ export class TestGenerator {
   saveCoverageTrend(projectPath: string, coverage: CoverageReport): void {
     const trendsFile = path.join(this.coverageDir, 'trends.json')
     let trends: CoverageTrend[] = []
-    
+
     if (fs.existsSync(trendsFile)) {
       try {
         trends = JSON.parse(fs.readFileSync(trendsFile, 'utf8'))
@@ -570,13 +577,13 @@ export class TestGenerator {
     trends.push({
       timestamp: coverage.timestamp,
       project: path.basename(projectPath),
-      coverage: coverage.total
+      coverage: coverage.total,
     })
 
     // Keep only last 90 days
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - 90)
-    trends = trends.filter(t => new Date(t.timestamp) >= cutoffDate)
+    trends = trends.filter((t) => new Date(t.timestamp) >= cutoffDate)
 
     fs.writeFileSync(trendsFile, JSON.stringify(trends, null, 2))
   }
@@ -593,7 +600,7 @@ export class TestGenerator {
         priority: 'high',
         type: 'coverage',
         message: `Statement coverage is ${coverage.total.statements}%. Aim for at least 80%.`,
-        files: []
+        files: [],
       })
     }
 
@@ -602,7 +609,7 @@ export class TestGenerator {
         priority: 'high',
         type: 'coverage',
         message: `Branch coverage is ${coverage.total.branches}%. Consider adding tests for conditional logic.`,
-        files: []
+        files: [],
       })
     }
 
@@ -616,7 +623,7 @@ export class TestGenerator {
         priority: 'medium',
         type: 'coverage',
         message: `${lowCoverageFiles.length} files have less than 50% coverage`,
-        files: lowCoverageFiles
+        files: lowCoverageFiles,
       })
     }
 

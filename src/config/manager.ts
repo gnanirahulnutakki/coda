@@ -3,17 +3,8 @@ import * as path from 'path'
 import * as yaml from 'js-yaml'
 import { z } from 'zod'
 import { fileURLToPath } from 'node:url'
-import type {
-  AppConfig,
-  PatternConfig,
-  ToolsetConfig,
-  RulesetConfig,
-} from './schemas'
-import {
-  appConfigSchema,
-  toolsetConfigSchema,
-  rulesetConfigSchema,
-} from './schemas'
+import type { AppConfig, PatternConfig, ToolsetConfig, RulesetConfig } from './schemas'
+import { appConfigSchema, toolsetConfigSchema, rulesetConfigSchema } from './schemas'
 import { CONFIG_PATHS, CLAUDE_PATHS } from './paths'
 import {
   ConfigError,
@@ -97,17 +88,14 @@ export class ConfigManager {
    * Load application configuration
    */
   async loadConfig(options: LoadConfigOptions = {}): Promise<void> {
-    const { configPath, ignoreGlobalConfig, toolsetNames, cliOverrides } =
-      options
+    const { configPath, ignoreGlobalConfig, toolsetNames, cliOverrides } = options
 
     // Start with defaults
     let config = this.getDefaultAppConfig()
 
     // Load global config
     if (!ignoreGlobalConfig) {
-      const globalConfig = await this.loadConfigFile(
-        configPath || CONFIG_PATHS.getConfigFilePath(),
-      )
+      const globalConfig = await this.loadConfigFile(configPath || CONFIG_PATHS.getConfigFilePath())
       if (globalConfig) {
         config = mergeConfigs([
           { config, precedence: ConfigPrecedence.DEFAULT },
@@ -205,21 +193,14 @@ export class ConfigManager {
       // Look for internal toolsets in the dist/internal-toolsets directory
       const __filename = fileURLToPath(import.meta.url)
       const __dirname = path.dirname(__filename)
-      toolsetPath = path.join(
-        __dirname,
-        'internal-toolsets',
-        `${internalName}.yaml`,
-      )
+      toolsetPath = path.join(__dirname, 'internal-toolsets', `${internalName}.yaml`)
     } else {
       // Regular user toolset
       toolsetPath = `${CONFIG_PATHS.getToolsetsDirectory()}/${name}.yaml`
     }
 
     if (!fs.existsSync(toolsetPath)) {
-      throw new ToolsetConfigError(
-        name,
-        `Toolset file not found: ${toolsetPath}`,
-      )
+      throw new ToolsetConfigError(name, `Toolset file not found: ${toolsetPath}`)
     }
 
     try {

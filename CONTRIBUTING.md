@@ -5,6 +5,7 @@ Thank you for your interest in contributing to Coda! We're excited to have you j
 ## 🤝 Code of Conduct
 
 By participating in this project, you agree to abide by our Code of Conduct:
+
 - Be respectful and inclusive
 - Welcome newcomers and help them get started
 - Focus on constructive criticism
@@ -23,6 +24,7 @@ By participating in this project, you agree to abide by our Code of Conduct:
 ### Development Setup
 
 1. **Fork the repository**
+
    ```bash
    # Click "Fork" on GitHub, then:
    git clone https://github.com/gnanirahulnutakki/coda.git
@@ -30,11 +32,13 @@ By participating in this project, you agree to abide by our Code of Conduct:
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Run tests**
+
    ```bash
    npm test
    ```
@@ -51,6 +55,7 @@ By participating in this project, you agree to abide by our Code of Conduct:
 Before creating a bug report, please check existing issues to avoid duplicates.
 
 **Bug reports should include:**
+
 - Clear, descriptive title
 - Steps to reproduce
 - Expected behavior
@@ -63,6 +68,7 @@ Use our bug report template when creating an issue.
 ### Suggesting Features
 
 We love feature suggestions! Please:
+
 - Check if the feature has already been suggested
 - Clearly describe the problem it solves
 - Provide use cases and examples
@@ -76,6 +82,7 @@ We love feature suggestions! Please:
    - Wait for maintainer approval before starting
 
 2. **Create a feature branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -89,18 +96,20 @@ We love feature suggestions! Please:
    - Update documentation as needed
 
 4. **Test thoroughly**
+
    ```bash
    # Run all tests
    npm test
-   
+
    # Run specific test file
    npm test -- checkpoint.test.ts
-   
+
    # Run with coverage
    npm run test:coverage
    ```
 
 5. **Commit your changes**
+
    ```bash
    # We follow conventional commits
    git commit -m "feat: add memory eviction policy"
@@ -180,7 +189,7 @@ test('rollback works', () => {
 // Good
 if (!provider) {
   throw new ProviderNotFoundError(
-    `Provider '${id}' not found. Run 'coda doctor' to see available providers.`
+    `Provider '${id}' not found. Run 'coda doctor' to see available providers.`,
   )
 }
 
@@ -208,6 +217,7 @@ if (!provider) {
 4. Update documentation
 
 Example:
+
 ```typescript
 export const AI_PROVIDERS: Record<string, AIProvider> = {
   'new-provider': {
@@ -218,8 +228,8 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
     priority: 'medium',
     detectCommand: () => findCommandInPath('new-ai'),
     installInstructions: 'npm install -g new-ai',
-    features: ['chat', 'code-generation']
-  }
+    features: ['chat', 'code-generation'],
+  },
 }
 ```
 
@@ -246,14 +256,11 @@ export const AI_PROVIDERS: Record<string, AIProvider> = {
  * @param options - Optional configuration
  * @returns Checkpoint ID for rollback
  * @example
- * const id = await createCheckpoint('before-refactor', { 
- *   includeNodeModules: false 
+ * const id = await createCheckpoint('before-refactor', {
+ *   includeNodeModules: false
  * })
  */
-export async function createCheckpoint(
-  name: string, 
-  options?: CheckpointOptions
-): Promise<string> {
+export async function createCheckpoint(name: string, options?: CheckpointOptions): Promise<string> {
   // Implementation
 }
 ```
@@ -261,6 +268,7 @@ export async function createCheckpoint(
 ### User Documentation
 
 When adding features, update:
+
 - README.md (basic usage)
 - docs/CODA_COMPLETE_USER_GUIDE.md (detailed guide)
 - Relevant feature-specific docs
@@ -345,6 +353,7 @@ npm run release:major # Bump major version
 ## 🙏 Recognition
 
 We appreciate all contributions! Contributors will be:
+
 - Added to our Contributors list
 - Mentioned in release notes
 - Given credit in relevant documentation

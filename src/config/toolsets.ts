@@ -3,8 +3,8 @@ import { loadToolsetFile } from './loader.js'
 import { log } from '../utils/logging.js'
 
 export function buildToolsetArgs(
-  toolsetConfig: ToolsetConfig, 
-  provider: 'claude-code' | 'gemini' = 'claude-code'
+  toolsetConfig: ToolsetConfig,
+  provider: 'claude-code' | 'gemini' = 'claude-code',
 ): string[] {
   const args: string[] = []
 
@@ -22,16 +22,14 @@ export function buildToolsetArgs(
       }
     }
   }
-  
+
   // Gemini doesn't support tool restrictions via CLI flags
   // It has different mechanisms for this
 
   return args
 }
 
-export async function mergeToolsets(
-  toolsetsToLoad: string[],
-): Promise<ToolsetConfig> {
+export async function mergeToolsets(toolsetsToLoad: string[]): Promise<ToolsetConfig> {
   let mergedConfig: ToolsetConfig = {
     allowed: [],
     disallowed: [],
@@ -74,9 +72,7 @@ export async function mergeToolsets(
 
     if (toolsetConfig.mcp) {
       const mcpCount = Object.keys(toolsetConfig.mcp).length
-      log(
-        `※ Toolset ${toolsetName} configured ${mcpCount} MCP server${mcpCount === 1 ? '' : 's'}`,
-      )
+      log(`※ Toolset ${toolsetName} configured ${mcpCount} MCP server${mcpCount === 1 ? '' : 's'}`)
     }
   }
 

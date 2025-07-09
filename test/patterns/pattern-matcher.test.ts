@@ -40,9 +40,7 @@ describe('PatternMatcher', () => {
       const matches = matcher.processData('some content with trigger text')
       expect(matches).toHaveLength(1)
       expect(matches[0].response).toBe('immediate-match')
-      expect(matches[0].fullMatchedContent).toBe(
-        'some content with trigger text',
-      )
+      expect(matches[0].fullMatchedContent).toBe('some content with trigger text')
     })
 
     it('should remove pattern', () => {
@@ -137,9 +135,7 @@ describe('PatternMatcher', () => {
         response: 'yes',
       })
 
-      const matches = matcher.processData(
-        '\x1b[31mEdit\x1b[0m\n\x1b[32mfile\x1b[0m',
-      )
+      const matches = matcher.processData('\x1b[31mEdit\x1b[0m\n\x1b[32mfile\x1b[0m')
 
       expect(matches).toHaveLength(1)
       expect(matches[0].patternId).toBe('test-ansi')
@@ -189,9 +185,7 @@ describe('PatternMatcher', () => {
       expect(matches[0].matchedText).toBe('First line\nSecond line\nThird line')
       expect(matches[0].firstLineNumber).toBe(0)
       expect(matches[0].lastLineNumber).toBe(2)
-      expect(matches[0].fullMatchedContent).toBe(
-        'First line\nSecond line\nThird line',
-      )
+      expect(matches[0].fullMatchedContent).toBe('First line\nSecond line\nThird line')
     })
 
     it('should match sequence with lines in between', () => {
@@ -203,13 +197,9 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Start\nSome other text\nMiddle\nMore text\nEnd',
-      )
+      const matches = matcher.processData('Start\nSome other text\nMiddle\nMore text\nEnd')
       expect(matches).toHaveLength(1)
-      expect(matches[0].matchedText).toBe(
-        'Start\nSome other text\nMiddle\nMore text\nEnd',
-      )
+      expect(matches[0].matchedText).toBe('Start\nSome other text\nMiddle\nMore text\nEnd')
     })
 
     it('should not match incomplete sequence', () => {
@@ -350,9 +340,7 @@ describe('PatternMatcher', () => {
       matcher.addPattern(config)
 
       const matches = matcher.processData(
-        'Edit file operation\n' +
-          'Do you want to edit this?\n' +
-          'Yes, proceed',
+        'Edit file operation\n' + 'Do you want to edit this?\n' + 'Yes, proceed',
       )
       expect(matches).toHaveLength(1)
     })
@@ -369,14 +357,10 @@ describe('PatternMatcher', () => {
       }
       testMatcher.addPattern(config)
 
-      const matches1 = testMatcher.processData(
-        'Start of sequence\nMiddle part\nNot the final',
-      )
+      const matches1 = testMatcher.processData('Start of sequence\nMiddle part\nNot the final')
       expect(matches1).toHaveLength(0)
 
-      const matches2 = testMatcher.processData(
-        'Start of sequence\nMiddle part\nFinal line',
-      )
+      const matches2 = testMatcher.processData('Start of sequence\nMiddle part\nFinal line')
       expect(matches2).toHaveLength(1)
     })
 
@@ -480,16 +464,12 @@ describe('PatternMatcher', () => {
       matcher.addPattern(config)
 
       // Initial match at bottom
-      const matches1 = matcher.processData(
-        'Some output\nDo you want to proceed?\nYes',
-      )
+      const matches1 = matcher.processData('Some output\nDo you want to proceed?\nYes')
       expect(matches1).toHaveLength(1)
       expect(matches1[0].lastLineNumber).toBe(2)
 
       // Same content scrolled up (with new content below) should not trigger
-      const matches2 = matcher.processData(
-        'Do you want to proceed?\nYes\nNew content below',
-      )
+      const matches2 = matcher.processData('Do you want to proceed?\nYes\nNew content below')
       expect(matches2).toHaveLength(0)
     })
 
@@ -522,17 +502,12 @@ describe('PatternMatcher', () => {
       const config: PatternConfig = {
         id: 'file-edit',
         title: 'File Edit Placeholder Test',
-        pattern: [
-          'Edit file',
-          'Do you want to make this edit to {{ fileName }}',
-        ],
+        pattern: ['Edit file', 'Do you want to make this edit to {{ fileName }}'],
         response: '1',
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Edit file\nDo you want to make this edit to config.json',
-      )
+      const matches = matcher.processData('Edit file\nDo you want to make this edit to config.json')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({ fileName: 'config.json' })
     })
@@ -546,9 +521,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Process create on test.js at 2023-01-01',
-      )
+      const matches = matcher.processData('Process create on test.js at 2023-01-01')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({
         action: 'create',
@@ -620,9 +593,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Path: /very/long/path/to/my/file.txt',
-      )
+      const matches = matcher.processData('Path: /very/long/path/to/my/file.txt')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({
         fullPath: '/very/long/path/to/my/file.txt',
@@ -682,9 +653,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Create file\nDo you want to create @foo.txt?',
-      )
+      const matches = matcher.processData('Create file\nDo you want to create @foo.txt?')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({ fileName: '@foo.txt' })
     })
@@ -693,10 +662,7 @@ describe('PatternMatcher', () => {
       const config: PatternConfig = {
         id: 'real-edit-file',
         title: 'Real Edit File Prompt',
-        pattern: [
-          'Edit file',
-          'Do you want to make this edit to {{ fileName }}?',
-        ],
+        pattern: ['Edit file', 'Do you want to make this edit to {{ fileName }}?'],
         response: '1',
       }
       matcher.addPattern(config)
@@ -793,9 +759,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Header line 1\n' + 'Header line 2\n' + 'Important line',
-      )
+      const matches = matcher.processData('Header line 1\n' + 'Header line 2\n' + 'Important line')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({
         header: 'Header line 1\nHeader line 2',
@@ -811,9 +775,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Important line\n' + 'Footer line 1\n' + 'Footer line 2',
-      )
+      const matches = matcher.processData('Important line\n' + 'Footer line 1\n' + 'Footer line 2')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({
         footer: 'Footer line 1\nFooter line 2',
@@ -889,11 +851,7 @@ describe('PatternMatcher', () => {
       const config: PatternConfig = {
         id: 'ansi-multiline',
         title: 'ANSI Multiline Test',
-        pattern: [
-          'Edit file',
-          '{{ diffContent | multiline }}',
-          'Do you want to proceed?',
-        ],
+        pattern: ['Edit file', '{{ diffContent | multiline }}', 'Do you want to proceed?'],
         response: '1',
       }
       matcher.addPattern(config)
@@ -920,9 +878,7 @@ describe('PatternMatcher', () => {
       matcher.addPattern(config)
 
       // Missing the end pattern
-      const matches = matcher.processData(
-        'Start pattern\n' + 'some content\n' + 'more content',
-      )
+      const matches = matcher.processData('Start pattern\n' + 'some content\n' + 'more content')
       expect(matches).toHaveLength(0)
     })
 
@@ -935,9 +891,7 @@ describe('PatternMatcher', () => {
       }
       matcher.addPattern(config)
 
-      const matches = matcher.processData(
-        'Begin\n' + 'line 1\n' + 'line 2\n' + 'End',
-      )
+      const matches = matcher.processData('Begin\n' + 'line 1\n' + 'line 2\n' + 'End')
       expect(matches).toHaveLength(1)
       expect(matches[0].extractedData).toEqual({
         'diff content': 'line 1\nline 2',

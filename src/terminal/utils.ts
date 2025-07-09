@@ -60,7 +60,7 @@ export async function saveTerminalSnapshot(
 
     if (appConfig.show_notifications !== false) {
       const projectName = path.basename(process.cwd())
-      showSnapshotNotification(projectName, appConfig).catch(err =>
+      showSnapshotNotification(projectName, appConfig).catch((err) =>
         console.error('Failed to send notification:', err),
       )
     }
@@ -103,8 +103,8 @@ export function getBackupDirs(): { dir: string; mtime: number }[] {
 
   return fs
     .readdirSync(backupDir, { withFileTypes: true })
-    .filter(entry => entry.isDirectory())
-    .map(entry => {
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
       const dirPath = path.join(backupDir, entry.name)
       const stats = fs.statSync(dirPath)
       return { dir: entry.name, mtime: stats.mtimeMs }

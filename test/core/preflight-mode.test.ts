@@ -36,12 +36,9 @@ describe('Preflight - Mode handling', () => {
     it('should use CLI --mode flag when provided', async () => {
       fs.writeFileSync(configPath, 'mode: act\n')
 
-      const result = await runPreflight(
-        ['node', 'claude-composer', '--mode', 'plan', 'chat'],
-        {
-          configPath,
-        },
-      )
+      const result = await runPreflight(['node', 'claude-composer', '--mode', 'plan', 'chat'], {
+        configPath,
+      })
 
       expect(result.appConfig.mode).toBe('plan')
     })
@@ -69,12 +66,9 @@ describe('Preflight - Mode handling', () => {
     it('should handle mode with equals syntax', async () => {
       fs.writeFileSync(configPath, 'show_notifications: true\n')
 
-      const result = await runPreflight(
-        ['node', 'claude-composer', '--mode=plan', 'chat'],
-        {
-          configPath,
-        },
-      )
+      const result = await runPreflight(['node', 'claude-composer', '--mode=plan', 'chat'], {
+        configPath,
+      })
 
       expect(result.appConfig.mode).toBe('plan')
     })
@@ -85,28 +79,14 @@ describe('Preflight - Mode handling', () => {
       fs.writeFileSync(configPath, 'show_notifications: true\n')
 
       const result = await runPreflight(
-        [
-          'node',
-          'claude-composer',
-          '--mode',
-          'plan',
-          '--quiet',
-          'chat',
-          'arg1',
-        ],
+        ['node', 'claude-composer', '--mode', 'plan', '--quiet', 'chat', 'arg1'],
         {
           configPath,
         },
       )
 
       // The --mode flag itself is included but the value 'plan' is skipped
-      expect(result.childArgs).toEqual([
-        '--mode',
-        'plan',
-        '--quiet',
-        'chat',
-        'arg1',
-      ])
+      expect(result.childArgs).toEqual(['--mode', 'plan', '--quiet', 'chat', 'arg1'])
       expect(result.childArgs).toContain('--mode')
       expect(result.childArgs).toContain('plan')
     })
@@ -115,35 +95,22 @@ describe('Preflight - Mode handling', () => {
       fs.writeFileSync(configPath, 'show_notifications: true\n')
 
       const result = await runPreflight(
-        [
-          'node',
-          'claude-composer',
-          '--mode=act',
-          '--show-notifications',
-          'chat',
-        ],
+        ['node', 'claude-composer', '--mode=act', '--show-notifications', 'chat'],
         {
           configPath,
         },
       )
 
-      expect(result.childArgs).toEqual([
-        '--mode=act',
-        '--show-notifications',
-        'chat',
-      ])
+      expect(result.childArgs).toEqual(['--mode=act', '--show-notifications', 'chat'])
       expect(result.childArgs).toContain('--mode=act')
     })
 
     it('should handle mode flag at end of arguments', async () => {
       fs.writeFileSync(configPath, 'show_notifications: true\n')
 
-      const result = await runPreflight(
-        ['node', 'claude-composer', 'chat', '--mode', 'plan'],
-        {
-          configPath,
-        },
-      )
+      const result = await runPreflight(['node', 'claude-composer', 'chat', '--mode', 'plan'], {
+        configPath,
+      })
 
       expect(result.childArgs).toEqual(['chat', '--mode', 'plan'])
       expect(result.appConfig.mode).toBe('plan')
@@ -154,12 +121,9 @@ describe('Preflight - Mode handling', () => {
     it('should accept mode act', async () => {
       fs.writeFileSync(configPath, 'yolo: false\n')
 
-      const result = await runPreflight(
-        ['node', 'claude-composer', '--mode', 'act'],
-        {
-          configPath,
-        },
-      )
+      const result = await runPreflight(['node', 'claude-composer', '--mode', 'act'], {
+        configPath,
+      })
 
       expect(result.appConfig.mode).toBe('act')
     })
@@ -167,12 +131,9 @@ describe('Preflight - Mode handling', () => {
     it('should accept mode plan', async () => {
       fs.writeFileSync(configPath, 'yolo: false\n')
 
-      const result = await runPreflight(
-        ['node', 'claude-composer', '--mode', 'plan'],
-        {
-          configPath,
-        },
-      )
+      const result = await runPreflight(['node', 'claude-composer', '--mode', 'plan'], {
+        configPath,
+      })
 
       expect(result.appConfig.mode).toBe('plan')
     })

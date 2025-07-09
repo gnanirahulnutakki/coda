@@ -53,7 +53,7 @@ function formatDuration(ms: number): string {
 
 export async function handleOfflineCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     printHelp()
     return
@@ -66,26 +66,26 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
       case 'status': {
         const enabled = cacheManager.isEnabled()
         const stats = cacheManager.getStats()
-        
+
         console.log('\n--- Offline Mode Status ---')
         console.log(`Status: ${enabled ? '✓ Enabled' : '✗ Disabled'}`)
         console.log(`\nCache Statistics:`)
         console.log(`  Total entries: ${stats.totalEntries}`)
         console.log(`  Total size: ${formatBytes(stats.totalSize)}`)
         console.log(`  Average entry size: ${formatBytes(stats.averageResponseSize)}`)
-        
+
         if (stats.hitRate !== undefined) {
           console.log(`  Cache hit rate: ${(stats.hitRate * 100).toFixed(1)}%`)
         }
-        
+
         if (stats.oldestEntry) {
           console.log(`  Oldest entry: ${new Date(stats.oldestEntry).toLocaleString()}`)
         }
-        
+
         if (stats.newestEntry) {
           console.log(`  Newest entry: ${new Date(stats.newestEntry).toLocaleString()}`)
         }
-        
+
         if (Object.keys(stats.providers).length > 0) {
           console.log('\nCached by provider:')
           for (const [provider, count] of Object.entries(stats.providers)) {
@@ -120,38 +120,44 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         }
 
         console.log(`Searching for: "${query}"...`)
-        
+
         const results = await cacheManager.searchCache(query, 10)
-        
+
         if (results.length === 0) {
           console.log('\nNo matching cached responses found.')
           return
         }
 
         console.log(`\nFound ${results.length} matching response(s):\n`)
-        
+
         results.forEach((entry, index) => {
           console.log(`${index + 1}. [${entry.id}]`)
           console.log(`   Provider: ${entry.provider}${entry.model ? ` (${entry.model})` : ''}`)
-          console.log(`   Prompt: ${entry.prompt.substring(0, 80)}${entry.prompt.length > 80 ? '...' : ''}`)
-          console.log(`   Response: ${entry.response.substring(0, 80)}${entry.response.length > 80 ? '...' : ''}`)
+          console.log(
+            `   Prompt: ${entry.prompt.substring(0, 80)}${entry.prompt.length > 80 ? '...' : ''}`,
+          )
+          console.log(
+            `   Response: ${entry.response.substring(0, 80)}${entry.response.length > 80 ? '...' : ''}`,
+          )
           console.log(`   Cached: ${new Date(entry.timestamp).toLocaleString()}`)
-          
+
           if (entry.tags && entry.tags.length > 0) {
             console.log(`   Tags: ${entry.tags.join(', ')}`)
           }
-          
+
           if (entry.expiresAt) {
             const expires = new Date(entry.expiresAt)
             const now = new Date()
             if (expires > now) {
-              const daysLeft = Math.ceil((expires.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+              const daysLeft = Math.ceil(
+                (expires.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
+              )
               console.log(`   Expires: in ${daysLeft} day(s)`)
             } else {
               console.log(`   Expires: EXPIRED`)
             }
           }
-          
+
           console.log()
         })
         break
@@ -168,7 +174,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         // Since we don't have a direct getById method, we'll search through all entries
         const stats = cacheManager.getStats()
         let found = false
-        
+
         // This is a limitation - we'd need to add a getById method to the manager
         // For now, we'll show an appropriate message
         console.log(`\nTo view cached entries, use:`)
@@ -187,7 +193,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         }
 
         const success = cacheManager.deleteEntry(id)
-        
+
         if (success) {
           console.log(`✓ Deleted cache entry: ${id}`)
         } else {
@@ -199,7 +205,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
 
       case 'clear': {
         const stats = cacheManager.getStats()
-        
+
         if (stats.totalEntries === 0) {
           console.log('Cache is already empty.')
           return
@@ -208,11 +214,11 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         // Simple confirmation
         console.log(`\nThis will delete ${stats.totalEntries} cached response(s).`)
         console.log('Are you sure? Type "yes" to confirm:')
-        
+
         // In a real implementation, we'd use readline to get user input
         // For now, we'll just show the warning
         console.log('\n(In production, this would wait for confirmation)')
-        
+
         cacheManager.clearCache()
         console.log('\n✓ Cache cleared successfully')
         break
@@ -220,15 +226,17 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
 
       case 'cleanup': {
         console.log('Cleaning up expired cache entries...')
-        
+
         const deletedCount = cacheManager.cleanup()
-        
+
         if (deletedCount === 0) {
           console.log('No expired entries found.')
         } else {
-          console.log(`✓ Removed ${deletedCount} expired cache entr${deletedCount === 1 ? 'y' : 'ies'}`)
+          console.log(
+            `✓ Removed ${deletedCount} expired cache entr${deletedCount === 1 ? 'y' : 'ies'}`,
+          )
         }
-        
+
         const stats = cacheManager.getStats()
         console.log(`\nRemaining entries: ${stats.totalEntries}`)
         console.log(`Cache size: ${formatBytes(stats.totalSize)}`)
@@ -244,27 +252,27 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         }
 
         console.log(`Exporting cache to: ${outputFile}`)
-        
+
         // Parse filter options
         const filterArgs = args.slice(2)
         const filter: any = {}
-        
+
         for (let i = 0; i < filterArgs.length; i += 2) {
           const key = filterArgs[i]
           const value = filterArgs[i + 1]
-          
+
           if (key === '--provider') filter.provider = value
           else if (key === '--model') filter.model = value
           else if (key === '--tags') filter.tags = value.split(',')
         }
-        
+
         try {
           cacheManager.exportCache(outputFile, Object.keys(filter).length > 0 ? filter : undefined)
-          
+
           const stats = fs.statSync(outputFile)
           console.log(`✓ Exported successfully`)
           console.log(`  File size: ${formatBytes(stats.size)}`)
-          
+
           // Read back to show entry count
           const exported = JSON.parse(fs.readFileSync(outputFile, 'utf8'))
           console.log(`  Entries: ${exported.entries.length}`)
@@ -284,7 +292,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         }
 
         const merge = args.includes('--merge')
-        
+
         try {
           console.log(`Importing cache from: ${inputFile}`)
           if (merge) {
@@ -292,11 +300,11 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
           } else {
             console.log('Mode: Replace existing cache')
           }
-          
+
           const importedCount = cacheManager.importCache(inputFile, { merge })
-          
+
           console.log(`✓ Imported ${importedCount} cache entr${importedCount === 1 ? 'y' : 'ies'}`)
-          
+
           const stats = cacheManager.getStats()
           console.log(`\nTotal entries: ${stats.totalEntries}`)
           console.log(`Total size: ${formatBytes(stats.totalSize)}`)
@@ -309,7 +317,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
 
       case 'config': {
         const subCommand = args[1]
-        
+
         if (!subCommand) {
           // Show current config
           console.log('\n--- Offline Mode Configuration ---')
@@ -327,7 +335,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
         if (subCommand === 'set') {
           const key = args[2]
           const value = args[3]
-          
+
           if (!key || !value) {
             console.error('Error: Key and value required')
             console.log('Usage: coda offline config set <key> <value>')
@@ -335,7 +343,7 @@ export async function handleOfflineCommand(args: string[]): Promise<void> {
           }
 
           const config: any = {}
-          
+
           switch (key) {
             case 'maxCacheSize':
               config.maxCacheSize = parseInt(value)

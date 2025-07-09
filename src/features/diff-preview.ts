@@ -58,11 +58,11 @@ export class DiffPreviewer {
   addFileChange(filePath: string, newContent: string, type: 'create' | 'modify' = 'modify'): void {
     const absolutePath = path.resolve(filePath)
     let oldContent = ''
-    
+
     if (type === 'modify' && fs.existsSync(absolutePath)) {
       oldContent = fs.readFileSync(absolutePath, 'utf8')
     }
-    
+
     const diff = this.generateDiff(oldContent, newContent, absolutePath, type)
     this.pendingChanges.set(absolutePath, diff)
   }
@@ -72,11 +72,11 @@ export class DiffPreviewer {
    */
   addFileDeletion(filePath: string): void {
     const absolutePath = path.resolve(filePath)
-    
+
     if (!fs.existsSync(absolutePath)) {
       throw new Error(`File ${filePath} does not exist`)
     }
-    
+
     const oldContent = fs.readFileSync(absolutePath, 'utf8')
     const diff = this.generateDiff(oldContent, '', absolutePath, 'delete')
     this.pendingChanges.set(absolutePath, diff)
@@ -85,22 +85,27 @@ export class DiffPreviewer {
   /**
    * Generate diff between old and new content
    */
-  private generateDiff(oldContent: string, newContent: string, filePath: string, type: 'create' | 'modify' | 'delete'): FileDiff {
+  private generateDiff(
+    oldContent: string,
+    newContent: string,
+    filePath: string,
+    type: 'create' | 'modify' | 'delete',
+  ): FileDiff {
     const oldLines = oldContent.split('\n')
     const newLines = newContent.split('\n')
-    
+
     const hunks = this.computeDiffHunks(oldLines, newLines)
-    
+
     let additions = 0
     let deletions = 0
-    
+
     for (const hunk of hunks) {
       for (const line of hunk.lines) {
         if (line.type === 'add') additions++
         if (line.type === 'delete') deletions++
       }
     }
-    
+
     return {
       file: filePath,
       type,
@@ -108,26 +113,30 @@ export class DiffPreviewer {
       newContent,
       additions,
       deletions,
-      hunks
+      hunks,
     }
   }
 
   /**
    * Compute diff hunks using a simple algorithm
    */
-  private computeDiffHunks(oldLines: string[], newLines: string[], contextLines: number = 3): DiffHunk[] {
+  private computeDiffHunks(
+    oldLines: string[],
+    newLines: string[],
+    contextLines: number = 3,
+  ): DiffHunk[] {
     const hunks: DiffHunk[] = []
-    
+
     // Simple line-by-line comparison (in production, use a proper diff algorithm)
     const maxLines = Math.max(oldLines.length, newLines.length)
     let currentHunk: DiffHunk | null = null
     let oldLineNum = 1
     let newLineNum = 1
-    
+
     for (let i = 0; i < maxLines; i++) {
       const oldLine = i < oldLines.length ? oldLines[i] : undefined
       const newLine = i < newLines.length ? newLines[i] : undefined
-      
+
       if (oldLine === newLine) {
         // Context line
         if (currentHunk) {
@@ -135,7 +144,7 @@ export class DiffPreviewer {
             type: 'context',
             content: oldLine || '',
             oldLineNumber: oldLineNum,
-            newLineNumber: newLineNum
+            newLineNumber: newLineNum,
           })
         }
         if (oldLine !== undefined) oldLineNum++
@@ -148,9 +157,9 @@ export class DiffPreviewer {
             oldLines: 0,
             newStart: Math.max(1, newLineNum - contextLines),
             newLines: 0,
-            lines: []
+            lines: [],
           }
-          
+
           // Add context before
           for (let j = Math.max(0, i - contextLines); j < i; j++) {
             if (j < oldLines.length && j < newLines.length && oldLines[j] === newLines[j]) {
@@ -158,21 +167,21 @@ export class DiffPreviewer {
                 type: 'context',
                 content: oldLines[j],
                 oldLineNumber: currentHunk.oldStart + currentHunk.lines.length,
-                newLineNumber: currentHunk.newStart + currentHunk.lines.length
+                newLineNumber: currentHunk.newStart + currentHunk.lines.length,
               })
             }
           }
-          
+
           hunks.push(currentHunk)
         }
-        
+
         // Add changed lines
         if (oldLine !== undefined && newLine === undefined) {
           // Deletion
           currentHunk.lines.push({
             type: 'delete',
             content: oldLine,
-            oldLineNumber: oldLineNum
+            oldLineNumber: oldLineNum,
           })
           oldLineNum++
         } else if (oldLine === undefined && newLine !== undefined) {
@@ -180,7 +189,7 @@ export class DiffPreviewer {
           currentHunk.lines.push({
             type: 'add',
             content: newLine,
-            newLineNumber: newLineNum
+            newLineNumber: newLineNum,
           })
           newLineNum++
         } else if (oldLine !== undefined && newLine !== undefined) {
@@ -188,18 +197,18 @@ export class DiffPreviewer {
           currentHunk.lines.push({
             type: 'delete',
             content: oldLine,
-            oldLineNumber: oldLineNum
+            oldLineNumber: oldLineNum,
           })
           currentHunk.lines.push({
             type: 'add',
             content: newLine,
-            newLineNumber: newLineNum
+            newLineNumber: newLineNum,
           })
           oldLineNum++
           newLineNum++
         }
       }
-      
+
       // End hunk if we have enough context
       if (currentHunk && i < maxLines - 1) {
         let contextCount = 0
@@ -210,22 +219,26 @@ export class DiffPreviewer {
             break
           }
         }
-        
+
         if (contextCount >= contextLines * 2) {
           // Update line counts
-          currentHunk.oldLines = currentHunk.lines.filter(l => l.oldLineNumber !== undefined).length
-          currentHunk.newLines = currentHunk.lines.filter(l => l.newLineNumber !== undefined).length
+          currentHunk.oldLines = currentHunk.lines.filter(
+            (l) => l.oldLineNumber !== undefined,
+          ).length
+          currentHunk.newLines = currentHunk.lines.filter(
+            (l) => l.newLineNumber !== undefined,
+          ).length
           currentHunk = null
         }
       }
     }
-    
+
     // Finalize last hunk
     if (currentHunk) {
-      currentHunk.oldLines = currentHunk.lines.filter(l => l.oldLineNumber !== undefined).length
-      currentHunk.newLines = currentHunk.lines.filter(l => l.newLineNumber !== undefined).length
+      currentHunk.oldLines = currentHunk.lines.filter((l) => l.oldLineNumber !== undefined).length
+      currentHunk.newLines = currentHunk.lines.filter((l) => l.newLineNumber !== undefined).length
     }
-    
+
     return hunks
   }
 
@@ -233,18 +246,14 @@ export class DiffPreviewer {
    * Get preview of all pending changes
    */
   getPreview(options: DiffPreviewOptions = {}): string {
-    const {
-      colorize = true,
-      unifiedFormat = true,
-      sideBySide = false
-    } = options
-    
+    const { colorize = true, unifiedFormat = true, sideBySide = false } = options
+
     if (this.pendingChanges.size === 0) {
       return 'No pending changes to preview'
     }
-    
+
     const previews: string[] = []
-    
+
     for (const [filePath, diff] of this.pendingChanges) {
       if (sideBySide) {
         previews.push(this.formatSideBySideDiff(diff, colorize))
@@ -254,7 +263,7 @@ export class DiffPreviewer {
         previews.push(this.formatSimpleDiff(diff, colorize))
       }
     }
-    
+
     return previews.join('\n\n')
   }
 
@@ -268,9 +277,9 @@ export class DiffPreviewer {
       add: colorize ? '\x1b[32m' : '',
       delete: colorize ? '\x1b[31m' : '',
       hunk: colorize ? '\x1b[35m' : '',
-      reset: colorize ? '\x1b[0m' : ''
+      reset: colorize ? '\x1b[0m' : '',
     }
-    
+
     // File header
     const relativePath = path.relative(process.cwd(), diff.file)
     if (diff.type === 'create') {
@@ -281,11 +290,13 @@ export class DiffPreviewer {
       lines.push(`${colors.header}--- ${relativePath}${colors.reset}`)
       lines.push(`${colors.header}+++ ${relativePath}${colors.reset}`)
     }
-    
+
     // Hunks
     for (const hunk of diff.hunks) {
-      lines.push(`${colors.hunk}@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@${colors.reset}`)
-      
+      lines.push(
+        `${colors.hunk}@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@${colors.reset}`,
+      )
+
       for (const line of hunk.lines) {
         switch (line.type) {
           case 'add':
@@ -300,11 +311,13 @@ export class DiffPreviewer {
         }
       }
     }
-    
+
     // Summary
     lines.push('')
-    lines.push(`${colors.header}Changes: ${colors.add}+${diff.additions}${colors.reset}, ${colors.delete}-${diff.deletions}${colors.reset}`)
-    
+    lines.push(
+      `${colors.header}Changes: ${colors.add}+${diff.additions}${colors.reset}, ${colors.delete}-${diff.deletions}${colors.reset}`,
+    )
+
     return lines.join('\n')
   }
 
@@ -317,32 +330,36 @@ export class DiffPreviewer {
       header: colorize ? '\x1b[36m' : '',
       add: colorize ? '\x1b[32m' : '',
       delete: colorize ? '\x1b[31m' : '',
-      reset: colorize ? '\x1b[0m' : ''
+      reset: colorize ? '\x1b[0m' : '',
     }
-    
+
     const relativePath = path.relative(process.cwd(), diff.file)
     lines.push(`${colors.header}File: ${relativePath}${colors.reset}`)
     lines.push('─'.repeat(80))
-    
+
     const columnWidth = 35
     lines.push(`${'OLD'.padEnd(columnWidth)} │ ${'NEW'.padEnd(columnWidth)}`)
     lines.push('─'.repeat(80))
-    
+
     for (const hunk of diff.hunks) {
       let oldIndex = 0
       let newIndex = 0
-      
+
       while (oldIndex < hunk.lines.length || newIndex < hunk.lines.length) {
         const oldLine = hunk.lines[oldIndex]
         const newLine = hunk.lines[newIndex]
-        
+
         if (oldLine?.type === 'delete') {
           const content = this.truncate(oldLine.content, columnWidth - 2)
-          lines.push(`${colors.delete}${content.padEnd(columnWidth)}${colors.reset} │ ${''.padEnd(columnWidth)}`)
+          lines.push(
+            `${colors.delete}${content.padEnd(columnWidth)}${colors.reset} │ ${''.padEnd(columnWidth)}`,
+          )
           oldIndex++
         } else if (newLine?.type === 'add') {
           const content = this.truncate(newLine.content, columnWidth - 2)
-          lines.push(`${''.padEnd(columnWidth)} │ ${colors.add}${content.padEnd(columnWidth)}${colors.reset}`)
+          lines.push(
+            `${''.padEnd(columnWidth)} │ ${colors.add}${content.padEnd(columnWidth)}${colors.reset}`,
+          )
           newIndex++
         } else if (oldLine?.type === 'context' && newLine?.type === 'context') {
           const content = this.truncate(oldLine.content, columnWidth - 2)
@@ -355,7 +372,7 @@ export class DiffPreviewer {
         }
       }
     }
-    
+
     return lines.join('\n')
   }
 
@@ -368,12 +385,12 @@ export class DiffPreviewer {
       header: colorize ? '\x1b[36m' : '',
       add: colorize ? '\x1b[32m' : '',
       delete: colorize ? '\x1b[31m' : '',
-      reset: colorize ? '\x1b[0m' : ''
+      reset: colorize ? '\x1b[0m' : '',
     }
-    
+
     const relativePath = path.relative(process.cwd(), diff.file)
     lines.push(`${colors.header}File: ${relativePath}${colors.reset}`)
-    
+
     if (diff.type === 'create') {
       lines.push(`${colors.add}[NEW FILE]${colors.reset}`)
     } else if (diff.type === 'delete') {
@@ -381,9 +398,11 @@ export class DiffPreviewer {
     } else {
       lines.push(`[MODIFIED]`)
     }
-    
-    lines.push(`Changes: ${colors.add}+${diff.additions}${colors.reset}, ${colors.delete}-${diff.deletions}${colors.reset}`)
-    
+
+    lines.push(
+      `Changes: ${colors.add}+${diff.additions}${colors.reset}, ${colors.delete}-${diff.deletions}${colors.reset}`,
+    )
+
     return lines.join('\n')
   }
 
@@ -402,9 +421,9 @@ export class DiffPreviewer {
     const results: ApplyResult = {
       succeeded: [],
       failed: [],
-      totalChanges: this.pendingChanges.size
+      totalChanges: this.pendingChanges.size,
     }
-    
+
     for (const [filePath, diff] of this.pendingChanges) {
       try {
         switch (diff.type) {
@@ -416,12 +435,12 @@ export class DiffPreviewer {
             fs.writeFileSync(filePath, diff.newContent || '')
             results.succeeded.push(filePath)
             break
-            
+
           case 'modify':
             fs.writeFileSync(filePath, diff.newContent || '')
             results.succeeded.push(filePath)
             break
-            
+
           case 'delete':
             fs.unlinkSync(filePath)
             results.succeeded.push(filePath)
@@ -430,14 +449,14 @@ export class DiffPreviewer {
       } catch (error) {
         results.failed.push({
           file: filePath,
-          error: error.message
+          error: error.message,
         })
       }
     }
-    
+
     // Clear pending changes after applying
     this.pendingChanges.clear()
-    
+
     return results
   }
 
@@ -470,33 +489,33 @@ export class DiffPreviewer {
     if (this.pendingChanges.size === 0) {
       throw new Error('No pending changes to preview')
     }
-    
+
     // Create temporary files for diff tool
     const tempDir = path.join(this.snapshotDir, 'temp')
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true })
     }
-    
+
     for (const [filePath, diff] of this.pendingChanges) {
       const baseName = path.basename(filePath)
       const oldFile = path.join(tempDir, `${baseName}.old`)
       const newFile = path.join(tempDir, `${baseName}.new`)
-      
+
       fs.writeFileSync(oldFile, diff.oldContent || '')
       fs.writeFileSync(newFile, diff.newContent || '')
-      
+
       // Open in diff tool
       const child = spawn(tool, [oldFile, newFile], {
-        stdio: 'inherit'
+        stdio: 'inherit',
       })
-      
+
       await new Promise((resolve, reject) => {
-        child.on('exit', code => {
+        child.on('exit', (code) => {
           if (code === 0) resolve(undefined)
           else reject(new Error(`Diff tool exited with code ${code}`))
         })
       })
-      
+
       // Clean up temp files
       fs.unlinkSync(oldFile)
       fs.unlinkSync(newFile)
@@ -519,11 +538,11 @@ export class DiffPreviewer {
     let filesCreated = 0
     let filesModified = 0
     let filesDeleted = 0
-    
+
     for (const diff of this.pendingChanges.values()) {
       totalAdditions += diff.additions
       totalDeletions += diff.deletions
-      
+
       switch (diff.type) {
         case 'create':
           filesCreated++
@@ -536,14 +555,14 @@ export class DiffPreviewer {
           break
       }
     }
-    
+
     return {
       totalFiles: this.pendingChanges.size,
       filesCreated,
       filesModified,
       filesDeleted,
       totalAdditions,
-      totalDeletions
+      totalDeletions,
     }
   }
 }

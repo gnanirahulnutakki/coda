@@ -41,7 +41,7 @@ export class PresetManager {
     this.presetsDir = path.join(CONFIG_PATHS.getConfigDirectory(), 'presets')
     this.builtInPresetsDir = path.join(__dirname, '..', 'presets')
     this.metadataFile = path.join(this.presetsDir, 'metadata.json')
-    
+
     this.ensureDirectories()
     this.loadMetadata()
     this.loadBuiltInPresets()
@@ -51,7 +51,7 @@ export class PresetManager {
       totalPresets: this.presets.size,
       categories: this.getCategoryCount(),
       favorites: this.metadata?.favorites || [],
-      lastUsed: this.metadata?.lastUsed
+      lastUsed: this.metadata?.lastUsed,
     }
   }
 
@@ -69,14 +69,14 @@ export class PresetManager {
         this.metadata = {
           totalPresets: 0,
           categories: {},
-          favorites: []
+          favorites: [],
         }
       }
     } else {
       this.metadata = {
         totalPresets: 0,
         categories: {},
-        favorites: []
+        favorites: [],
       }
     }
   }
@@ -108,11 +108,11 @@ export class PresetManager {
           yolo: false,
           show_notifications: false,
           log_all_pattern_matches: false,
-          allow_buffer_snapshots: false
+          allow_buffer_snapshots: false,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       },
       {
         id: 'productive',
@@ -125,11 +125,11 @@ export class PresetManager {
           show_notifications: false,
           sticky_notifications: false,
           dangerously_suppress_yolo_confirmation: true,
-          allow_buffer_snapshots: true
+          allow_buffer_snapshots: true,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       },
       {
         id: 'cautious',
@@ -144,11 +144,11 @@ export class PresetManager {
           log_all_pattern_matches: true,
           dangerously_allow_in_dirty_directory: false,
           dangerously_allow_without_version_control: false,
-          dangerously_allow_in_untrusted_root: false
+          dangerously_allow_in_untrusted_root: false,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       },
       {
         id: 'debug',
@@ -160,11 +160,11 @@ export class PresetManager {
           debug: true,
           log_all_pattern_matches: true,
           allow_buffer_snapshots: true,
-          show_notifications: true
+          show_notifications: true,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       },
       {
         id: 'ci-friendly',
@@ -178,11 +178,11 @@ export class PresetManager {
           quiet: true,
           dangerously_suppress_yolo_confirmation: true,
           dangerously_allow_in_dirty_directory: true,
-          dangerously_allow_without_version_control: true
+          dangerously_allow_without_version_control: true,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       },
       {
         id: 'team-collab',
@@ -196,12 +196,12 @@ export class PresetManager {
           sticky_notifications: false,
           log_all_pattern_matches: false,
           allow_buffer_snapshots: true,
-          dangerously_allow_in_dirty_directory: false
+          dangerously_allow_in_dirty_directory: false,
         },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
-      }
+        isBuiltIn: true,
+      },
     ]
 
     // Load built-in presets
@@ -215,14 +215,15 @@ export class PresetManager {
       return
     }
 
-    const files = fs.readdirSync(this.presetsDir)
-      .filter(file => file.endsWith('.yaml') || file.endsWith('.yml'))
+    const files = fs
+      .readdirSync(this.presetsDir)
+      .filter((file) => file.endsWith('.yaml') || file.endsWith('.yml'))
 
     for (const file of files) {
       try {
         const content = fs.readFileSync(path.join(this.presetsDir, file), 'utf8')
         const preset = yaml.parse(content) as ConfigPreset
-        
+
         if (this.validatePreset(preset)) {
           preset.isBuiltIn = false
           this.presets.set(preset.id, preset)
@@ -248,11 +249,11 @@ export class PresetManager {
    */
   getPresets(category?: string): ConfigPreset[] {
     const presets = Array.from(this.presets.values())
-    
+
     if (category) {
-      return presets.filter(p => p.category === category)
+      return presets.filter((p) => p.category === category)
     }
-    
+
     return presets
   }
 
@@ -268,11 +269,12 @@ export class PresetManager {
    */
   searchPresets(query: string): ConfigPreset[] {
     const lowerQuery = query.toLowerCase()
-    
-    return Array.from(this.presets.values()).filter(preset => 
-      preset.name.toLowerCase().includes(lowerQuery) ||
-      preset.description.toLowerCase().includes(lowerQuery) ||
-      preset.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
+
+    return Array.from(this.presets.values()).filter(
+      (preset) =>
+        preset.name.toLowerCase().includes(lowerQuery) ||
+        preset.description.toLowerCase().includes(lowerQuery) ||
+        preset.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)),
     )
   }
 
@@ -291,9 +293,9 @@ export class PresetManager {
     if (!data.name || data.name.trim() === '') {
       throw new Error('Preset name is required')
     }
-    
+
     const id = this.generatePresetId(data.name)
-    
+
     const preset: ConfigPreset = {
       id,
       name: data.name,
@@ -304,7 +306,7 @@ export class PresetManager {
       created: new Date().toISOString(),
       updated: new Date().toISOString(),
       author: data.author,
-      isBuiltIn: false
+      isBuiltIn: false,
     }
 
     // Validate config
@@ -329,11 +331,11 @@ export class PresetManager {
    */
   updatePreset(id: string, updates: Partial<ConfigPreset>): ConfigPreset {
     const preset = this.presets.get(id)
-    
+
     if (!preset) {
       throw new Error(`Preset ${id} not found`)
     }
-    
+
     if (preset.isBuiltIn) {
       throw new Error('Cannot modify built-in presets')
     }
@@ -343,7 +345,7 @@ export class PresetManager {
       ...updates,
       id: preset.id, // Prevent ID change
       updated: new Date().toISOString(),
-      isBuiltIn: false
+      isBuiltIn: false,
     }
 
     // Validate
@@ -368,11 +370,11 @@ export class PresetManager {
    */
   deletePreset(id: string): boolean {
     const preset = this.presets.get(id)
-    
+
     if (!preset) {
       return false
     }
-    
+
     if (preset.isBuiltIn) {
       throw new Error('Cannot delete built-in presets')
     }
@@ -380,16 +382,16 @@ export class PresetManager {
     // Delete file
     const filename = `${id}.yaml`
     const filepath = path.join(this.presetsDir, filename)
-    
+
     if (fs.existsSync(filepath)) {
       fs.unlinkSync(filepath)
     }
 
     // Remove from memory
     this.presets.delete(id)
-    
+
     // Remove from favorites if present
-    this.metadata.favorites = this.metadata.favorites.filter(fav => fav !== id)
+    this.metadata.favorites = this.metadata.favorites.filter((fav) => fav !== id)
     this.saveMetadata()
 
     return true
@@ -400,18 +402,18 @@ export class PresetManager {
    */
   async applyPreset(id: string): Promise<void> {
     const preset = this.presets.get(id)
-    
+
     if (!preset) {
       throw new Error(`Preset ${id} not found`)
     }
 
     // Load current config
     const currentConfig = await loadConfigFile()
-    
+
     // Merge preset config with current config
     const mergedConfig = {
       ...currentConfig,
-      ...preset.config
+      ...preset.config,
     }
 
     // Save to config file
@@ -426,18 +428,22 @@ export class PresetManager {
   /**
    * Create a preset from current configuration
    */
-  async createFromCurrent(name: string, description: string, options: {
-    category?: ConfigPreset['category']
-    tags?: string[]
-    author?: string
-  } = {}): Promise<ConfigPreset> {
+  async createFromCurrent(
+    name: string,
+    description: string,
+    options: {
+      category?: ConfigPreset['category']
+      tags?: string[]
+      author?: string
+    } = {},
+  ): Promise<ConfigPreset> {
     const currentConfig = await loadConfigFile()
-    
+
     return this.createPreset({
       name,
       description,
       config: currentConfig,
-      ...options
+      ...options,
     })
   }
 
@@ -446,7 +452,7 @@ export class PresetManager {
    */
   exportPreset(id: string, outputPath: string): void {
     const preset = this.presets.get(id)
-    
+
     if (!preset) {
       throw new Error(`Preset ${id} not found`)
     }
@@ -454,7 +460,7 @@ export class PresetManager {
     // Remove internal fields for export
     const exportData = {
       ...preset,
-      isBuiltIn: undefined
+      isBuiltIn: undefined,
     }
 
     fs.writeFileSync(outputPath, yaml.stringify(exportData))
@@ -503,13 +509,13 @@ export class PresetManager {
    */
   toggleFavorite(id: string): boolean {
     const preset = this.presets.get(id)
-    
+
     if (!preset) {
       throw new Error(`Preset ${id} not found`)
     }
 
     const index = this.metadata.favorites.indexOf(id)
-    
+
     if (index === -1) {
       this.metadata.favorites.push(id)
     } else {
@@ -525,8 +531,8 @@ export class PresetManager {
    */
   getFavorites(): ConfigPreset[] {
     return this.metadata.favorites
-      .map(id => this.presets.get(id))
-      .filter(preset => preset !== undefined) as ConfigPreset[]
+      .map((id) => this.presets.get(id))
+      .filter((preset) => preset !== undefined) as ConfigPreset[]
   }
 
   /**
@@ -536,7 +542,7 @@ export class PresetManager {
     return {
       ...this.metadata,
       totalPresets: this.presets.size,
-      categories: this.getCategoryCount()
+      categories: this.getCategoryCount(),
     }
   }
 
@@ -545,15 +551,15 @@ export class PresetManager {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '')
-    
+
     let id = baseId
     let counter = 1
-    
+
     while (this.presets.has(id)) {
       id = `${baseId}-${counter}`
       counter++
     }
-    
+
     return id
   }
 
@@ -562,7 +568,7 @@ export class PresetManager {
    */
   duplicatePreset(id: string, newName: string): ConfigPreset {
     const original = this.presets.get(id)
-    
+
     if (!original) {
       throw new Error(`Preset ${id} not found`)
     }
@@ -573,7 +579,7 @@ export class PresetManager {
       category: original.category,
       tags: [...original.tags],
       config: { ...original.config },
-      author: original.author
+      author: original.author,
     })
   }
 
@@ -582,7 +588,7 @@ export class PresetManager {
    */
   getRecommendedPresets(projectPath: string): ConfigPreset[] {
     const recommendations: ConfigPreset[] = []
-    
+
     // Check if it's a CI environment
     if (process.env.CI || process.env.CONTINUOUS_INTEGRATION) {
       const ciPreset = this.getPreset('ci-friendly')
@@ -599,9 +605,9 @@ export class PresetManager {
     if (fs.existsSync(path.join(projectPath, 'package.json'))) {
       try {
         const packageJson = JSON.parse(
-          fs.readFileSync(path.join(projectPath, 'package.json'), 'utf8')
+          fs.readFileSync(path.join(projectPath, 'package.json'), 'utf8'),
         )
-        
+
         // If it has test scripts, recommend cautious preset
         if (packageJson.scripts?.test) {
           const cautiousPreset = this.getPreset('cautious')

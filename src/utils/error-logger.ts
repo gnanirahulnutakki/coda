@@ -33,7 +33,7 @@ class ErrorLogger {
       if (!fs.existsSync(logsDir)) {
         fs.mkdirSync(logsDir, { recursive: true })
       }
-      
+
       const timestamp = new Date().toISOString().split('T')[0]
       this.logFile = path.join(logsDir, `coda-${timestamp}.log`)
     } catch (error) {
@@ -61,7 +61,7 @@ class ErrorLogger {
     if (this.logFile) {
       try {
         fs.appendFileSync(this.logFile, message)
-        
+
         // Implement simple log rotation (max 10MB per file)
         const stats = fs.statSync(this.logFile)
         if (stats.size > 10 * 1024 * 1024) {
@@ -75,20 +75,21 @@ class ErrorLogger {
 
   private rotateLog(): void {
     if (!this.logFile) return
-    
+
     try {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
       const rotatedFile = this.logFile.replace('.log', `-${timestamp}.log`)
       fs.renameSync(this.logFile, rotatedFile)
-      
+
       // Clean up old logs (keep last 5)
       const logsDir = path.dirname(this.logFile)
-      const logs = fs.readdirSync(logsDir)
-        .filter(f => f.startsWith('claude-composer-') && f.endsWith('.log'))
+      const logs = fs
+        .readdirSync(logsDir)
+        .filter((f) => f.startsWith('claude-composer-') && f.endsWith('.log'))
         .sort()
         .reverse()
-      
-      logs.slice(5).forEach(oldLog => {
+
+      logs.slice(5).forEach((oldLog) => {
         try {
           fs.unlinkSync(path.join(logsDir, oldLog))
         } catch (e) {}

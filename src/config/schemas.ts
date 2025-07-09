@@ -30,12 +30,14 @@ export const appConfigSchema = z
     roots: z.array(z.string()).optional(),
 
     // Documentation settings
-    documentation: z.object({
-      paths: z.array(z.string()).optional(),
-      file_patterns: z.array(z.string()).optional(),
-      auto_include: z.boolean().optional(),
-      max_size_mb: z.number().optional(),
-    }).optional(),
+    documentation: z
+      .object({
+        paths: z.array(z.string()).optional(),
+        file_patterns: z.array(z.string()).optional(),
+        auto_include: z.boolean().optional(),
+        max_size_mb: z.number().optional(),
+      })
+      .optional(),
   })
   .strict()
 
@@ -59,9 +61,7 @@ export function parseToolsetConfig(data: unknown): ToolsetConfig {
   return toolsetConfigSchema.parse(data)
 }
 
-export function validateAppConfig(
-  data: unknown,
-): z.SafeParseReturnType<unknown, AppConfig> {
+export function validateAppConfig(data: unknown): z.SafeParseReturnType<unknown, AppConfig> {
   return appConfigSchema.safeParse(data)
 }
 
@@ -82,12 +82,7 @@ export const patternConfigSchema = z.object({
     z
       .function()
       .returns(
-        z.union([
-          z.string(),
-          z.array(z.union([z.string(), z.number()])),
-          z.null(),
-          z.undefined(),
-        ]),
+        z.union([z.string(), z.array(z.union([z.string(), z.number()])), z.null(), z.undefined()]),
       ),
     z.null(),
     z.undefined(),

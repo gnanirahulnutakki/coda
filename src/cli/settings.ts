@@ -42,11 +42,11 @@ async function exportSettings(manager: SettingsManager, args: string[]): Promise
   }
 
   const outputPath = args[0]
-  
+
   // Parse options
   const options: any = {
     includePresets: !args.includes('--no-presets'),
-    includeWorkflows: !args.includes('--no-workflows')
+    includeWorkflows: !args.includes('--no-workflows'),
   }
 
   const descIndex = args.indexOf('--description')
@@ -56,19 +56,18 @@ async function exportSettings(manager: SettingsManager, args: string[]): Promise
 
   try {
     await manager.exportSettings(outputPath, options)
-    
+
     log(`✅ Settings exported successfully to: ${outputPath}`)
-    
+
     const stats = fs.statSync(outputPath)
     log(`   📦 File size: ${(stats.size / 1024).toFixed(2)} KB`)
-    
+
     if (options.includePresets !== false) {
       log('   📋 Included: Configuration presets')
     }
     if (options.includeWorkflows !== false) {
       log('   📋 Included: Workflow templates')
     }
-    
   } catch (error) {
     warn(`Failed to export settings: ${error.message}`)
   }
@@ -82,7 +81,7 @@ async function importSettings(manager: SettingsManager, args: string[]): Promise
   }
 
   const inputPath = args[0]
-  
+
   if (!fs.existsSync(inputPath)) {
     warn(`File not found: ${inputPath}`)
     return
@@ -93,7 +92,7 @@ async function importSettings(manager: SettingsManager, args: string[]): Promise
     merge: args.includes('--merge'),
     includePresets: !args.includes('--no-presets'),
     includeWorkflows: !args.includes('--no-workflows'),
-    validate: !args.includes('--no-validate')
+    validate: !args.includes('--no-validate'),
   }
 
   // Create backup before importing
@@ -103,7 +102,7 @@ async function importSettings(manager: SettingsManager, args: string[]): Promise
       log(`📸 Backup created: ${path.basename(backupPath)}`)
     } catch (error) {
       warn(`Failed to create backup: ${error.message}`)
-      
+
       if (!args.includes('--force')) {
         warn('Import cancelled. Use --force to import without backup.')
         return
@@ -113,10 +112,10 @@ async function importSettings(manager: SettingsManager, args: string[]): Promise
 
   try {
     const result = await manager.importSettings(inputPath, options)
-    
+
     if (result.success) {
       log('✅ Settings imported successfully!')
-      
+
       if (result.imported.config) {
         log('   ⚙️  Configuration imported')
       }
@@ -126,13 +125,12 @@ async function importSettings(manager: SettingsManager, args: string[]): Promise
       if (result.imported.workflows > 0) {
         log(`   🔄 ${result.imported.workflows} workflow(s) imported`)
       }
-      
+
       log('\n🔄 Restart your Coda session for changes to take effect.')
     } else {
       warn('❌ Import failed with errors:')
-      result.errors.forEach(err => warn(`   - ${err}`))
+      result.errors.forEach((err) => warn(`   - ${err}`))
     }
-    
   } catch (error) {
     warn(`Failed to import settings: ${error.message}`)
   }
@@ -146,37 +144,36 @@ async function validateBundle(manager: SettingsManager, args: string[]): Promise
   }
 
   const bundlePath = args[0]
-  
+
   if (!fs.existsSync(bundlePath)) {
     warn(`File not found: ${bundlePath}`)
     return
   }
 
   const result = manager.validateBundle(bundlePath)
-  
+
   if (result.valid) {
     log('✅ Bundle is valid!')
   } else {
     warn('❌ Bundle validation failed:')
-    result.errors.forEach(err => warn(`   ❌ ${err}`))
+    result.errors.forEach((err) => warn(`   ❌ ${err}`))
   }
-  
+
   if (result.warnings.length > 0) {
     console.log('\n⚠️  Warnings:')
-    result.warnings.forEach(warning => console.log(`   - ${warning}`))
+    result.warnings.forEach((warning) => console.log(`   - ${warning}`))
   }
 }
 
 async function createBackup(manager: SettingsManager): Promise<void> {
   try {
     const backupPath = await manager.backupSettings()
-    
+
     log('✅ Backup created successfully!')
     log(`   📦 Location: ${backupPath}`)
-    
+
     const stats = fs.statSync(backupPath)
     log(`   📏 Size: ${(stats.size / 1024).toFixed(2)} KB`)
-    
   } catch (error) {
     warn(`Failed to create backup: ${error.message}`)
   }
@@ -184,25 +181,25 @@ async function createBackup(manager: SettingsManager): Promise<void> {
 
 async function listBackups(manager: SettingsManager): Promise<void> {
   const backups = manager.listBackups()
-  
+
   if (backups.length === 0) {
     console.log('No backups found.')
     console.log('Create a backup with: coda settings backup')
     return
   }
-  
+
   console.log(`\nAvailable Backups (${backups.length}):\n`)
-  
+
   backups.forEach((backup, index) => {
     const ageInDays = Math.floor((Date.now() - backup.created.getTime()) / (1000 * 60 * 60 * 24))
     const sizeKB = (backup.size / 1024).toFixed(2)
-    
+
     console.log(`${index + 1}. ${backup.filename}`)
     console.log(`   Created: ${backup.created.toLocaleString()} (${ageInDays} days ago)`)
     console.log(`   Size: ${sizeKB} KB`)
     console.log()
   })
-  
+
   console.log('To restore a backup, use:')
   console.log('  coda settings restore <filename>')
 }
@@ -217,21 +214,21 @@ async function restoreBackup(manager: SettingsManager, args: string[]): Promise<
 
   const backupRef = args[0]
   let backupPath: string
-  
+
   // Check if it's a full path or just a filename
   if (path.isAbsolute(backupRef) || backupRef.includes(path.sep)) {
     backupPath = backupRef
   } else {
     // Look for the backup in the backups directory
     const backups = manager.listBackups()
-    const backup = backups.find(b => b.filename === backupRef)
-    
+    const backup = backups.find((b) => b.filename === backupRef)
+
     if (!backup) {
       warn(`Backup not found: ${backupRef}`)
       warn('Use "coda settings backups" to list available backups')
       return
     }
-    
+
     backupPath = backup.path
   }
 
@@ -243,15 +240,15 @@ async function restoreBackup(manager: SettingsManager, args: string[]): Promise<
   const options = {
     overwrite: true,
     includePresets: true,
-    includeWorkflows: true
+    includeWorkflows: true,
   }
 
   try {
     const result = await manager.restoreBackup(backupPath, options)
-    
+
     if (result.success) {
       log('✅ Settings restored successfully!')
-      
+
       if (result.imported.config) {
         log('   ⚙️  Configuration restored')
       }
@@ -261,13 +258,12 @@ async function restoreBackup(manager: SettingsManager, args: string[]): Promise<
       if (result.imported.workflows > 0) {
         log(`   🔄 ${result.imported.workflows} workflow(s) restored`)
       }
-      
+
       log('\n🔄 Restart your Coda session for changes to take effect.')
     } else {
       warn('❌ Restore failed with errors:')
-      result.errors.forEach(err => warn(`   - ${err}`))
+      result.errors.forEach((err) => warn(`   - ${err}`))
     }
-    
   } catch (error) {
     warn(`Failed to restore backup: ${error.message}`)
   }
@@ -275,7 +271,7 @@ async function restoreBackup(manager: SettingsManager, args: string[]): Promise<
 
 export async function handleSettingsCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     printHelp()
     return

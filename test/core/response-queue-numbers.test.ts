@@ -19,7 +19,7 @@ describe('ResponseQueue with number pauses', () => {
     responseQueue.enqueue(['hello', 100, 'world'])
 
     // Wait for processing to complete
-    await new Promise(resolve => setTimeout(resolve, 150))
+    await new Promise((resolve) => setTimeout(resolve, 150))
 
     const endTime = Date.now()
     const duration = endTime - startTime
@@ -38,7 +38,7 @@ describe('ResponseQueue with number pauses', () => {
     responseQueue.enqueue(['a', 50, 'b', 75, 'c'])
 
     // Wait for processing
-    await new Promise(resolve => setTimeout(resolve, 150))
+    await new Promise((resolve) => setTimeout(resolve, 150))
 
     expect(mockPtyProcess.write).toHaveBeenCalledTimes(3)
     expect(mockPtyProcess.write).toHaveBeenNthCalledWith(1, 'a')
@@ -49,7 +49,7 @@ describe('ResponseQueue with number pauses', () => {
   it('should handle single string response', async () => {
     responseQueue.enqueue('single')
 
-    await new Promise(resolve => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 50))
 
     expect(mockPtyProcess.write).toHaveBeenCalledTimes(1)
     expect(mockPtyProcess.write).toHaveBeenCalledWith('single')

@@ -18,9 +18,7 @@ describe('Roots Configuration', () => {
   beforeEach(() => {
     originalCwd = process.cwd()
 
-    tempDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'claude-composer-roots-test-'),
-    )
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-composer-roots-test-'))
 
     ConfigManager.resetInstance()
     configManager = ConfigManager.getInstance()
@@ -48,11 +46,7 @@ describe('Roots Configuration', () => {
       })
 
       const loadedConfig = configManager.getAppConfig()
-      expect(loadedConfig.roots).toEqual([
-        '/home/user/projects',
-        '~/work',
-        '$HOME/code',
-      ])
+      expect(loadedConfig.roots).toEqual(['/home/user/projects', '~/work', '$HOME/code'])
     })
 
     it('should handle empty roots array', async () => {
@@ -87,12 +81,8 @@ describe('Roots Configuration', () => {
       const mockAppConfig: AppConfig = { roots: [] }
       const trustPromptPattern = createTrustPromptPattern(() => mockAppConfig)
 
-      expect(trustPromptPattern.pattern).toEqual([
-        'Do you trust the files in this folder?',
-      ])
-      expect(trustPromptPattern.triggerText).toBe(
-        'Do you trust the files in this folder?',
-      )
+      expect(trustPromptPattern.pattern).toEqual(['Do you trust the files in this folder?'])
+      expect(trustPromptPattern.triggerText).toBe('Do you trust the files in this folder?')
     })
 
     it('should return "3" (No) when roots is empty', async () => {

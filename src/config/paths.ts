@@ -14,10 +14,7 @@ export const CONFIG_PATHS = {
    * Can be overridden by CODA_CONFIG_DIR environment variable
    */
   getConfigDirectory: (): string => {
-    return (
-      process.env.CODA_CONFIG_DIR ||
-      path.join(os.homedir(), '.coda')
-    )
+    return process.env.CODA_CONFIG_DIR || path.join(os.homedir(), '.coda')
   },
 
   /**
@@ -137,7 +134,7 @@ export const AI_PROVIDER_PATHS = {
     const providerName = provider === 'claude-code' ? 'claude' : provider
     const envVarName = provider === 'claude-code' ? 'CLAUDE_APP_PATH' : 'GEMINI_APP_PATH'
     const checkedPaths: string[] = []
-    
+
     // 1. Check custom path first
     if (customPath) {
       checkedPaths.push(`Custom path: ${customPath}`)
@@ -150,7 +147,7 @@ export const AI_PROVIDER_PATHS = {
         }
       }
     }
-    
+
     // 2. Check environment variable
     if (process.env[envVarName]) {
       const envPath = process.env[envVarName]
@@ -164,14 +161,14 @@ export const AI_PROVIDER_PATHS = {
         }
       }
     }
-    
+
     // 3. Try which command to find in PATH
     try {
       const whichResult = execSync(`which ${providerName} 2>/dev/null`, {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
       }).trim()
-      
+
       if (whichResult && fs.existsSync(whichResult)) {
         checkedPaths.push(`System PATH: ${whichResult}`)
         return whichResult
@@ -179,21 +176,24 @@ export const AI_PROVIDER_PATHS = {
     } catch {
       checkedPaths.push(`System PATH: not found`)
     }
-    
+
     // 4. Check common installation locations
-    const commonPaths = provider === 'claude-code' ? [
-      '/opt/homebrew/bin/claude',
-      '/usr/local/bin/claude',
-      path.join(os.homedir(), '.npm', 'bin', 'claude'),
-      path.join(os.homedir(), '.claude', 'local', 'claude'),
-      path.join(os.homedir(), '.claude', 'bin', 'claude'),
-      '/Applications/Claude.app/Contents/MacOS/claude',
-    ] : [
-      '/opt/homebrew/bin/gemini',
-      '/usr/local/bin/gemini',
-      path.join(os.homedir(), '.gemini', 'bin', 'gemini'),
-    ]
-    
+    const commonPaths =
+      provider === 'claude-code'
+        ? [
+            '/opt/homebrew/bin/claude',
+            '/usr/local/bin/claude',
+            path.join(os.homedir(), '.npm', 'bin', 'claude'),
+            path.join(os.homedir(), '.claude', 'local', 'claude'),
+            path.join(os.homedir(), '.claude', 'bin', 'claude'),
+            '/Applications/Claude.app/Contents/MacOS/claude',
+          ]
+        : [
+            '/opt/homebrew/bin/gemini',
+            '/usr/local/bin/gemini',
+            path.join(os.homedir(), '.gemini', 'bin', 'gemini'),
+          ]
+
     for (const commonPath of commonPaths) {
       if (fs.existsSync(commonPath)) {
         try {
@@ -205,17 +205,17 @@ export const AI_PROVIDER_PATHS = {
         }
       }
     }
-    
+
     // If all methods fail, throw helpful error
     throw new Error(
       `${provider} CLI not found. Please ensure ${provider} is installed.\n\n` +
-      `Searched locations:\n` +
-      checkedPaths.map(p => `  - ${p}`).join('\n') +
-      `\n\nTo fix this:\n` +
-      `1. Install ${provider} CLI if not already installed\n` +
-      `2. Add it to your PATH, or\n` +
-      `3. Set ${envVarName} environment variable to the full path, or\n` +
-      `4. Specify the path in your config file with 'provider_path'`
+        `Searched locations:\n` +
+        checkedPaths.map((p) => `  - ${p}`).join('\n') +
+        `\n\nTo fix this:\n` +
+        `1. Install ${provider} CLI if not already installed\n` +
+        `2. Add it to your PATH, or\n` +
+        `3. Set ${envVarName} environment variable to the full path, or\n` +
+        `4. Specify the path in your config file with 'provider_path'`,
     )
   },
 } as const

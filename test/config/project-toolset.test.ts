@@ -26,16 +26,10 @@ describe('Project-level toolset loading', () => {
     originalCwd = process.cwd()
 
     // Create temporary project directory
-    testProjectDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'coda-toolset-test-'),
-    )
+    testProjectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'coda-toolset-test-'))
 
     // Create project structure
-    projectToolsetsDir = path.join(
-      testProjectDir,
-      '.coda',
-      'toolsets',
-    )
+    projectToolsetsDir = path.join(testProjectDir, '.coda', 'toolsets')
     fs.mkdirSync(projectToolsetsDir, { recursive: true })
 
     testToolsetPath = path.join(projectToolsetsDir, 'test-toolset.yaml')
@@ -91,42 +85,30 @@ mcp:
   })
 
   it('should throw error if project toolset does not exist', async () => {
-    await expect(loadToolsetFile('project:non-existent')).rejects.toThrow(
-      'Toolset file not found:',
-    )
+    await expect(loadToolsetFile('project:non-existent')).rejects.toThrow('Toolset file not found:')
   })
 
   it('should still support internal: prefix', async () => {
     // Mock the internal toolset files
     const originalExistsSync = vi.mocked(fs.existsSync).getMockImplementation()
-    const originalReadFileSync = vi
-      .mocked(fs.readFileSync)
-      .getMockImplementation()
+    const originalReadFileSync = vi.mocked(fs.readFileSync).getMockImplementation()
 
-    vi.mocked(fs.existsSync).mockImplementation(filePath => {
-      if (
-        typeof filePath === 'string' &&
-        filePath.includes('internal-toolsets/core.yaml')
-      ) {
+    vi.mocked(fs.existsSync).mockImplementation((filePath) => {
+      if (typeof filePath === 'string' && filePath.includes('internal-toolsets/core.yaml')) {
         return true
       }
       return originalExistsSync ? originalExistsSync(filePath) : false
     })
 
     vi.mocked(fs.readFileSync).mockImplementation((filePath, encoding) => {
-      if (
-        typeof filePath === 'string' &&
-        filePath.includes('internal-toolsets/core.yaml')
-      ) {
+      if (typeof filePath === 'string' && filePath.includes('internal-toolsets/core.yaml')) {
         return `mcp:
   filesystem:
     type: stdio
     command: node
     args: [/path/to/filesystem-server.js]`
       }
-      return originalReadFileSync
-        ? originalReadFileSync(filePath, encoding)
-        : ''
+      return originalReadFileSync ? originalReadFileSync(filePath, encoding) : ''
     })
 
     // Test that internal toolsets still work
@@ -135,12 +117,8 @@ mcp:
     expect(loaded.mcp).toBeDefined()
 
     // Restore mocks
-    vi.mocked(fs.existsSync).mockImplementation(
-      originalExistsSync || (() => false),
-    )
-    vi.mocked(fs.readFileSync).mockImplementation(
-      originalReadFileSync || (() => ''),
-    )
+    vi.mocked(fs.existsSync).mockImplementation(originalExistsSync || (() => false))
+    vi.mocked(fs.readFileSync).mockImplementation(originalReadFileSync || (() => ''))
   })
 
   it('should validate project toolset configuration', async () => {

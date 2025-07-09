@@ -42,12 +42,15 @@ Examples:
 }
 
 async function promptForVariables(
-  variables: Record<string, { description: string; default?: string; required?: boolean; pattern?: string }>,
-  providedVars: Record<string, string> = {}
+  variables: Record<
+    string,
+    { description: string; default?: string; required?: boolean; pattern?: string }
+  >,
+  providedVars: Record<string, string> = {},
 ): Promise<Record<string, string>> {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   const prompt = (question: string): Promise<string> => {
@@ -71,7 +74,7 @@ async function promptForVariables(
     question += ': '
 
     let value = await prompt(question)
-    
+
     // Use default if empty
     if (!value && config.default) {
       value = config.default
@@ -104,7 +107,7 @@ async function promptForVariables(
 async function createTemplateInteractive(): Promise<void> {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   })
 
   const prompt = (question: string): Promise<string> => {
@@ -118,9 +121,15 @@ async function createTemplateInteractive(): Promise<void> {
   // Basic information
   const name = await prompt('Template name: ')
   const description = await prompt('Description: ')
-  const category = await prompt('Category (development/testing/refactoring/documentation/debugging/security/custom) [custom]: ') || 'custom'
+  const category =
+    (await prompt(
+      'Category (development/testing/refactoring/documentation/debugging/security/custom) [custom]: ',
+    )) || 'custom'
   const tagsInput = await prompt('Tags (comma-separated): ')
-  const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t)
+  const tags = tagsInput
+    .split(',')
+    .map((t) => t.trim())
+    .filter((t) => t)
   const author = await prompt('Author name (optional): ')
 
   // Steps
@@ -135,12 +144,13 @@ async function createTemplateInteractive(): Promise<void> {
 
     const stepDescription = await prompt('Step description (optional): ')
     const stepPrompt = await prompt('AI prompt for this step: ')
-    const requiresConfirmation = (await prompt('Requires user confirmation? (y/n) [n]: ')).toLowerCase() === 'y'
-    
+    const requiresConfirmation =
+      (await prompt('Requires user confirmation? (y/n) [n]: ')).toLowerCase() === 'y'
+
     const step: any = {
       name: stepName,
       prompt: stepPrompt,
-      requiresConfirmation
+      requiresConfirmation,
     }
 
     if (stepDescription) {
@@ -150,13 +160,19 @@ async function createTemplateInteractive(): Promise<void> {
     // Expected files
     const expectedFilesInput = await prompt('Expected output files (comma-separated, optional): ')
     if (expectedFilesInput) {
-      step.expectedFiles = expectedFilesInput.split(',').map(f => f.trim()).filter(f => f)
+      step.expectedFiles = expectedFilesInput
+        .split(',')
+        .map((f) => f.trim())
+        .filter((f) => f)
     }
 
     // Success criteria
     const successCriteriaInput = await prompt('Success criteria (comma-separated, optional): ')
     if (successCriteriaInput) {
-      step.successCriteria = successCriteriaInput.split(',').map(c => c.trim()).filter(c => c)
+      step.successCriteria = successCriteriaInput
+        .split(',')
+        .map((c) => c.trim())
+        .filter((c) => c)
     }
 
     steps.push(step)
@@ -167,7 +183,8 @@ async function createTemplateInteractive(): Promise<void> {
 
   // Variables
   const variables: Record<string, any> = {}
-  const addVariables = (await prompt('\nDefine template variables? (y/n) [n]: ')).toLowerCase() === 'y'
+  const addVariables =
+    (await prompt('\nDefine template variables? (y/n) [n]: ')).toLowerCase() === 'y'
 
   if (addVariables) {
     let addMoreVars = true
@@ -182,7 +199,7 @@ async function createTemplateInteractive(): Promise<void> {
 
       variables[varName] = {
         description: varDescription,
-        required: varRequired
+        required: varRequired,
       }
 
       if (varDefault) variables[varName].default = varDefault
@@ -194,7 +211,12 @@ async function createTemplateInteractive(): Promise<void> {
 
   // Prerequisites
   const prerequisitesInput = await prompt('\nPrerequisites (comma-separated, optional): ')
-  const prerequisites = prerequisitesInput ? prerequisitesInput.split(',').map(p => p.trim()).filter(p => p) : undefined
+  const prerequisites = prerequisitesInput
+    ? prerequisitesInput
+        .split(',')
+        .map((p) => p.trim())
+        .filter((p) => p)
+    : undefined
 
   rl.close()
 
@@ -209,7 +231,7 @@ async function createTemplateInteractive(): Promise<void> {
       steps,
       variables: Object.keys(variables).length > 0 ? variables : undefined,
       prerequisites,
-      author: author || undefined
+      author: author || undefined,
     })
 
     console.log(`\n✓ Template created successfully!`)
@@ -233,10 +255,10 @@ async function runWorkflow(templateId: string, args: string[]): Promise<void> {
 
   console.log(`\n--- Running Workflow: ${template.name} ---`)
   console.log(`Description: ${template.description}`)
-  
+
   if (template.prerequisites && template.prerequisites.length > 0) {
     console.log('\nPrerequisites:')
-    template.prerequisites.forEach(p => console.log(`  - ${p}`))
+    template.prerequisites.forEach((p) => console.log(`  - ${p}`))
   }
 
   console.log(`\nSteps (${template.steps.length}):`)
@@ -266,48 +288,47 @@ async function runWorkflow(templateId: string, args: string[]): Promise<void> {
 
   // Start execution
   console.log('\n--- Starting Execution ---')
-  
+
   try {
     const execution = await manager.startExecution(templateId, variables)
     console.log(`Execution ID: ${execution.id}`)
     console.log(`Status: ${execution.status}`)
     console.log(`Current step: ${execution.currentStep + 1}/${execution.totalSteps}`)
-    
+
     // Display the first step
     console.log('\n--- Step 1: ' + template.steps[0].name + ' ---')
     if (template.steps[0].description) {
       console.log(template.steps[0].description)
     }
-    
+
     const prompt = manager.getStepPrompt(templateId, 0, variables)
     console.log('\nPrompt for AI:')
     console.log('---')
     console.log(prompt)
     console.log('---')
-    
+
     if (template.steps[0].requiresConfirmation) {
       console.log('\n⚠️  This step requires confirmation before proceeding.')
     }
-    
+
     if (template.steps[0].expectedFiles) {
       console.log('\nExpected files:')
-      template.steps[0].expectedFiles.forEach(f => {
+      template.steps[0].expectedFiles.forEach((f) => {
         const interpolated = f.replace(/\{\{(\w+)\}\}/g, (_, key) => variables[key] || '')
         console.log(`  - ${interpolated}`)
       })
     }
-    
+
     if (template.steps[0].successCriteria) {
       console.log('\nSuccess criteria:')
-      template.steps[0].successCriteria.forEach(c => console.log(`  ✓ ${c}`))
+      template.steps[0].successCriteria.forEach((c) => console.log(`  ✓ ${c}`))
     }
-    
+
     console.log('\n💡 To continue with the next step, run:')
     console.log(`   coda workflow continue ${execution.id}`)
-    
+
     console.log('\n📋 To view execution status:')
     console.log(`   coda workflow status ${execution.id}`)
-    
   } catch (error) {
     console.error(`\nError starting workflow: ${error.message}`)
     process.exit(1)
@@ -316,7 +337,7 @@ async function runWorkflow(templateId: string, args: string[]): Promise<void> {
 
 export async function handleWorkflowCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     printHelp()
     return
@@ -329,25 +350,32 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
       case 'list': {
         const category = args[1] as any
         const templates = manager.getTemplates(category)
-        
+
         if (templates.length === 0) {
-          console.log(category ? `No templates found in category: ${category}` : 'No templates found.')
+          console.log(
+            category ? `No templates found in category: ${category}` : 'No templates found.',
+          )
           return
         }
 
-        console.log(category ? `\nTemplates in category '${category}':\n` : '\nAvailable Templates:\n')
-        
+        console.log(
+          category ? `\nTemplates in category '${category}':\n` : '\nAvailable Templates:\n',
+        )
+
         // Group by category if not filtered
         if (!category) {
-          const grouped = templates.reduce((acc, t) => {
-            if (!acc[t.category]) acc[t.category] = []
-            acc[t.category].push(t)
-            return acc
-          }, {} as Record<string, typeof templates>)
+          const grouped = templates.reduce(
+            (acc, t) => {
+              if (!acc[t.category]) acc[t.category] = []
+              acc[t.category].push(t)
+              return acc
+            },
+            {} as Record<string, typeof templates>,
+          )
 
           for (const [cat, catTemplates] of Object.entries(grouped)) {
             console.log(`${cat.toUpperCase()}:`)
-            catTemplates.forEach(t => {
+            catTemplates.forEach((t) => {
               console.log(`  ${t.id.padEnd(25)} ${t.name}`)
               console.log(`  ${' '.repeat(25)} ${t.description}`)
               if (t.tags.length > 0) {
@@ -357,7 +385,7 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
             })
           }
         } else {
-          templates.forEach(t => {
+          templates.forEach((t) => {
             console.log(`${t.id.padEnd(25)} ${t.name}`)
             console.log(`${' '.repeat(25)} ${t.description}`)
             if (t.tags.length > 0) {
@@ -378,15 +406,15 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
         }
 
         const results = manager.searchTemplates(query)
-        
+
         if (results.length === 0) {
           console.log(`No templates found matching: ${query}`)
           return
         }
 
         console.log(`\nFound ${results.length} template(s) matching "${query}":\n`)
-        
-        results.forEach(t => {
+
+        results.forEach((t) => {
           console.log(`${t.id.padEnd(25)} ${t.name}`)
           console.log(`${' '.repeat(25)} ${t.description}`)
           console.log(`${' '.repeat(25)} Category: ${t.category} | Tags: ${t.tags.join(', ')}`)
@@ -418,10 +446,10 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
         if (template.version) console.log(`Version: ${template.version}`)
         console.log(`Created: ${new Date(template.created).toLocaleString()}`)
         console.log(`Updated: ${new Date(template.updated).toLocaleString()}`)
-        
+
         if (template.prerequisites && template.prerequisites.length > 0) {
           console.log('\nPrerequisites:')
-          template.prerequisites.forEach(p => console.log(`  - ${p}`))
+          template.prerequisites.forEach((p) => console.log(`  - ${p}`))
         }
 
         console.log(`\nSteps (${template.steps.length}):`)
@@ -431,7 +459,8 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
           console.log(`   Prompt: ${step.prompt.substring(0, 100)}...`)
           if (step.requiresConfirmation) console.log(`   ⚠️  Requires confirmation`)
           if (step.expectedFiles) console.log(`   Expected files: ${step.expectedFiles.join(', ')}`)
-          if (step.successCriteria) console.log(`   Success criteria: ${step.successCriteria.length} items`)
+          if (step.successCriteria)
+            console.log(`   Success criteria: ${step.successCriteria.length} items`)
         })
 
         if (template.variables && Object.keys(template.variables).length > 0) {
@@ -479,7 +508,15 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
         }
 
         // Check if built-in
-        if (['add-tests', 'refactor-extract-function', 'api-endpoint', 'fix-security-issues', 'debug-issue'].includes(templateId)) {
+        if (
+          [
+            'add-tests',
+            'refactor-extract-function',
+            'api-endpoint',
+            'fix-security-issues',
+            'debug-issue',
+          ].includes(templateId)
+        ) {
           console.error('Error: Cannot edit built-in templates')
           console.log('Tip: You can export it and import as a new custom template')
           process.exit(1)
@@ -517,7 +554,7 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
       case 'export': {
         const templateId = args[1]
         const outputFile = args[2]
-        
+
         if (!templateId || !outputFile) {
           console.error('Error: Template ID and output file required')
           console.log('Usage: coda workflow export <id> <file>')
@@ -564,19 +601,19 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
       case 'history': {
         const limit = parseInt(args[1]) || 10
         const executions = manager.getRecentExecutions(limit)
-        
+
         if (executions.length === 0) {
           console.log('No recent executions found.')
           return
         }
 
         console.log(`\nRecent Workflow Executions (${executions.length}):\n`)
-        
-        executions.forEach(exec => {
-          const duration = exec.endTime 
+
+        executions.forEach((exec) => {
+          const duration = exec.endTime
             ? `${Math.round((new Date(exec.endTime).getTime() - new Date(exec.startTime).getTime()) / 1000)}s`
             : 'ongoing'
-          
+
           console.log(`${exec.id}`)
           console.log(`  Template: ${exec.templateName} (${exec.templateId})`)
           console.log(`  Status: ${exec.status}`)
@@ -608,10 +645,13 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
         console.log(`Status: ${execution.status}`)
         console.log(`Progress: ${execution.currentStep}/${execution.totalSteps} steps`)
         console.log(`Started: ${new Date(execution.startTime).toLocaleString()}`)
-        
+
         if (execution.endTime) {
           console.log(`Ended: ${new Date(execution.endTime).toLocaleString()}`)
-          const duration = Math.round((new Date(execution.endTime).getTime() - new Date(execution.startTime).getTime()) / 1000)
+          const duration = Math.round(
+            (new Date(execution.endTime).getTime() - new Date(execution.startTime).getTime()) /
+              1000,
+          )
           console.log(`Duration: ${duration} seconds`)
         }
 
@@ -624,20 +664,25 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
 
         console.log('\nStep Results:')
         execution.results.forEach((result, i) => {
-          const icon = result.status === 'completed' ? '✓' : 
-                       result.status === 'failed' ? '✗' : 
-                       result.status === 'running' ? '⟳' : '○'
-          
+          const icon =
+            result.status === 'completed'
+              ? '✓'
+              : result.status === 'failed'
+                ? '✗'
+                : result.status === 'running'
+                  ? '⟳'
+                  : '○'
+
           console.log(`  ${icon} ${i + 1}. ${result.stepName} - ${result.status}`)
-          
+
           if (result.startTime) {
             console.log(`     Started: ${new Date(result.startTime).toLocaleString()}`)
           }
-          
+
           if (result.endTime) {
             console.log(`     Ended: ${new Date(result.endTime).toLocaleString()}`)
           }
-          
+
           if (result.error) {
             console.log(`     Error: ${result.error}`)
           }
@@ -648,7 +693,7 @@ export async function handleWorkflowCommand(args: string[]): Promise<void> {
       case 'cleanup': {
         const days = parseInt(args[1]) || 30
         console.log(`Cleaning up executions older than ${days} days...`)
-        
+
         const deletedCount = manager.cleanupOldExecutions(days)
         console.log(`✓ Deleted ${deletedCount} old execution(s)`)
         break

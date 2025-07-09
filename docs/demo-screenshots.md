@@ -39,7 +39,7 @@ Options:
 ❯ Claude Code
   Gemini
 
-? Enter custom path to claude-code CLI (or press enter to use default): 
+? Enter custom path to claude-code CLI (or press enter to use default):
 
 ? Would you like to enable YOLO mode? (accepts all prompts automatically) › No / Yes
 

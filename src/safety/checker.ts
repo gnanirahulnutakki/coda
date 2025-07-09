@@ -30,9 +30,7 @@ export function checkGitInstalled(): void {
   try {
     execSync('git --version', { stdio: 'ignore' })
   } catch (error) {
-    throw new Error(
-      'Git is not installed or not in PATH. Please install git to use this tool',
-    )
+    throw new Error('Git is not installed or not in PATH. Please install git to use this tool')
   }
 }
 
@@ -48,8 +46,7 @@ export function checkChildAppPath(childAppPath: string): void {
     fs.accessSync(childAppPath, fs.constants.X_OK)
   } catch (error) {
     throw new Error(
-      `Claude CLI is not executable: ${childAppPath}\n` +
-        'Please check file permissions',
+      `Claude CLI is not executable: ${childAppPath}\n` + 'Please check file permissions',
     )
   }
 }
@@ -65,13 +62,13 @@ export async function checkVersionControl(
   if (!fs.existsSync(gitDir)) {
     if (!allowWithoutVersionControl) {
       warn('※ Running in project without version control')
-      
+
       // Skip prompt if YOLO mode is enabled
       if (appConfig?.yolo) {
         warn('※ YOLO mode: Continuing without version control')
         return false
       }
-      
+
       const proceed = await askYesNo(
         '※ Do you want to continue?',
         true,
@@ -103,13 +100,13 @@ export async function checkDirtyDirectory(
     if (gitStatus !== '') {
       if (!allowInDirtyDirectory) {
         warn('※ Running in directory with uncommitted changes')
-        
+
         // Skip prompt if YOLO mode is enabled
         if (appConfig?.yolo) {
           warn('※ YOLO mode: Continuing with uncommitted changes')
           return true
         }
-        
+
         const proceed = await askYesNo(
           '※ Do you want to continue?',
           true,
@@ -126,10 +123,7 @@ export async function checkDirtyDirectory(
     return false
   } catch (error) {
     // Re-throw user cancellation errors
-    if (
-      error instanceof Error &&
-      error.message === 'Clean working directory required'
-    ) {
+    if (error instanceof Error && error.message === 'Clean working directory required') {
       throw error
     }
     warn('※ Could not check git status')
@@ -157,45 +151,19 @@ export async function handleAutomaticAcceptanceWarning(
     return true
   }
 
-  console.log(
-    '\x1b[33m╔═════════════════════════════════════════════════════════════════╗\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║                     YOLO MODE ENABLED                           ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m╠═════════════════════════════════════════════════════════════════╣\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ YOLO mode will automatically accept ALL prompts for:           ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║                                                                 ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ • File edits and creation                                       ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ • Bash command execution                                        ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ • File reading operations                                       ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ • Content fetching from URLs                                    ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║                                                                 ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ Claude will perform ALL actions WITHOUT asking for              ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m║ confirmation!                                                   ║\x1b[0m',
-  )
-  console.log(
-    '\x1b[33m╚═════════════════════════════════════════════════════════════════╝\x1b[0m',
-  )
+  console.log('\x1b[33m╔═════════════════════════════════════════════════════════════════╗\x1b[0m')
+  console.log('\x1b[33m║                     YOLO MODE ENABLED                           ║\x1b[0m')
+  console.log('\x1b[33m╠═════════════════════════════════════════════════════════════════╣\x1b[0m')
+  console.log('\x1b[33m║ YOLO mode will automatically accept ALL prompts for:           ║\x1b[0m')
+  console.log('\x1b[33m║                                                                 ║\x1b[0m')
+  console.log('\x1b[33m║ • File edits and creation                                       ║\x1b[0m')
+  console.log('\x1b[33m║ • Bash command execution                                        ║\x1b[0m')
+  console.log('\x1b[33m║ • File reading operations                                       ║\x1b[0m')
+  console.log('\x1b[33m║ • Content fetching from URLs                                    ║\x1b[0m')
+  console.log('\x1b[33m║                                                                 ║\x1b[0m')
+  console.log('\x1b[33m║ Claude will perform ALL actions WITHOUT asking for              ║\x1b[0m')
+  console.log('\x1b[33m║ confirmation!                                                   ║\x1b[0m')
+  console.log('\x1b[33m╚═════════════════════════════════════════════════════════════════╝\x1b[0m')
 
   const proceed = await askYesNo(
     '※ Do you want to continue with YOLO mode enabled?',

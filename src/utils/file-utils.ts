@@ -5,10 +5,8 @@ import * as fs from 'fs'
 export function isFileInProjectRoot(filePath: string): boolean {
   try {
     const projectRoot = fs.realpathSync(process.cwd())
-    const absolutePath = path.isAbsolute(filePath)
-      ? filePath
-      : path.resolve(projectRoot, filePath)
-    
+    const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(projectRoot, filePath)
+
     // For non-existent files, we need to resolve the directory path
     let resolvedPath: string
     if (fs.existsSync(absolutePath)) {
@@ -28,17 +26,17 @@ export function isFileInProjectRoot(filePath: string): boolean {
       // For non-existent files, resolve the parent directory and append the filename
       const dir = path.dirname(absolutePath)
       const basename = path.basename(absolutePath)
-      
+
       // Find the nearest existing parent directory
       let currentDir = dir
       while (!fs.existsSync(currentDir) && currentDir !== path.dirname(currentDir)) {
         currentDir = path.dirname(currentDir)
       }
-      
+
       if (fs.existsSync(currentDir)) {
         const resolvedDir = fs.realpathSync(currentDir)
         const remainingPath = path.relative(currentDir, dir)
-        resolvedPath = remainingPath 
+        resolvedPath = remainingPath
           ? path.join(resolvedDir, remainingPath, basename)
           : path.join(resolvedDir, basename)
       } else {
@@ -46,7 +44,7 @@ export function isFileInProjectRoot(filePath: string): boolean {
         resolvedPath = absolutePath
       }
     }
-    
+
     const relative = path.relative(projectRoot, resolvedPath)
     // If relative path starts with .. or is absolute, it's outside project root
     // Empty relative path means it's the project root itself
@@ -54,9 +52,7 @@ export function isFileInProjectRoot(filePath: string): boolean {
   } catch (error) {
     // If we can't resolve the path, fall back to simple check
     const projectRoot = process.cwd()
-    const absolutePath = path.isAbsolute(filePath)
-      ? filePath
-      : path.resolve(projectRoot, filePath)
+    const absolutePath = path.isAbsolute(filePath) ? filePath : path.resolve(projectRoot, filePath)
     const relative = path.relative(projectRoot, absolutePath)
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative))
   }

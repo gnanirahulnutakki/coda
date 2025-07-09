@@ -3,10 +3,7 @@ import * as path from 'path'
 import type { MatchResult } from '../../src/patterns/matcher'
 import type { AppConfig } from '../../src/config/schemas'
 import { showNotification } from '../../src/utils/notifications'
-import {
-  checkAcceptConfig,
-  shouldAcceptPrompt,
-} from '../../src/utils/prompt-acceptance'
+import { checkAcceptConfig, shouldAcceptPrompt } from '../../src/utils/prompt-acceptance'
 
 // Mock the file-utils module
 vi.mock('../../src/utils/file-utils', () => ({
@@ -23,9 +20,7 @@ vi.mock('../../src/utils/notifications', () => ({
 import { isFileInProjectRoot } from '../../src/utils/file-utils'
 
 describe('Bash Command Path-based Acceptance Integration', () => {
-  const mockIsFileInProjectRoot = isFileInProjectRoot as ReturnType<
-    typeof vi.fn
-  >
+  const mockIsFileInProjectRoot = isFileInProjectRoot as ReturnType<typeof vi.fn>
   const mockShowNotification = showNotification as ReturnType<typeof vi.fn>
 
   beforeEach(() => {
@@ -105,11 +100,7 @@ describe('Bash Command Path-based Acceptance Integration', () => {
       // Mock that we're in project root
       mockIsFileInProjectRoot.mockReturnValue(true)
 
-      const result = shouldAcceptPromptWithValidation(
-        match,
-        appConfig,
-        undefined,
-      )
+      const result = shouldAcceptPromptWithValidation(match, appConfig, undefined)
       expect(result).toBe(false)
     })
 
@@ -220,11 +211,7 @@ describe('Bash Command Path-based Acceptance Integration', () => {
           ? mergedRuleset?.accept_project_bash_command_prompts
           : mergedRuleset?.accept_global_bash_command_prompts
 
-        if (
-          bashConfig &&
-          typeof bashConfig === 'object' &&
-          'paths' in bashConfig
-        ) {
+        if (bashConfig && typeof bashConfig === 'object' && 'paths' in bashConfig) {
           return true
         }
       }

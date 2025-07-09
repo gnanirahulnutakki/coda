@@ -9,7 +9,7 @@ export abstract class ClaudeComposerError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly details?: Record<string, any>
+    public readonly details?: Record<string, any>,
   ) {
     super(message)
     this.name = this.constructor.name
@@ -22,7 +22,7 @@ export abstract class ClaudeComposerError extends Error {
       code: this.code,
       message: this.message,
       details: this.details,
-      stack: this.stack
+      stack: this.stack,
     }
   }
 }
@@ -50,11 +50,11 @@ export class PatternMatchError extends ClaudeComposerError {
  */
 export class FileOperationError extends ClaudeComposerError {
   constructor(operation: string, filePath: string, originalError?: Error) {
-    super(
-      `Failed to ${operation} file: ${filePath}`,
-      'FILE_OPERATION_ERROR',
-      { operation, filePath, originalError: originalError?.message }
-    )
+    super(`Failed to ${operation} file: ${filePath}`, 'FILE_OPERATION_ERROR', {
+      operation,
+      filePath,
+      originalError: originalError?.message,
+    })
   }
 }
 
@@ -91,21 +91,21 @@ export class CLIArgumentError extends ClaudeComposerError {
 export function handleError(error: Error): void {
   if (error instanceof ClaudeComposerError) {
     console.error(`\x1b[31m✗ ${error.message}\x1b[0m`)
-    
+
     if (process.env.DEBUG || process.argv.includes('--debug')) {
       console.error('\nError details:', error.details)
       console.error('\nStack trace:', error.stack)
     }
-    
+
     process.exit(1)
   } else {
     // Unknown error
     console.error(`\x1b[31m✗ An unexpected error occurred: ${error.message}\x1b[0m`)
-    
+
     if (process.env.DEBUG || process.argv.includes('--debug')) {
       console.error('\nStack trace:', error.stack)
     }
-    
+
     process.exit(1)
   }
 }
@@ -113,9 +113,7 @@ export function handleError(error: Error): void {
 /**
  * Wraps an async function with error handling
  */
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
-  fn: T
-): T {
+export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(fn: T): T {
   return (async (...args: Parameters<T>) => {
     try {
       return await fn(...args)

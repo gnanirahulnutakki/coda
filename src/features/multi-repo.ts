@@ -113,9 +113,12 @@ export class MultiRepoManager {
   /**
    * Add a repository to track
    */
-  async addRepository(repoPath: string, metadata?: Partial<Repository['metadata']>): Promise<Repository> {
+  async addRepository(
+    repoPath: string,
+    metadata?: Partial<Repository['metadata']>,
+  ): Promise<Repository> {
     const absolutePath = path.resolve(repoPath)
-    
+
     if (!fs.existsSync(absolutePath)) {
       throw new Error(`Repository path does not exist: ${repoPath}`)
     }
@@ -141,16 +144,16 @@ export class MultiRepoManager {
     // Get git info
     let url: string | undefined
     let branch: string | undefined
-    
+
     try {
-      url = execSync('git config --get remote.origin.url', { 
+      url = execSync('git config --get remote.origin.url', {
         cwd: absolutePath,
-        encoding: 'utf8'
+        encoding: 'utf8',
       }).trim()
-      
+
       branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: absolutePath,
-        encoding: 'utf8'
+        encoding: 'utf8',
       }).trim()
     } catch (error) {
       // Git commands might fail, that's okay
@@ -168,8 +171,8 @@ export class MultiRepoManager {
       lastSync: new Date().toISOString(),
       metadata: {
         ...detectedMetadata,
-        ...metadata
-      }
+        ...metadata,
+      },
     }
 
     this.repositories.set(repoId, repository)
@@ -186,7 +189,7 @@ export class MultiRepoManager {
    */
   removeRepository(repoIdOrPath: string): boolean {
     let repoId = repoIdOrPath
-    
+
     // If path provided, convert to ID
     if (repoIdOrPath.includes('/') || repoIdOrPath.includes('\\')) {
       repoId = this.generateRepoId(path.resolve(repoIdOrPath))
@@ -201,7 +204,7 @@ export class MultiRepoManager {
 
     // Remove related relationships
     this.relationships = this.relationships.filter(
-      rel => rel.sourceRepo !== repoId && rel.targetRepo !== repoId
+      (rel) => rel.sourceRepo !== repoId && rel.targetRepo !== repoId,
     )
 
     this.saveRepositories()
@@ -217,7 +220,7 @@ export class MultiRepoManager {
     sourceRepo: string,
     targetRepo: string,
     type: RepoRelationship['type'],
-    description?: string
+    description?: string,
   ): void {
     // Validate repos exist
     const sourceId = this.findRepoId(sourceRepo)
@@ -229,7 +232,7 @@ export class MultiRepoManager {
 
     // Check if relationship already exists
     const exists = this.relationships.some(
-      rel => rel.sourceRepo === sourceId && rel.targetRepo === targetId && rel.type === type
+      (rel) => rel.sourceRepo === sourceId && rel.targetRepo === targetId && rel.type === type,
     )
 
     if (exists) {
@@ -240,7 +243,7 @@ export class MultiRepoManager {
       sourceRepo: sourceId,
       targetRepo: targetId,
       type,
-      description
+      description,
     })
 
     this.saveRelationships()
@@ -261,26 +264,24 @@ export class MultiRepoManager {
     if (!repoId) return []
 
     return this.relationships.filter(
-      rel => rel.sourceRepo === repoId || rel.targetRepo === repoId
+      (rel) => rel.sourceRepo === repoId || rel.targetRepo === repoId,
     )
   }
 
   /**
    * Search across all repositories
    */
-  async searchAcrossRepos(query: string, options: {
-    filePattern?: string
-    maxResults?: number
-    includeRepos?: string[]
-    excludeRepos?: string[]
-  } = {}): Promise<SearchResult[]> {
+  async searchAcrossRepos(
+    query: string,
+    options: {
+      filePattern?: string
+      maxResults?: number
+      includeRepos?: string[]
+      excludeRepos?: string[]
+    } = {},
+  ): Promise<SearchResult[]> {
     const results: SearchResult[] = []
-    const {
-      filePattern = '*',
-      maxResults = 50,
-      includeRepos,
-      excludeRepos
-    } = options
+    const { filePattern = '*', maxResults = 50, includeRepos, excludeRepos } = options
 
     for (const repo of this.repositories.values()) {
       // Filter repos
@@ -293,11 +294,14 @@ export class MultiRepoManager {
         const output = execSync(command, {
           cwd: repo.path,
           encoding: 'utf8',
-          maxBuffer: 10 * 1024 * 1024 // 10MB
+          maxBuffer: 10 * 1024 * 1024, // 10MB
         })
 
-        const lines = output.trim().split('\n').filter(line => line)
-        
+        const lines = output
+          .trim()
+          .split('\n')
+          .filter((line) => line)
+
         for (const line of lines) {
           try {
             const result = JSON.parse(line)
@@ -307,7 +311,7 @@ export class MultiRepoManager {
                 file: result.data.path.text,
                 line: result.data.line_number,
                 content: result.data.lines.text.trim(),
-                score: this.calculateSearchScore(query, result.data.lines.text)
+                score: this.calculateSearchScore(query, result.data.lines.text),
               })
             }
           } catch (e) {
@@ -322,9 +326,7 @@ export class MultiRepoManager {
     }
 
     // Sort by score
-    return results
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxResults)
+    return results.sort((a, b) => b.score - a.score).slice(0, maxResults)
   }
 
   /**
@@ -338,7 +340,7 @@ export class MultiRepoManager {
 
     const context: CrossRepoContext = {
       repositories: [],
-      relationships: []
+      relationships: [],
     }
 
     // Add primary repo
@@ -348,7 +350,7 @@ export class MultiRepoManager {
     // Add related repos
     const relatedRepos = new Set<string>()
     const relationships = this.getRelationships(primaryId)
-    
+
     for (const rel of relationships) {
       context.relationships.push(rel)
       relatedRepos.add(rel.sourceRepo === primaryId ? rel.targetRepo : rel.sourceRepo)
@@ -381,21 +383,21 @@ export class MultiRepoManager {
     }
 
     const repo = this.repositories.get(repoId)!
-    
+
     // Update git info
     try {
       const branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: repo.path,
-        encoding: 'utf8'
+        encoding: 'utf8',
       }).trim()
-      
+
       repo.branch = branch
       repo.lastSync = new Date().toISOString()
-      
+
       // Re-detect metadata
       const metadata = await this.detectRepoMetadata(repo.path)
       repo.metadata = { ...repo.metadata, ...metadata }
-      
+
       this.saveRepositories()
     } catch (error) {
       throw new Error(`Failed to sync repository: ${error.message}`)
@@ -407,10 +409,10 @@ export class MultiRepoManager {
    */
   generateContextSummary(): string {
     const lines: string[] = []
-    
+
     lines.push('Multi-Repository Context:')
     lines.push('')
-    
+
     // List repositories
     lines.push('Tracked Repositories:')
     for (const repo of this.repositories.values()) {
@@ -425,9 +427,9 @@ export class MultiRepoManager {
         lines.push(`  Framework: ${repo.metadata.framework}`)
       }
     }
-    
+
     lines.push('')
-    
+
     // List relationships
     if (this.relationships.length > 0) {
       lines.push('Repository Relationships:')
@@ -440,7 +442,7 @@ export class MultiRepoManager {
         }
       }
     }
-    
+
     return lines.join('\n')
   }
 
@@ -451,9 +453,9 @@ export class MultiRepoManager {
     const config = {
       repositories: Array.from(this.repositories.values()),
       relationships: this.relationships,
-      exportDate: new Date().toISOString()
+      exportDate: new Date().toISOString(),
     }
-    
+
     fs.writeFileSync(outputPath, JSON.stringify(config, null, 2))
   }
 
@@ -467,7 +469,7 @@ export class MultiRepoManager {
 
     try {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
-      
+
       // Validate and import repositories
       if (config.repositories && Array.isArray(config.repositories)) {
         this.repositories.clear()
@@ -477,12 +479,12 @@ export class MultiRepoManager {
           }
         }
       }
-      
+
       // Import relationships
       if (config.relationships && Array.isArray(config.relationships)) {
         this.relationships = config.relationships
       }
-      
+
       this.saveRepositories()
       this.saveRelationships()
     } catch (error) {
@@ -526,16 +528,19 @@ export class MultiRepoManager {
 
     // Detect language
     const files = fs.readdirSync(repoPath)
-    
+
     if (files.includes('package.json')) {
       metadata.language = 'JavaScript/TypeScript'
       try {
         const packageJson = JSON.parse(fs.readFileSync(path.join(repoPath, 'package.json'), 'utf8'))
         metadata.description = packageJson.description
         metadata.dependencies = Object.keys(packageJson.dependencies || {})
-        
+
         // Detect framework
-        const deps = [...Object.keys(packageJson.dependencies || {}), ...Object.keys(packageJson.devDependencies || {})]
+        const deps = [
+          ...Object.keys(packageJson.dependencies || {}),
+          ...Object.keys(packageJson.devDependencies || {}),
+        ]
         if (deps.includes('react')) metadata.framework = 'React'
         else if (deps.includes('vue')) metadata.framework = 'Vue'
         else if (deps.includes('angular')) metadata.framework = 'Angular'
@@ -547,13 +552,13 @@ export class MultiRepoManager {
       if (files.includes('requirements.txt')) {
         try {
           const requirements = fs.readFileSync(path.join(repoPath, 'requirements.txt'), 'utf8')
-          const deps = requirements.split('\n').filter(line => line && !line.startsWith('#'))
-          metadata.dependencies = deps.map(dep => dep.split('==')[0].trim())
-          
+          const deps = requirements.split('\n').filter((line) => line && !line.startsWith('#'))
+          metadata.dependencies = deps.map((dep) => dep.split('==')[0].trim())
+
           // Detect framework
-          if (deps.some(d => d.includes('django'))) metadata.framework = 'Django'
-          else if (deps.some(d => d.includes('flask'))) metadata.framework = 'Flask'
-          else if (deps.some(d => d.includes('fastapi'))) metadata.framework = 'FastAPI'
+          if (deps.some((d) => d.includes('django'))) metadata.framework = 'Django'
+          else if (deps.some((d) => d.includes('flask'))) metadata.framework = 'Flask'
+          else if (deps.some((d) => d.includes('fastapi'))) metadata.framework = 'FastAPI'
         } catch (e) {}
       }
     } else if (files.includes('pom.xml')) {
@@ -578,11 +583,16 @@ export class MultiRepoManager {
     for (const dep of repo.metadata.dependencies) {
       for (const [otherId, otherRepo] of this.repositories) {
         if (otherId === repo.id) continue
-        
+
         // Simple name matching
         if (otherRepo.name.toLowerCase() === dep.toLowerCase()) {
           try {
-            this.addRelationship(repo.id, otherId, 'dependency', `${repo.name} depends on ${otherRepo.name}`)
+            this.addRelationship(
+              repo.id,
+              otherId,
+              'dependency',
+              `${repo.name} depends on ${otherRepo.name}`,
+            )
           } catch (e) {
             // Relationship might already exist
           }
@@ -600,7 +610,7 @@ export class MultiRepoManager {
       'jest.config.*',
       '.gitignore',
       'Dockerfile',
-      'docker-compose.yml'
+      'docker-compose.yml',
     ]
 
     for (const pattern of configPatterns) {
@@ -609,11 +619,11 @@ export class MultiRepoManager {
 
       for (const repo of repos) {
         const files = fs.readdirSync(repo.path)
-        const configFile = files.find(f => f.match(new RegExp(pattern.replace('*', '.*'))))
-        
+        const configFile = files.find((f) => f.match(new RegExp(pattern.replace('*', '.*'))))
+
         if (configFile) {
           reposWithConfig.push(repo.id)
-          
+
           if (!commonContent) {
             try {
               commonContent = fs.readFileSync(path.join(repo.path, configFile), 'utf8')
@@ -627,7 +637,7 @@ export class MultiRepoManager {
           name: pattern,
           path: pattern,
           repos: reposWithConfig,
-          content: commonContent
+          content: commonContent,
         })
       }
     }
@@ -637,25 +647,25 @@ export class MultiRepoManager {
 
   private async findSharedTypes(repos: Repository[]): Promise<SharedType[]> {
     const types: SharedType[] = []
-    
+
     // This is a simplified implementation
     // In a real implementation, you'd parse TypeScript/JavaScript files
     // to find exported types and their usage across repos
-    
+
     return types
   }
 
   private calculateSearchScore(query: string, content: string): number {
     const queryLower = query.toLowerCase()
     const contentLower = content.toLowerCase()
-    
+
     let score = 0
-    
+
     // Exact match
     if (contentLower.includes(queryLower)) {
       score += 10
     }
-    
+
     // Word boundaries
     const queryWords = queryLower.split(/\s+/)
     for (const word of queryWords) {
@@ -663,12 +673,12 @@ export class MultiRepoManager {
         score += 5
       }
     }
-    
+
     // Beginning of line
     if (contentLower.trimStart().startsWith(queryLower)) {
       score += 3
     }
-    
+
     return score
   }
 }

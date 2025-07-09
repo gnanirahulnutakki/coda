@@ -2,10 +2,10 @@ name: CI Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
-    types: [ opened, synchronize, reopened ]
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -16,132 +16,132 @@ jobs:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build project to check for errors
-      run: npm run build
-    
-    - name: Check code formatting
-      run: npx prettier --check "**/*.{js,mjs,jsx,ts,tsx,json,md,mdx,css,yml,yaml}"
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project to check for errors
+        run: npm run build
+
+      - name: Check code formatting
+        run: npx prettier --check "**/*.{js,mjs,jsx,ts,tsx,json,md,mdx,css,yml,yaml}"
 
   test:
     name: Test ${{ matrix.os }} / Node ${{ matrix.node-version }}
     runs-on: ${{ matrix.os }}
     needs: lint
-    
+
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [18.x, 20.x, 22.x]
-        
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build project
-      run: npm run build
-    
-    - name: Run unit tests
-      run: npm test
-      env:
-        CI: true
-    
-    - name: Generate coverage report
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
-      run: npm run test:coverage
-    
-    - name: Upload coverage to Codecov
-      if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage/lcov.info
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run unit tests
+        run: npm test
+        env:
+          CI: true
+
+      - name: Generate coverage report
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
   integration:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: lint
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build project
-      run: npm run build
-    
-    - name: Run integration tests
-      run: |
-        # Test CLI commands
-        node dist/cli.js --version
-        node dist/cli.js doctor --help
-        node dist/cli.js wizard --help
-        
-    - name: Test package installation
-      run: |
-        npm pack
-        cd /tmp
-        npm init -y
-        npm install $GITHUB_WORKSPACE/coda-cli-*.tgz
-        npx coda --version
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Run integration tests
+        run: |
+          # Test CLI commands
+          node dist/cli.js --version
+          node dist/cli.js doctor --help
+          node dist/cli.js wizard --help
+
+      - name: Test package installation
+        run: |
+          npm pack
+          cd /tmp
+          npm init -y
+          npm install $GITHUB_WORKSPACE/coda-cli-*.tgz
+          npx coda --version
 
   build:
     name: Build Artifacts
     runs-on: ubuntu-latest
     needs: [lint, test]
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Build project
-      run: npm run build
-    
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: dist
-        path: dist/
-        retention-days: 7
-        
-    - name: Check bundle size
-      run: |
-        echo "Bundle size report:"
-        du -sh dist/
-        find dist -name "*.js" -exec ls -lh {} \;
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+      - name: Check bundle size
+        run: |
+          echo "Bundle size report:"
+          du -sh dist/
+          find dist -name "*.js" -exec ls -lh {} \;

@@ -14,7 +14,7 @@ describe('handlePresetCommand', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Mock console methods
     mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -39,12 +39,12 @@ describe('handlePresetCommand', () => {
       getStats: vi.fn().mockReturnValue({
         totalPresets: 0,
         categories: {},
-        favorites: []
+        favorites: [],
       }),
       duplicatePreset: vi.fn(),
-      getRecommendedPresets: vi.fn().mockReturnValue([])
+      getRecommendedPresets: vi.fn().mockReturnValue([]),
     }
-    
+
     vi.mocked(PresetManager).mockImplementation(() => mockManager)
     vi.mocked(loadConfigFile).mockResolvedValue({})
   })
@@ -58,21 +58,29 @@ describe('handlePresetCommand', () => {
   describe('help command', () => {
     it('should display help when no command provided', async () => {
       await handlePresetCommand([])
-      
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Configuration Preset Management'))
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Usage: coda preset <command>'))
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Configuration Preset Management'),
+      )
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Usage: coda preset <command>'),
+      )
     })
 
     it('should display help for --help flag', async () => {
       await handlePresetCommand(['--help'])
-      
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Configuration Preset Management'))
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Configuration Preset Management'),
+      )
     })
 
     it('should display help for help command', async () => {
       await handlePresetCommand(['help'])
-      
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Configuration Preset Management'))
+
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Configuration Preset Management'),
+      )
     })
   })
 
@@ -88,7 +96,7 @@ describe('handlePresetCommand', () => {
           config: {},
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
-          isBuiltIn: true
+          isBuiltIn: true,
         },
         {
           id: 'custom-1',
@@ -99,8 +107,8 @@ describe('handlePresetCommand', () => {
           config: {},
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
-          isBuiltIn: false
-        }
+          isBuiltIn: false,
+        },
       ]
 
       mockManager.getPresets.mockReturnValue(mockPresets)
@@ -108,7 +116,7 @@ describe('handlePresetCommand', () => {
         totalPresets: 2,
         categories: { general: 1, custom: 1 },
         favorites: [],
-        lastUsed: 'minimal'
+        lastUsed: 'minimal',
       })
 
       await handlePresetCommand(['list'])
@@ -134,8 +142,8 @@ describe('handlePresetCommand', () => {
           config: {},
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
-          isBuiltIn: true
-        }
+          isBuiltIn: true,
+        },
       ]
 
       mockManager.getPresets.mockReturnValue(mockPresets)
@@ -167,33 +175,39 @@ describe('handlePresetCommand', () => {
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
         author: 'Test Author',
-        isBuiltIn: true
+        isBuiltIn: true,
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
       mockManager.getStats.mockReturnValue({
         totalPresets: 1,
         categories: { general: 1 },
-        favorites: ['minimal']
+        favorites: ['minimal'],
       })
 
       await handlePresetCommand(['show', 'minimal'])
 
       expect(mockManager.getPreset).toHaveBeenCalledWith('minimal')
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Preset: Minimal (minimal)'))
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Preset: Minimal (minimal)'),
+      )
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Category: general'))
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Description: Minimal configuration'))
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Description: Minimal configuration'),
+      )
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Tags: simple, basic'))
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Author: Test Author'))
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Type: Built-in'))
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Configuration:'))
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('yolo: false'))
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('⭐ This preset is in your favorites'))
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('⭐ This preset is in your favorites'),
+      )
     })
 
     it('should error when no ID provided', async () => {
       await expect(handlePresetCommand(['show'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset show <id>')
     })
@@ -201,8 +215,10 @@ describe('handlePresetCommand', () => {
     it('should error when preset not found', async () => {
       mockManager.getPreset.mockReturnValue(null)
 
-      await expect(handlePresetCommand(['show', 'non-existent'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['show', 'non-existent'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith("Error: Preset 'non-existent' not found")
     })
   })
@@ -217,7 +233,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: { yolo: false, debug: false },
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -231,12 +247,14 @@ describe('handlePresetCommand', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('✓ Preset applied successfully')
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Applied configuration:'))
       expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('yolo: false'))
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Restart your session for changes to take effect.'))
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Restart your session for changes to take effect.'),
+      )
     })
 
     it('should error when no ID provided', async () => {
       await expect(handlePresetCommand(['apply'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset apply <id>')
     })
@@ -244,8 +262,10 @@ describe('handlePresetCommand', () => {
     it('should error when preset not found', async () => {
       mockManager.getPreset.mockReturnValue(null)
 
-      await expect(handlePresetCommand(['apply', 'non-existent'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['apply', 'non-existent'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith("Error: Preset 'non-existent' not found")
     })
   })
@@ -260,7 +280,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: { yolo: true },
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.createFromCurrent.mockResolvedValue(mockPreset)
@@ -270,7 +290,7 @@ describe('handlePresetCommand', () => {
       expect(mockManager.createFromCurrent).toHaveBeenCalledWith(
         'My Preset',
         expect.stringContaining('Custom preset created on'),
-        { category: 'custom', tags: [], author: undefined }
+        { category: 'custom', tags: [], author: undefined },
       )
       expect(mockConsoleLog).toHaveBeenCalledWith('Creating preset from current configuration...')
       expect(mockConsoleLog).toHaveBeenCalledWith("✓ Preset 'my-preset' created successfully")
@@ -286,17 +306,22 @@ describe('handlePresetCommand', () => {
         config: { yolo: false },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        author: 'John Doe'
+        author: 'John Doe',
       }
 
       mockManager.createFromCurrent.mockResolvedValue(mockPreset)
 
       await handlePresetCommand([
-        'create', 'Team Config',
-        '--description', 'Team configuration',
-        '--category', 'project',
-        '--tags', 'team,shared',
-        '--author', 'John Doe'
+        'create',
+        'Team Config',
+        '--description',
+        'Team configuration',
+        '--category',
+        'project',
+        '--tags',
+        'team,shared',
+        '--author',
+        'John Doe',
       ])
 
       expect(mockManager.createFromCurrent).toHaveBeenCalledWith(
@@ -305,14 +330,14 @@ describe('handlePresetCommand', () => {
         {
           category: 'project',
           tags: ['team', 'shared'],
-          author: 'John Doe'
-        }
+          author: 'John Doe',
+        },
       )
     })
 
     it('should error when no name provided', async () => {
       await expect(handlePresetCommand(['create'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset name required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset create <name> [options]')
     })
@@ -329,13 +354,13 @@ describe('handlePresetCommand', () => {
         config: { yolo: false },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: false
+        isBuiltIn: false,
       }
 
       const updatedPreset = {
         ...mockPreset,
         config: { yolo: true, debug: true },
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -346,7 +371,7 @@ describe('handlePresetCommand', () => {
 
       expect(mockManager.getPreset).toHaveBeenCalledWith('custom-1')
       expect(mockManager.updatePreset).toHaveBeenCalledWith('custom-1', {
-        config: { yolo: true, debug: true }
+        config: { yolo: true, debug: true },
       })
       expect(mockConsoleLog).toHaveBeenCalledWith('Updating preset from current configuration...')
       expect(mockConsoleLog).toHaveBeenCalledWith("✓ Preset 'custom-1' updated successfully")
@@ -362,20 +387,24 @@ describe('handlePresetCommand', () => {
         config: {},
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
 
-      await expect(handlePresetCommand(['update', 'minimal'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['update', 'minimal'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Cannot modify built-in presets')
-      expect(mockConsoleLog).toHaveBeenCalledWith('Tip: Use "coda preset duplicate" to create a customizable copy')
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        'Tip: Use "coda preset duplicate" to create a customizable copy',
+      )
     })
 
     it('should error when no ID provided', async () => {
       await expect(handlePresetCommand(['update'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset update <id>')
     })
@@ -392,7 +421,7 @@ describe('handlePresetCommand', () => {
         config: {},
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: false
+        isBuiltIn: false,
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -416,19 +445,21 @@ describe('handlePresetCommand', () => {
         config: {},
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
 
-      await expect(handlePresetCommand(['delete', 'minimal'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['delete', 'minimal'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Cannot delete built-in presets')
     })
 
     it('should error when no ID provided', async () => {
       await expect(handlePresetCommand(['delete'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset delete <id>')
     })
@@ -445,7 +476,7 @@ describe('handlePresetCommand', () => {
         config: { yolo: false },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: true
+        isBuiltIn: true,
       }
 
       const duplicatedPreset = {
@@ -457,7 +488,7 @@ describe('handlePresetCommand', () => {
         config: { yolo: false },
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
-        isBuiltIn: false
+        isBuiltIn: false,
       }
 
       mockManager.getPreset.mockReturnValue(originalPreset)
@@ -472,8 +503,10 @@ describe('handlePresetCommand', () => {
     })
 
     it('should error when missing parameters', async () => {
-      await expect(handlePresetCommand(['duplicate', 'minimal'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['duplicate', 'minimal'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID and new name required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset duplicate <id> <new-name>')
     })
@@ -489,7 +522,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: { yolo: true },
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.importPreset.mockReturnValue(importedPreset)
@@ -506,14 +539,16 @@ describe('handlePresetCommand', () => {
         throw new Error('Invalid file format')
       })
 
-      await expect(handlePresetCommand(['import', '/path/to/invalid.yaml'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['import', '/path/to/invalid.yaml'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error importing preset: Invalid file format')
     })
 
     it('should error when no file provided', async () => {
       await expect(handlePresetCommand(['import'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Import file required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset import <file>')
     })
@@ -529,7 +564,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: { yolo: false },
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -552,7 +587,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: {},
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -560,14 +595,20 @@ describe('handlePresetCommand', () => {
         throw new Error('Write permission denied')
       })
 
-      await expect(handlePresetCommand(['export', 'minimal', '/restricted/path.yaml'])).rejects.toThrow('Process exited with code 1')
-      
-      expect(mockConsoleError).toHaveBeenCalledWith('Error exporting preset: Write permission denied')
+      await expect(
+        handlePresetCommand(['export', 'minimal', '/restricted/path.yaml']),
+      ).rejects.toThrow('Process exited with code 1')
+
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Error exporting preset: Write permission denied',
+      )
     })
 
     it('should error when missing parameters', async () => {
-      await expect(handlePresetCommand(['export', 'minimal'])).rejects.toThrow('Process exited with code 1')
-      
+      await expect(handlePresetCommand(['export', 'minimal'])).rejects.toThrow(
+        'Process exited with code 1',
+      )
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID and output file required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset export <id> <file>')
     })
@@ -584,8 +625,8 @@ describe('handlePresetCommand', () => {
           tags: ['debug', 'verbose'],
           config: {},
           created: new Date().toISOString(),
-          updated: new Date().toISOString()
-        }
+          updated: new Date().toISOString(),
+        },
       ]
 
       mockManager.searchPresets.mockReturnValue(searchResults)
@@ -608,7 +649,7 @@ describe('handlePresetCommand', () => {
 
     it('should error when no query provided', async () => {
       await expect(handlePresetCommand(['search'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Search query required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset search <query>')
     })
@@ -624,7 +665,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: {},
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -645,7 +686,7 @@ describe('handlePresetCommand', () => {
         tags: [],
         config: {},
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       }
 
       mockManager.getPreset.mockReturnValue(mockPreset)
@@ -659,7 +700,7 @@ describe('handlePresetCommand', () => {
 
     it('should error when no ID provided', async () => {
       await expect(handlePresetCommand(['favorite'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Error: Preset ID required')
       expect(mockConsoleLog).toHaveBeenCalledWith('Usage: coda preset favorite <id>')
     })
@@ -677,7 +718,7 @@ describe('handlePresetCommand', () => {
           config: {},
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
-          isBuiltIn: true
+          isBuiltIn: true,
         },
         {
           id: 'productive',
@@ -688,8 +729,8 @@ describe('handlePresetCommand', () => {
           config: {},
           created: new Date().toISOString(),
           updated: new Date().toISOString(),
-          isBuiltIn: true
-        }
+          isBuiltIn: true,
+        },
       ]
 
       mockManager.getFavorites.mockReturnValue(favoritePresets)
@@ -708,7 +749,9 @@ describe('handlePresetCommand', () => {
       await handlePresetCommand(['favorites'])
 
       expect(mockConsoleLog).toHaveBeenCalledWith('No favorite presets.')
-      expect(mockConsoleLog).toHaveBeenCalledWith('Use "coda preset favorite <id>" to add favorites.')
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        'Use "coda preset favorite <id>" to add favorites.',
+      )
     })
   })
 
@@ -723,7 +766,7 @@ describe('handlePresetCommand', () => {
           tags: ['ci'],
           config: {},
           created: new Date().toISOString(),
-          updated: new Date().toISOString()
+          updated: new Date().toISOString(),
         },
         {
           id: 'team-collab',
@@ -733,8 +776,8 @@ describe('handlePresetCommand', () => {
           tags: ['team'],
           config: {},
           created: new Date().toISOString(),
-          updated: new Date().toISOString()
-        }
+          updated: new Date().toISOString(),
+        },
       ]
 
       mockManager.getRecommendedPresets.mockReturnValue(recommendations)
@@ -767,9 +810,11 @@ describe('handlePresetCommand', () => {
   describe('unknown command', () => {
     it('should show error and help for unknown command', async () => {
       await expect(handlePresetCommand(['unknown'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Unknown command: unknown')
-      expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Configuration Preset Management'))
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Configuration Preset Management'),
+      )
     })
   })
 
@@ -780,7 +825,7 @@ describe('handlePresetCommand', () => {
       })
 
       await expect(handlePresetCommand(['list'])).rejects.toThrow('Process exited with code 1')
-      
+
       expect(mockConsoleError).toHaveBeenCalledWith('Unexpected error:', expect.any(Error))
     })
   })

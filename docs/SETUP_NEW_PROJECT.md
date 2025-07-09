@@ -24,6 +24,7 @@ npm install
 Replace the following placeholders in these files:
 
 #### `package.json`
+
 - `YOUR-PACKAGE-NAME` → Your npm package name (e.g., `claude-enhancer`)
 - `YOUR-CLI-NAME` → Your CLI command name (e.g., `claude-enhance`)
 - `YOUR NAME` → Your full name
@@ -32,15 +33,19 @@ Replace the following placeholders in these files:
 - `YOUR-REPO-NAME` → Your GitHub repository name
 
 #### `README.md`
+
 - Update all references to `claude-composer` with your new name
 - Update badge URLs to point to your repository
 - Update the issue tracker URL
 
 #### `src/cli/parser.ts`
+
 - Line 7: Update `.name('claude-composer')` to your CLI name
 
 #### Throughout the codebase
+
 Search and replace:
+
 - `claude-composer` → your-cli-name
 - `~/.claude-composer/` → `~/.your-cli-name/`
 
@@ -123,6 +128,7 @@ git push -u origin main
 ## 📄 License Considerations
 
 This project is in the public domain (Unlicense). You can:
+
 - Use it for any purpose
 - Modify it freely
 - Distribute it under any license

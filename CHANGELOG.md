@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Initial public release of Coda
 - Multi-provider support for 8+ AI coding assistants
 - Checkpoint/rollback system for safe experimentation
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions for CI/CD
 
 ### Security
+
 - Automatic detection of hardcoded secrets
 - SQL injection vulnerability scanning
 - XSS and security pattern matching
@@ -29,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2024-XX-XX
 
 ### Added
+
 - Initial release with core features
 - Support for Claude Code and Gemini
 - Basic safety features and notifications

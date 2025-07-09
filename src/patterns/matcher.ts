@@ -57,7 +57,7 @@ export class PatternMatcher {
     type: PlaceholderType
   } {
     if (content.includes('|')) {
-      const parts = content.split('|').map(p => p.trim())
+      const parts = content.split('|').map((p) => p.trim())
       const name = parts[0]
       const type = parts[1] === 'multiline' ? 'multiline' : 'simple'
       return { name, type }
@@ -89,12 +89,12 @@ export class PatternMatcher {
 
   private hasMultilinePlaceholder(pattern: string): boolean {
     const placeholders = this.extractPlaceholders(pattern)
-    return placeholders.some(p => p.type === 'multiline')
+    return placeholders.some((p) => p.type === 'multiline')
   }
 
   private getMultilinePlaceholderName(pattern: string): string | null {
     const placeholders = this.extractPlaceholders(pattern)
-    const multiline = placeholders.find(p => p.type === 'multiline')
+    const multiline = placeholders.find((p) => p.type === 'multiline')
     return multiline ? multiline.name : null
   }
 
@@ -126,9 +126,7 @@ export class PatternMatcher {
     const allMatches: MatchResult[] = []
 
     for (const [id, pattern] of this.patterns) {
-      const hasAnsiPattern = pattern.sequence.some(p =>
-        this.containsAnsiSequence(p),
-      )
+      const hasAnsiPattern = pattern.sequence.some((p) => this.containsAnsiSequence(p))
       const contentToMatch = hasAnsiPattern ? content : strippedContent
 
       const sequenceMatch = this.matchSequence(contentToMatch, pattern.sequence)
@@ -176,8 +174,7 @@ export class PatternMatcher {
     if (
       !isSelfClearing &&
       this.previousMatch &&
-      this.previousMatch.fullMatchedContent ===
-        bottomMostMatch.fullMatchedContent
+      this.previousMatch.fullMatchedContent === bottomMostMatch.fullMatchedContent
     ) {
       return []
     }
@@ -244,11 +241,7 @@ export class PatternMatcher {
 
       let found = false
 
-      for (
-        let lineIndex = startSearchFrom;
-        lineIndex < lines.length;
-        lineIndex++
-      ) {
+      for (let lineIndex = startSearchFrom; lineIndex < lines.length; lineIndex++) {
         const line = lines[lineIndex]
         const matchResult = this.matchLineWithPlaceholders(line, pattern)
 
@@ -297,9 +290,7 @@ export class PatternMatcher {
             const endLine = nextMatch.lineIndex - 1
 
             if (startLine <= endLine) {
-              const capturedContent = lines
-                .slice(startLine, endLine + 1)
-                .join('\n')
+              const capturedContent = lines.slice(startLine, endLine + 1).join('\n')
               extractedData[multilinePlaceholderInfo.name] = capturedContent
             } else {
               extractedData[multilinePlaceholderInfo.name] = ''
@@ -337,15 +328,11 @@ export class PatternMatcher {
       firstLineNumber,
       lastLineNumber,
       fullMatchedContent,
-      extractedData:
-        Object.keys(extractedData).length > 0 ? extractedData : undefined,
+      extractedData: Object.keys(extractedData).length > 0 ? extractedData : undefined,
     }
   }
 
-  private matchLineWithPlaceholders(
-    line: string,
-    pattern: string,
-  ): LineMatchResult {
+  private matchLineWithPlaceholders(line: string, pattern: string): LineMatchResult {
     const extractedData: Record<string, string> = {}
     const placeholders = this.extractPlaceholders(pattern)
 
@@ -368,10 +355,7 @@ export class PatternMatcher {
     regexPattern = regexPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
     regexPattern = regexPattern.replace(
-      new RegExp(
-        PLACEHOLDER_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-        'g',
-      ),
+      new RegExp(PLACEHOLDER_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
       '(.*)',
     )
 
@@ -380,9 +364,7 @@ export class PatternMatcher {
       const lineMatch = line.match(regex)
 
       if (lineMatch) {
-        const originalOrderPlaceholders = [...placeholders].sort(
-          (a, b) => a.start - b.start,
-        )
+        const originalOrderPlaceholders = [...placeholders].sort((a, b) => a.start - b.start)
         originalOrderPlaceholders.forEach((placeholder, index) => {
           extractedData[placeholder.name] = lineMatch[index + 1] || ''
         })
@@ -454,10 +436,7 @@ export class PatternMatcher {
   private logMatch(match: MatchResult): void {
     try {
       const logsDir = CONFIG_PATHS.getLogsDirectory()
-      const logFile = path.join(
-        logsDir,
-        `pattern-matches-${match.patternId}.jsonl`,
-      )
+      const logFile = path.join(logsDir, `pattern-matches-${match.patternId}.jsonl`)
 
       const logEntry = {
         timestamp: new Date().toISOString(),
@@ -470,22 +449,26 @@ export class PatternMatcher {
       }
 
       const logLine = JSON.stringify(logEntry) + '\n'
-      
+
       // Check file size and rotate if needed
       if (fs.existsSync(logFile)) {
         const stats = fs.statSync(logFile)
-        if (stats.size > 10 * 1024 * 1024) { // 10MB
+        if (stats.size > 10 * 1024 * 1024) {
+          // 10MB
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
           const rotatedFile = logFile.replace('.jsonl', `-${timestamp}.jsonl`)
           fs.renameSync(logFile, rotatedFile)
-          
+
           // Clean up old logs (keep last 5)
-          const logFiles = fs.readdirSync(logsDir)
-            .filter(f => f.startsWith(`pattern-matches-${match.patternId}-`) && f.endsWith('.jsonl'))
+          const logFiles = fs
+            .readdirSync(logsDir)
+            .filter(
+              (f) => f.startsWith(`pattern-matches-${match.patternId}-`) && f.endsWith('.jsonl'),
+            )
             .sort()
             .reverse()
-          
-          logFiles.slice(5).forEach(oldLog => {
+
+          logFiles.slice(5).forEach((oldLog) => {
             try {
               fs.unlinkSync(path.join(logsDir, oldLog))
             } catch (e) {
@@ -494,7 +477,7 @@ export class PatternMatcher {
           })
         }
       }
-      
+
       fs.appendFileSync(logFile, logLine)
     } catch (error) {
       errorLogger.warn('Failed to log pattern match', error as Error)

@@ -19,19 +19,13 @@ export async function handleCcInit(args: string[]): Promise<void> {
     console.log('Usage: coda cc-init [options]')
     console.log('\nInitialize a new Coda configuration file')
     console.log('\nOptions:')
-    console.log(
-      '  --use-yolo               Accept all prompts automatically (use with caution)',
-    )
+    console.log('  --use-yolo               Accept all prompts automatically (use with caution)')
     console.log('  --use-core-toolset       Enable core toolset')
     console.log('  --no-use-core-toolset    Disable core toolset')
-    console.log(
-      '  --project                Create config in current directory (.coda/config.yaml)',
-    )
+    console.log('  --project                Create config in current directory (.coda/config.yaml)')
     console.log('  -h, --help               Show this help message')
     console.log('\nNotes:')
-    console.log(
-      '  - --use-core-toolset and --no-use-core-toolset are mutually exclusive',
-    )
+    console.log('  - --use-core-toolset and --no-use-core-toolset are mutually exclusive')
     process.exit(0)
   }
 
@@ -62,9 +56,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
   // Validate mutually exclusive options
 
   if (options.useCoreToolset && options.noUseCoreToolset) {
-    console.error(
-      'Error: --use-core-toolset and --no-use-core-toolset are mutually exclusive',
-    )
+    console.error('Error: --use-core-toolset and --no-use-core-toolset are mutually exclusive')
     process.exit(1)
   }
 
@@ -76,13 +68,12 @@ export async function handleCcInit(args: string[]): Promise<void> {
     console.log('\x1b[90m• Automatically accept trust prompts for directories\x1b[0m')
     console.log('\x1b[90m• Let AI make changes without your review\x1b[0m')
     console.log('\x1b[90m• Work well for automation and CI/CD pipelines\x1b[0m')
-    
+
     const yoloResponse = await prompts(
       {
         type: 'confirm',
         name: 'useYolo',
-        message:
-          'Enable YOLO mode? (AI will execute ALL actions without asking)',
+        message: 'Enable YOLO mode? (AI will execute ALL actions without asking)',
         initial: false,
       },
       {
@@ -93,7 +84,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
     )
 
     options.useYolo = yoloResponse.useYolo
-    
+
     if (options.useYolo) {
       console.log('\x1b[33m✓ YOLO mode enabled - AI will not ask for permissions\x1b[0m')
     } else {
@@ -125,20 +116,14 @@ export async function handleCcInit(args: string[]): Promise<void> {
   if (options.project) {
     const globalConfigPath = CONFIG_PATHS.getConfigFilePath()
     if (!fs.existsSync(globalConfigPath)) {
-      console.error(
-        'Error: Cannot create project config without a global config.',
-      )
-      console.error(
-        'Please run "coda cc-init" first to create a global configuration.',
-      )
+      console.error('Error: Cannot create project config without a global config.')
+      console.error('Please run "coda cc-init" first to create a global configuration.')
       process.exit(1)
     }
   }
 
   // Check if config file already exists
-  const configPath = options.project
-    ? '.coda/config.yaml'
-    : CONFIG_PATHS.getConfigFilePath()
+  const configPath = options.project ? '.coda/config.yaml' : CONFIG_PATHS.getConfigFilePath()
 
   if (fs.existsSync(configPath)) {
     console.error('Error: Configuration file already exists at ' + configPath)
@@ -158,37 +143,37 @@ export async function handleCcInit(args: string[]): Promise<void> {
     // Auto-detect available providers
     const { ProviderDetector } = await import('../utils/provider-detector.js')
     const availableProviders = await ProviderDetector.detectAvailableProviders()
-    
+
     let choices = []
     if (availableProviders.includes('claude-code')) {
       choices.push({ title: 'Claude Code ✓', value: 'claude-code' })
     } else {
       choices.push({ title: 'Claude Code (not found)', value: 'claude-code', disabled: true })
     }
-    
+
     if (availableProviders.includes('gemini')) {
       choices.push({ title: 'Gemini ✓', value: 'gemini' })
     } else {
       choices.push({ title: 'Gemini (not found)', value: 'gemini', disabled: true })
     }
-    
+
     // If no providers found, still show the menu but with a warning
     if (availableProviders.length === 0) {
       warn('⚠️  No AI providers detected on your system')
       warn('   You can still configure one and install it later')
       choices = [
         { title: 'Claude Code', value: 'claude-code' },
-        { title: 'Gemini', value: 'gemini' }
+        { title: 'Gemini', value: 'gemini' },
       ]
     }
-    
+
     const providerResponse = await prompts(
       {
         type: 'select',
         name: 'provider',
         message: 'Which AI provider would you like to use?',
         choices: choices,
-        initial: 0
+        initial: 0,
       },
       {
         onCancel: () => {
@@ -205,7 +190,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
         type: 'text',
         name: 'customPath',
         message: `Enter custom path to ${providerResponse.provider} CLI (or press enter to use default):`,
-        initial: ''
+        initial: '',
       },
       {
         onCancel: () => {
@@ -228,9 +213,7 @@ export async function handleCcInit(args: string[]): Promise<void> {
   config.roots = []
 
   // Ensure config directory exists
-  const configDir = options.project
-    ? '.coda'
-    : CONFIG_PATHS.getConfigDirectory()
+  const configDir = options.project ? '.coda' : CONFIG_PATHS.getConfigDirectory()
 
   if (!fs.existsSync(configDir)) {
     fs.mkdirSync(configDir, { recursive: true })

@@ -39,7 +39,7 @@ Relationship Types:
 
 export async function handleMultiRepoCommand(args: string[]): Promise<void> {
   const command = args[0]
-  
+
   if (!command || command === 'help' || command === '--help' || command === '-h') {
     printHelp()
     return
@@ -58,7 +58,7 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
         }
 
         console.log(`Adding repository: ${repoPath}...`)
-        
+
         try {
           const repo = await manager.addRepository(repoPath)
           console.log(`✓ Added repository: ${repo.name}`)
@@ -68,12 +68,12 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
           if (repo.branch) console.log(`  Branch: ${repo.branch}`)
           if (repo.metadata?.language) console.log(`  Language: ${repo.metadata.language}`)
           if (repo.metadata?.framework) console.log(`  Framework: ${repo.metadata.framework}`)
-          
+
           // Check for auto-detected relationships
           const relationships = manager.getRelationships(repo.id)
           if (relationships.length > 0) {
             console.log(`  Auto-detected relationships:`)
-            relationships.forEach(rel => {
+            relationships.forEach((rel) => {
               const otherRepo = rel.sourceRepo === repo.id ? rel.targetRepo : rel.sourceRepo
               console.log(`    - ${rel.type} with ${otherRepo}`)
             })
@@ -105,7 +105,7 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
 
       case 'list': {
         const repos = manager.getRepositories()
-        
+
         if (repos.length === 0) {
           console.log('No repositories tracked.')
           console.log('Use "coda repo add <path>" to add a repository.')
@@ -113,8 +113,8 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
         }
 
         console.log(`Tracked Repositories (${repos.length}):\n`)
-        
-        repos.forEach(repo => {
+
+        repos.forEach((repo) => {
           console.log(`${repo.name}`)
           console.log(`  ID: ${repo.id}`)
           console.log(`  Path: ${repo.path}`)
@@ -133,12 +133,12 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
           if (repo.metadata?.framework) {
             console.log(`  Framework: ${repo.metadata.framework}`)
           }
-          
+
           // Show relationships
           const relationships = manager.getRelationships(repo.id)
           if (relationships.length > 0) {
             console.log(`  Relationships:`)
-            relationships.forEach(rel => {
+            relationships.forEach((rel) => {
               const isSource = rel.sourceRepo === repo.id
               const otherRepoId = isSource ? rel.targetRepo : rel.sourceRepo
               const direction = isSource ? '→' : '←'
@@ -148,7 +148,7 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
               }
             })
           }
-          
+
           console.log()
         })
         break
@@ -163,7 +163,7 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
         }
 
         console.log(`Syncing repository: ${repoIdentifier}...`)
-        
+
         try {
           await manager.syncRepository(repoIdentifier)
           console.log(`✓ Repository synced successfully`)
@@ -187,7 +187,14 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
           process.exit(1)
         }
 
-        const validTypes = ['dependency', 'shared-code', 'microservice', 'monorepo', 'fork', 'related']
+        const validTypes = [
+          'dependency',
+          'shared-code',
+          'microservice',
+          'monorepo',
+          'fork',
+          'related',
+        ]
         const type = validTypes.includes(relationType) ? relationType : 'related'
 
         try {
@@ -227,24 +234,24 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
 
         console.log(`Searching for "${query}"...`)
         if (options.filePattern) console.log(`  File pattern: ${options.filePattern}`)
-        
+
         const results = await manager.searchAcrossRepos(query, options)
-        
+
         if (results.length === 0) {
           console.log('No matches found.')
           return
         }
 
         console.log(`\nFound ${results.length} matches:\n`)
-        
+
         let currentRepo = ''
-        results.forEach(result => {
+        results.forEach((result) => {
           if (result.repo !== currentRepo) {
             currentRepo = result.repo
-            const repo = manager.getRepositories().find(r => r.id === result.repo)
+            const repo = manager.getRepositories().find((r) => r.id === result.repo)
             console.log(`\n${repo?.name || result.repo}:`)
           }
-          
+
           console.log(`  ${result.file}:${result.line}`)
           console.log(`    ${result.content}`)
         })
@@ -253,51 +260,52 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
 
       case 'context': {
         const repoPath = args[1] || '.'
-        
+
         console.log(`Getting cross-repository context for: ${repoPath}...`)
-        
+
         try {
           const context = await manager.getCrossRepoContext(repoPath)
-          
+
           console.log('\nRepository Context:')
           console.log(`Primary: ${context.repositories[0].name}`)
-          
+
           if (context.repositories.length > 1) {
             console.log('\nRelated Repositories:')
-            context.repositories.slice(1).forEach(repo => {
+            context.repositories.slice(1).forEach((repo) => {
               console.log(`  - ${repo.name} (${repo.path})`)
               if (repo.metadata?.description) {
                 console.log(`    ${repo.metadata.description}`)
               }
             })
           }
-          
+
           if (context.relationships.length > 0) {
             console.log('\nRelationships:')
-            context.relationships.forEach(rel => {
-              const source = context.repositories.find(r => r.id === rel.sourceRepo)?.name || rel.sourceRepo
-              const target = context.repositories.find(r => r.id === rel.targetRepo)?.name || rel.targetRepo
+            context.relationships.forEach((rel) => {
+              const source =
+                context.repositories.find((r) => r.id === rel.sourceRepo)?.name || rel.sourceRepo
+              const target =
+                context.repositories.find((r) => r.id === rel.targetRepo)?.name || rel.targetRepo
               console.log(`  - ${source} → ${target} (${rel.type})`)
               if (rel.description) {
                 console.log(`    ${rel.description}`)
               }
             })
           }
-          
+
           if (context.sharedConfigs && context.sharedConfigs.length > 0) {
             console.log('\nShared Configurations:')
-            context.sharedConfigs.forEach(config => {
-              const repoNames = config.repos.map(id => 
-                context.repositories.find(r => r.id === id)?.name || id
-              ).join(', ')
+            context.sharedConfigs.forEach((config) => {
+              const repoNames = config.repos
+                .map((id) => context.repositories.find((r) => r.id === id)?.name || id)
+                .join(', ')
               console.log(`  - ${config.name}: ${repoNames}`)
             })
           }
-          
+
           // Generate AI context summary
           console.log('\n--- AI Context Summary ---')
           console.log(manager.generateContextSummary())
-          
         } catch (error) {
           console.error(`Error: ${error.message}`)
           process.exit(1)
@@ -316,7 +324,7 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
         try {
           manager.exportConfiguration(outputPath)
           console.log(`✓ Exported configuration to: ${outputPath}`)
-          
+
           const stats = JSON.parse(fs.readFileSync(outputPath, 'utf8'))
           console.log(`  Repositories: ${stats.repositories.length}`)
           console.log(`  Relationships: ${stats.relationships.length}`)
@@ -338,12 +346,14 @@ export async function handleMultiRepoCommand(args: string[]): Promise<void> {
         try {
           manager.importConfiguration(configPath)
           console.log(`✓ Imported configuration from: ${configPath}`)
-          
+
           const repos = manager.getRepositories()
           console.log(`  Repositories: ${repos.length}`)
-          
-          const relationships = repos.flatMap(r => manager.getRelationships(r.id))
-          const uniqueRels = new Set(relationships.map(r => `${r.sourceRepo}-${r.targetRepo}-${r.type}`))
+
+          const relationships = repos.flatMap((r) => manager.getRelationships(r.id))
+          const uniqueRels = new Set(
+            relationships.map((r) => `${r.sourceRepo}-${r.targetRepo}-${r.type}`),
+          )
           console.log(`  Relationships: ${uniqueRels.size}`)
         } catch (error) {
           console.error(`Error: ${error.message}`)

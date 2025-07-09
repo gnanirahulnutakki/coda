@@ -69,7 +69,7 @@ export class ContextMemory {
       projectId,
       projectPath,
       lastUpdated: new Date().toISOString(),
-      entries: []
+      entries: [],
     }
 
     await this.saveProjectContext()
@@ -88,7 +88,7 @@ export class ContextMemory {
     const newEntry: ContextEntry = {
       id: `ctx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       timestamp: new Date().toISOString(),
-      ...entry
+      ...entry,
     }
 
     this.currentProject.entries.push(newEntry)
@@ -107,10 +107,8 @@ export class ContextMemory {
    */
   getRecentContext(limit: number = 20): ContextEntry[] {
     if (!this.currentProject) return []
-    
-    return this.currentProject.entries
-      .slice(-limit)
-      .reverse()
+
+    return this.currentProject.entries.slice(-limit).reverse()
   }
 
   /**
@@ -120,13 +118,15 @@ export class ContextMemory {
     if (!this.currentProject) return []
 
     const queryLower = query.toLowerCase()
-    
-    return this.currentProject.entries.filter(entry => {
+
+    return this.currentProject.entries.filter((entry) => {
       if (type && entry.type !== type) return false
-      
-      return entry.content.toLowerCase().includes(queryLower) ||
+
+      return (
+        entry.content.toLowerCase().includes(queryLower) ||
         entry.metadata?.file?.toLowerCase().includes(queryLower) ||
         entry.metadata?.command?.toLowerCase().includes(queryLower)
+      )
     })
   }
 
@@ -161,7 +161,7 @@ export class ContextMemory {
     if (!this.currentProject) return ''
 
     let summary = `# Project Context Memory\n\n`
-    
+
     if (this.currentProject.summary) {
       summary += `## Project Summary\n${this.currentProject.summary}\n\n`
     }
@@ -172,7 +172,7 @@ export class ContextMemory {
 
     if (this.currentProject.keyDecisions && this.currentProject.keyDecisions.length > 0) {
       summary += `## Key Decisions\n`
-      this.currentProject.keyDecisions.forEach(decision => {
+      this.currentProject.keyDecisions.forEach((decision) => {
         summary += `- ${decision}\n`
       })
       summary += '\n'
@@ -180,13 +180,13 @@ export class ContextMemory {
 
     // Add recent file edits
     const recentEdits = this.currentProject.entries
-      .filter(e => e.type === 'file_edit')
+      .filter((e) => e.type === 'file_edit')
       .slice(-10)
       .reverse()
 
     if (recentEdits.length > 0) {
       summary += `## Recent File Edits\n`
-      recentEdits.forEach(edit => {
+      recentEdits.forEach((edit) => {
         summary += `- ${edit.metadata?.file}: ${edit.content.substring(0, 100)}...\n`
       })
       summary += '\n'
@@ -194,13 +194,13 @@ export class ContextMemory {
 
     // Add recent commands
     const recentCommands = this.currentProject.entries
-      .filter(e => e.type === 'command')
+      .filter((e) => e.type === 'command')
       .slice(-10)
       .reverse()
 
     if (recentCommands.length > 0) {
       summary += `## Recent Commands\n`
-      recentCommands.forEach(cmd => {
+      recentCommands.forEach((cmd) => {
         summary += `- ${cmd.metadata?.command}\n`
       })
     }
@@ -268,7 +268,7 @@ export class ContextMemory {
     if (!this.currentProject) return
 
     const contextFile = path.join(this.memoryDir, `${this.currentProject.projectId}.json`)
-    
+
     try {
       fs.writeFileSync(contextFile, JSON.stringify(this.currentProject, null, 2))
     } catch (error) {

@@ -53,33 +53,33 @@ export interface CostLimits {
 export const PROVIDER_PRICING = {
   'claude-code': {
     'claude-3-5-sonnet-20241022': {
-      input: 3.00,   // $3 per 1M input tokens
-      output: 15.00, // $15 per 1M output tokens
-      currency: 'USD'
+      input: 3.0, // $3 per 1M input tokens
+      output: 15.0, // $15 per 1M output tokens
+      currency: 'USD',
     },
     'claude-3-haiku-20240307': {
-      input: 0.25,   // $0.25 per 1M input tokens
-      output: 1.25,  // $1.25 per 1M output tokens
-      currency: 'USD'
+      input: 0.25, // $0.25 per 1M input tokens
+      output: 1.25, // $1.25 per 1M output tokens
+      currency: 'USD',
     },
     'claude-3-opus-20240229': {
-      input: 15.00,  // $15 per 1M input tokens
-      output: 75.00, // $75 per 1M output tokens
-      currency: 'USD'
-    }
+      input: 15.0, // $15 per 1M input tokens
+      output: 75.0, // $75 per 1M output tokens
+      currency: 'USD',
+    },
   },
-  'gemini': {
+  gemini: {
     'gemini-1.5-pro': {
-      input: 3.50,   // $3.50 per 1M input tokens
-      output: 10.50, // $10.50 per 1M output tokens
-      currency: 'USD'
+      input: 3.5, // $3.50 per 1M input tokens
+      output: 10.5, // $10.50 per 1M output tokens
+      currency: 'USD',
     },
     'gemini-1.5-flash': {
-      input: 0.075,  // $0.075 per 1M input tokens
-      output: 0.30,  // $0.30 per 1M output tokens
-      currency: 'USD'
-    }
-  }
+      input: 0.075, // $0.075 per 1M input tokens
+      output: 0.3, // $0.30 per 1M output tokens
+      currency: 'USD',
+    },
+  },
 } as const
 
 export class CostTracker {
@@ -126,13 +126,13 @@ export class CostTracker {
 
   private calculateCost(usage: TokenUsage, provider: string, model?: string): CostInfo {
     const pricing = PROVIDER_PRICING[provider as keyof typeof PROVIDER_PRICING]
-    
+
     if (!pricing) {
       return {
         inputCost: 0,
         outputCost: 0,
         totalCost: 0,
-        currency: 'USD'
+        currency: 'USD',
       }
     }
 
@@ -145,7 +145,7 @@ export class CostTracker {
         inputCost: 0,
         outputCost: 0,
         totalCost: 0,
-        currency: 'USD'
+        currency: 'USD',
       }
     }
 
@@ -157,7 +157,7 @@ export class CostTracker {
       inputCost,
       outputCost,
       totalCost,
-      currency: modelPricing.currency
+      currency: modelPricing.currency,
     }
   }
 
@@ -166,7 +166,7 @@ export class CostTracker {
     usage: TokenUsage,
     metadata: Partial<UsageSession['metadata']> = {},
     model?: string,
-    command?: string
+    command?: string,
   ): string {
     const sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     const timestamp = new Date().toISOString()
@@ -184,8 +184,8 @@ export class CostTracker {
         project: path.basename(process.cwd()),
         cwd: process.cwd(),
         success: true,
-        ...metadata
-      }
+        ...metadata,
+      },
     }
 
     // Append to sessions file (JSONL format)
@@ -204,8 +204,8 @@ export class CostTracker {
   private updateDailySummary(session: UsageSession): void {
     const date = session.timestamp.split('T')[0]
     const summaries = this.loadDailySummaries()
-    
-    let summary = summaries.find(s => s.date === date)
+
+    let summary = summaries.find((s) => s.date === date)
     if (!summary) {
       summary = {
         date,
@@ -213,7 +213,7 @@ export class CostTracker {
         totalTokens: 0,
         totalRequests: 0,
         providers: {},
-        projects: {}
+        projects: {},
       }
       summaries.push(summary)
     }
@@ -233,10 +233,10 @@ export class CostTracker {
         inputCost: 0,
         outputCost: 0,
         totalCost: 0,
-        currency: session.cost.currency
+        currency: session.cost.currency,
       }
     }
-    
+
     const providerStats = summary.providers[session.provider]
     providerStats.inputTokens += session.usage.inputTokens
     providerStats.outputTokens += session.usage.outputTokens
@@ -257,10 +257,10 @@ export class CostTracker {
         inputCost: 0,
         outputCost: 0,
         totalCost: 0,
-        currency: session.cost.currency
+        currency: session.cost.currency,
       }
     }
-    
+
     const projectStats = summary.projects[projectName]
     projectStats.inputTokens += session.usage.inputTokens
     projectStats.outputTokens += session.usage.outputTokens
@@ -273,7 +273,7 @@ export class CostTracker {
     // Keep only last 90 days
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - 90)
-    const filteredSummaries = summaries.filter(s => new Date(s.date) >= cutoffDate)
+    const filteredSummaries = summaries.filter((s) => new Date(s.date) >= cutoffDate)
 
     this.saveDailySummaries(filteredSummaries)
   }
@@ -304,7 +304,9 @@ export class CostTracker {
     if (this.limits.daily) {
       const todaysCost = this.getDailyCost(today)
       if (todaysCost >= this.limits.daily) {
-        console.warn(`⚠️ Daily cost limit exceeded: ${this.formatCurrency(todaysCost)} / ${this.formatCurrency(this.limits.daily)}`)
+        console.warn(
+          `⚠️ Daily cost limit exceeded: ${this.formatCurrency(todaysCost)} / ${this.formatCurrency(this.limits.daily)}`,
+        )
       }
     }
 
@@ -314,7 +316,9 @@ export class CostTracker {
       weekStart.setDate(now.getDate() - now.getDay())
       const weeklyCost = this.getCostSince(weekStart)
       if (weeklyCost >= this.limits.weekly) {
-        console.warn(`⚠️ Weekly cost limit exceeded: ${this.formatCurrency(weeklyCost)} / ${this.formatCurrency(this.limits.weekly)}`)
+        console.warn(
+          `⚠️ Weekly cost limit exceeded: ${this.formatCurrency(weeklyCost)} / ${this.formatCurrency(this.limits.weekly)}`,
+        )
       }
     }
 
@@ -323,7 +327,9 @@ export class CostTracker {
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
       const monthlyCost = this.getCostSince(monthStart)
       if (monthlyCost >= this.limits.monthly) {
-        console.warn(`⚠️ Monthly cost limit exceeded: ${this.formatCurrency(monthlyCost)} / ${this.formatCurrency(this.limits.monthly)}`)
+        console.warn(
+          `⚠️ Monthly cost limit exceeded: ${this.formatCurrency(monthlyCost)} / ${this.formatCurrency(this.limits.monthly)}`,
+        )
       }
     }
   }
@@ -331,7 +337,7 @@ export class CostTracker {
   private formatCurrency(amount: number, currency: string = 'USD'): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency
+      currency,
     }).format(amount)
   }
 
@@ -342,11 +348,14 @@ export class CostTracker {
 
     try {
       const data = fs.readFileSync(this.sessionsFile, 'utf8')
-      const lines = data.trim().split('\n').filter(line => line.trim())
-      
+      const lines = data
+        .trim()
+        .split('\n')
+        .filter((line) => line.trim())
+
       // Get the last N lines
       const recentLines = lines.slice(-limit)
-      return recentLines.map(line => JSON.parse(line))
+      return recentLines.map((line) => JSON.parse(line))
     } catch (error) {
       console.warn('Failed to load recent sessions:', error.message)
       return []
@@ -355,25 +364,25 @@ export class CostTracker {
 
   getDailyCost(date: string): number {
     const summaries = this.loadDailySummaries()
-    const summary = summaries.find(s => s.date === date)
+    const summary = summaries.find((s) => s.date === date)
     return summary ? summary.totalCost : 0
   }
 
   getCostSince(date: Date): number {
     const summaries = this.loadDailySummaries()
     const dateStr = date.toISOString().split('T')[0]
-    
-    return summaries
-      .filter(s => s.date >= dateStr)
-      .reduce((total, s) => total + s.totalCost, 0)
+
+    return summaries.filter((s) => s.date >= dateStr).reduce((total, s) => total + s.totalCost, 0)
   }
 
-  getUsageStats(options: {
-    startDate?: string
-    endDate?: string
-    provider?: string
-    project?: string
-  } = {}): {
+  getUsageStats(
+    options: {
+      startDate?: string
+      endDate?: string
+      provider?: string
+      project?: string
+    } = {},
+  ): {
     totalCost: number
     totalTokens: number
     totalRequests: number
@@ -390,10 +399,10 @@ export class CostTracker {
 
     // Apply date filters
     if (options.startDate) {
-      filteredSummaries = filteredSummaries.filter(s => s.date >= options.startDate!)
+      filteredSummaries = filteredSummaries.filter((s) => s.date >= options.startDate!)
     }
     if (options.endDate) {
-      filteredSummaries = filteredSummaries.filter(s => s.date <= options.endDate!)
+      filteredSummaries = filteredSummaries.filter((s) => s.date <= options.endDate!)
     }
 
     // Calculate totals
@@ -409,14 +418,20 @@ export class CostTracker {
       // Aggregate by provider
       for (const [provider, stats] of Object.entries(summary.providers)) {
         if (options.provider && provider !== options.provider) continue
-        
+
         if (!byProvider[provider]) {
           byProvider[provider] = {
-            inputTokens: 0, outputTokens: 0, totalTokens: 0, requestCount: 0,
-            inputCost: 0, outputCost: 0, totalCost: 0, currency: stats.currency
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            requestCount: 0,
+            inputCost: 0,
+            outputCost: 0,
+            totalCost: 0,
+            currency: stats.currency,
           }
         }
-        
+
         byProvider[provider].inputTokens += stats.inputTokens
         byProvider[provider].outputTokens += stats.outputTokens
         byProvider[provider].totalTokens += stats.totalTokens
@@ -429,14 +444,20 @@ export class CostTracker {
       // Aggregate by project
       for (const [project, stats] of Object.entries(summary.projects)) {
         if (options.project && project !== options.project) continue
-        
+
         if (!byProject[project]) {
           byProject[project] = {
-            inputTokens: 0, outputTokens: 0, totalTokens: 0, requestCount: 0,
-            inputCost: 0, outputCost: 0, totalCost: 0, currency: stats.currency
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0,
+            requestCount: 0,
+            inputCost: 0,
+            outputCost: 0,
+            totalCost: 0,
+            currency: stats.currency,
           }
         }
-        
+
         byProject[project].inputTokens += stats.inputTokens
         byProject[project].outputTokens += stats.outputTokens
         byProject[project].totalTokens += stats.totalTokens
@@ -456,16 +477,16 @@ export class CostTracker {
       breakdown: {
         byProvider,
         byProject,
-        byDate: filteredSummaries
-      }
+        byDate: filteredSummaries,
+      },
     }
   }
 
   setLimits(limits: Partial<CostLimits>): void {
-    this.limits = { 
-      ...this.limits, 
+    this.limits = {
+      ...this.limits,
       currency: 'USD',
-      ...limits 
+      ...limits,
     }
     this.saveLimits()
   }
@@ -483,7 +504,7 @@ export class CostTracker {
 
     const now = new Date()
     const today = now.toISOString().split('T')[0]
-    
+
     const result: any = {}
 
     if (this.limits.daily) {
@@ -492,7 +513,7 @@ export class CostTracker {
         used,
         limit: this.limits.daily,
         percentage: (used / this.limits.daily) * 100,
-        exceeded: used >= this.limits.daily
+        exceeded: used >= this.limits.daily,
       }
     }
 
@@ -504,7 +525,7 @@ export class CostTracker {
         used,
         limit: this.limits.weekly,
         percentage: (used / this.limits.weekly) * 100,
-        exceeded: used >= this.limits.weekly
+        exceeded: used >= this.limits.weekly,
       }
     }
 
@@ -515,7 +536,7 @@ export class CostTracker {
         used,
         limit: this.limits.monthly,
         percentage: (used / this.limits.monthly) * 100,
-        exceeded: used >= this.limits.monthly
+        exceeded: used >= this.limits.monthly,
       }
     }
 
@@ -527,10 +548,14 @@ export class CostTracker {
     let filteredSessions = sessions
 
     if (options.startDate) {
-      filteredSessions = filteredSessions.filter(s => s.timestamp.split('T')[0] >= options.startDate!)
+      filteredSessions = filteredSessions.filter(
+        (s) => s.timestamp.split('T')[0] >= options.startDate!,
+      )
     }
     if (options.endDate) {
-      filteredSessions = filteredSessions.filter(s => s.timestamp.split('T')[0] <= options.endDate!)
+      filteredSessions = filteredSessions.filter(
+        (s) => s.timestamp.split('T')[0] <= options.endDate!,
+      )
     }
 
     const exportData = {
@@ -538,18 +563,23 @@ export class CostTracker {
       filters: options,
       sessions: filteredSessions,
       summaries: this.loadDailySummaries(),
-      limits: this.limits
+      limits: this.limits,
     }
 
     fs.writeFileSync(outputPath, JSON.stringify(exportData, null, 2))
   }
 
-  estimateCost(provider: string, inputTokens: number, outputTokens: number, model?: string): CostInfo {
+  estimateCost(
+    provider: string,
+    inputTokens: number,
+    outputTokens: number,
+    model?: string,
+  ): CostInfo {
     const usage: TokenUsage = {
       inputTokens,
       outputTokens,
       totalTokens: inputTokens + outputTokens,
-      requestCount: 1
+      requestCount: 1,
     }
 
     return this.calculateCost(usage, provider, model)
@@ -563,20 +593,23 @@ export class CostTracker {
     provider: string
   }> {
     const sessions = this.loadRecentSessions(1000)
-    const commandStats = new Map<string, {
-      totalCost: number
-      totalRequests: number
-      provider: string
-    }>()
+    const commandStats = new Map<
+      string,
+      {
+        totalCost: number
+        totalRequests: number
+        provider: string
+      }
+    >()
 
     for (const session of sessions) {
       if (!session.command) continue
-      
+
       const key = `${session.command}-${session.provider}`
       const existing = commandStats.get(key) || {
         totalCost: 0,
         totalRequests: 0,
-        provider: session.provider
+        provider: session.provider,
       }
 
       existing.totalCost += session.cost.totalCost
@@ -590,7 +623,7 @@ export class CostTracker {
         provider: stats.provider,
         totalCost: stats.totalCost,
         totalRequests: stats.totalRequests,
-        averageCost: stats.totalCost / stats.totalRequests
+        averageCost: stats.totalCost / stats.totalRequests,
       }))
       .sort((a, b) => b.totalCost - a.totalCost)
       .slice(0, limit)

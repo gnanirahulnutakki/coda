@@ -34,7 +34,7 @@ export async function askYesNo(
               reject(new Error('TTY timeout'))
             }, 1000)
 
-            tty!.once('error', err => {
+            tty!.once('error', (err) => {
               clearTimeout(timeout)
               reject(err)
             })
@@ -91,10 +91,7 @@ export async function askYesNo(
     // Ensure stdin is resumed and in the correct mode
     if (process.stdin.isTTY) {
       // Reset raw mode if it was set
-      if (
-        'setRawMode' in process.stdin &&
-        typeof process.stdin.setRawMode === 'function'
-      ) {
+      if ('setRawMode' in process.stdin && typeof process.stdin.setRawMode === 'function') {
         process.stdin.setRawMode(false)
       }
       // Ensure stdin is resumed
@@ -140,7 +137,7 @@ export async function askProviderSelection(
               reject(new Error('TTY timeout'))
             }, 1000)
 
-            tty!.once('error', err => {
+            tty!.once('error', (err) => {
               clearTimeout(timeout)
               reject(err)
             })
@@ -167,36 +164,36 @@ export async function askProviderSelection(
 
     // Build choices
     const choices = []
-    
+
     if (availableProviders.includes('claude-code')) {
       choices.push({
         title: currentProvider === 'claude-code' ? 'Claude Code (current)' : 'Claude Code',
         value: 'claude-code',
-        description: 'Use Claude Code AI assistant'
+        description: 'Use Claude Code AI assistant',
       })
     }
-    
+
     if (availableProviders.includes('gemini')) {
       choices.push({
         title: currentProvider === 'gemini' ? 'Gemini (current)' : 'Gemini',
         value: 'gemini',
-        description: 'Use Gemini AI assistant'
+        description: 'Use Gemini AI assistant',
       })
     }
-    
+
     // If no providers available, show both options anyway
     if (choices.length === 0) {
       choices.push(
         {
           title: currentProvider === 'claude-code' ? 'Claude Code (current)' : 'Claude Code',
           value: 'claude-code',
-          description: 'Use Claude Code AI assistant'
+          description: 'Use Claude Code AI assistant',
         },
         {
           title: currentProvider === 'gemini' ? 'Gemini (current)' : 'Gemini',
           value: 'gemini',
-          description: 'Use Gemini AI assistant'
-        }
+          description: 'Use Gemini AI assistant',
+        },
       )
     }
 
@@ -207,7 +204,7 @@ export async function askProviderSelection(
         name: 'provider',
         message: '※ Select AI provider',
         choices: choices,
-        initial: choices.findIndex(c => c.value === currentProvider) || 0,
+        initial: choices.findIndex((c) => c.value === currentProvider) || 0,
       },
       {
         onCancel: () => {
@@ -234,10 +231,7 @@ export async function askProviderSelection(
     // Ensure stdin is resumed and in the correct mode
     if (process.stdin.isTTY) {
       // Reset raw mode if it was set
-      if (
-        'setRawMode' in process.stdin &&
-        typeof process.stdin.setRawMode === 'function'
-      ) {
+      if ('setRawMode' in process.stdin && typeof process.stdin.setRawMode === 'function') {
         process.stdin.setRawMode(false)
       }
       // Ensure stdin is resumed

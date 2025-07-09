@@ -24,10 +24,7 @@ export class ResponseQueue {
     this.childProcess = childProcess
   }
 
-  enqueue(
-    response: string | (string | number)[] | null | undefined,
-    delay: number = 0,
-  ): void {
+  enqueue(response: string | (string | number)[] | null | undefined, delay: number = 0): void {
     // Skip if response is null or undefined
     if (response === null || response === undefined) {
       return
@@ -67,9 +64,7 @@ export class ResponseQueue {
     this.processing = false
   }
 
-  private async sendResponse(
-    response: string | (string | number)[],
-  ): Promise<void> {
+  private async sendResponse(response: string | (string | number)[]): Promise<void> {
     const responses = Array.isArray(response) ? response : [response]
     for (const resp of responses) {
       if (typeof resp === 'number') {
@@ -87,7 +82,7 @@ export class ResponseQueue {
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   clear(): void {

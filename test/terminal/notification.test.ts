@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { MatchResult } from '../../src/patterns/matcher'
-import {
-  showPatternNotification,
-  notifier,
-} from '../../src/utils/notifications'
+import { showPatternNotification, notifier } from '../../src/utils/notifications'
 import { createMatchWithNotification } from '../utils/test-notification-utils'
 import { AppConfig } from '../../src/config/schemas'
 import { TIMEOUT_VALUES } from '../utils/test-mocks'
@@ -42,8 +39,7 @@ describe('Notification functionality', () => {
       response: { type: 'log', path: '/tmp/test.log' },
       matchedText: 'Welcome to Claude Code!',
       bufferContent: 'Some buffer content with Welcome to Claude Code! in it',
-      strippedBufferContent:
-        'Some buffer content with Welcome to Claude Code! in it',
+      strippedBufferContent: 'Some buffer content with Welcome to Claude Code! in it',
       notification: 'Pattern triggered: {{title}}\nMatched: {{matchedText}}',
     }
 
@@ -52,8 +48,7 @@ describe('Notification functionality', () => {
     expect(mockNotify).toHaveBeenCalledOnce()
     expect(mockNotify).toHaveBeenCalledWith({
       title: '🤖 Claude Composer',
-      message:
-        'Pattern triggered: Test Notification\nMatched: Welcome to Claude Code!',
+      message: 'Pattern triggered: Test Notification\nMatched: Welcome to Claude Code!',
       timeout: TIMEOUT_VALUES.STICKY_NOTIFICATION, // prompted confirmations are sticky by default
       wait: false,
       sound: false,
@@ -110,12 +105,7 @@ describe('Notification functionality', () => {
       'Pattern triggered: {{title}}\nAction: Log',
     )
 
-    await showPatternNotification(
-      inputMatch,
-      defaultAppConfig,
-      'Prompted',
-      '❤',
-    )
+    await showPatternNotification(inputMatch, defaultAppConfig, 'Prompted', '❤')
     await showPatternNotification(logMatch, defaultAppConfig, 'Prompted', '❤')
 
     expect(mockNotify).toHaveBeenCalledTimes(2)

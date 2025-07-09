@@ -44,12 +44,8 @@ describe('File Utils', () => {
 
     it('should identify absolute paths outside project', () => {
       expect(isFileInProjectRoot('/etc/passwd')).toBe(false)
-      expect(isFileInProjectRoot('/home/user/other-project/file.txt')).toBe(
-        false,
-      )
-      expect(isFileInProjectRoot(path.join(originalCwd, 'file.txt'))).toBe(
-        false,
-      )
+      expect(isFileInProjectRoot('/home/user/other-project/file.txt')).toBe(false)
+      expect(isFileInProjectRoot(path.join(originalCwd, 'file.txt'))).toBe(false)
     })
 
     it('should handle edge cases', () => {

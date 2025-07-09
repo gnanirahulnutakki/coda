@@ -59,10 +59,7 @@ describe('Allow Trusted Root Pattern Integration', () => {
   it('should match only confirmation type patterns', () => {
     const terminalOutput = 'Do you trust the files in this folder?'
 
-    const matches = patternMatcher.processDataByType(
-      terminalOutput,
-      'confirmation',
-    )
+    const matches = patternMatcher.processDataByType(terminalOutput, 'confirmation')
 
     expect(matches).toHaveLength(1)
     expect(matches[0].patternId).toBe('allow-trusted-root')

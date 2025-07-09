@@ -11,6 +11,7 @@
 ## 🤔 What is Coda?
 
 Imagine you hired a brilliant programmer to help you write code, but:
+
 - They might accidentally delete important files
 - They could spend too much money (API costs)
 - They might forget what you discussed yesterday
@@ -18,6 +19,7 @@ Imagine you hired a brilliant programmer to help you write code, but:
 - You have no "undo" button if something goes wrong
 
 **Coda is like a safety harness and toolkit for AI programmers**. It adds:
+
 - 🛡️ **Safety features** - Automatic backups and rollback
 - 💰 **Cost controls** - Set spending limits
 - 🧠 **Memory** - Remembers context between sessions
@@ -27,6 +29,7 @@ Imagine you hired a brilliant programmer to help you write code, but:
 ## ✨ Key Features
 
 ### Core Safety & Control
+
 - ⏮️ **Checkpoint/Rollback System** - Create restore points before changes
 - 💰 **Cost Tracking & Limits** - Monitor API usage and set daily/monthly limits
 - 🔒 **Security Scanner** - Automatic detection of hardcoded secrets and vulnerabilities
@@ -34,6 +37,7 @@ Imagine you hired a brilliant programmer to help you write code, but:
 - 🧠 **Persistent Memory** - Save and recall important context across sessions
 
 ### AI Provider Support
+
 - 🤖 **Claude Code** - Anthropic's CLI-based assistant
 - 🌟 **Gemini** - Google's AI coding assistant
 - 🎯 **Aider** - Git-aware pair programming
@@ -44,6 +48,7 @@ Imagine you hired a brilliant programmer to help you write code, but:
 - 🎨 **Continue.dev** - Open-source extensible AI
 
 ### Workflow Enhancement
+
 - 📋 **Workflow Templates** - Automate repetitive task sequences
 - 🧪 **Test Generation** - AI-powered test creation with coverage tracking
 - 📚 **Documentation Search** - RAG-powered project documentation search
@@ -87,6 +92,7 @@ coda init
 ```
 
 The wizard will:
+
 1. Detect installed AI providers
 2. Configure safety settings
 3. Set up cost limits
@@ -162,49 +168,55 @@ coda costs export january-invoice.json
 ## 🛠️ All Commands
 
 ### Essential Commands
-| Command | Description |
-|---------|-------------|
-| `coda` | Start interactive AI session |
-| `coda wizard` | Run setup wizard |
-| `coda doctor` | Check system health |
-| `coda switch` | Switch AI providers |
+
+| Command       | Description                  |
+| ------------- | ---------------------------- |
+| `coda`        | Start interactive AI session |
+| `coda wizard` | Run setup wizard             |
+| `coda doctor` | Check system health          |
+| `coda switch` | Switch AI providers          |
 
 ### Safety & Recovery
-| Command | Description |
-|---------|-------------|
-| `coda checkpoint create <name>` | Create restore point |
-| `coda checkpoint rollback` | Undo to last checkpoint |
-| `coda checkpoint list` | Show all checkpoints |
-| `coda security scan` | Scan for vulnerabilities |
-| `coda diff preview` | Preview changes |
+
+| Command                         | Description              |
+| ------------------------------- | ------------------------ |
+| `coda checkpoint create <name>` | Create restore point     |
+| `coda checkpoint rollback`      | Undo to last checkpoint  |
+| `coda checkpoint list`          | Show all checkpoints     |
+| `coda security scan`            | Scan for vulnerabilities |
+| `coda diff preview`             | Preview changes          |
 
 ### Memory & Context
-| Command | Description |
-|---------|-------------|
-| `coda memory save <key> <value>` | Save information |
-| `coda memory recall <key>` | Retrieve saved info |
-| `coda memory list` | Show all memories |
-| `coda docs index` | Index project docs |
-| `coda docs search <query>` | Search documentation |
+
+| Command                          | Description          |
+| -------------------------------- | -------------------- |
+| `coda memory save <key> <value>` | Save information     |
+| `coda memory recall <key>`       | Retrieve saved info  |
+| `coda memory list`               | Show all memories    |
+| `coda docs index`                | Index project docs   |
+| `coda docs search <query>`       | Search documentation |
 
 ### Cost Management
-| Command | Description |
-|---------|-------------|
-| `coda costs show` | View current costs |
-| `coda costs set-limit --daily 20` | Set daily limit |
-| `coda costs export <file>` | Export cost report |
+
+| Command                           | Description        |
+| --------------------------------- | ------------------ |
+| `coda costs show`                 | View current costs |
+| `coda costs set-limit --daily 20` | Set daily limit    |
+| `coda costs export <file>`        | Export cost report |
 
 ### Workflow & Automation
-| Command | Description |
-|---------|-------------|
-| `coda workflow create <name>` | Create workflow |
-| `coda workflow run <name>` | Execute workflow |
-| `coda preset apply <name>` | Apply configuration preset |
-| `coda test generate` | Generate tests for code |
+
+| Command                       | Description                |
+| ----------------------------- | -------------------------- |
+| `coda workflow create <name>` | Create workflow            |
+| `coda workflow run <name>`    | Execute workflow           |
+| `coda preset apply <name>`    | Apply configuration preset |
+| `coda test generate`          | Generate tests for code    |
 
 ## ⚙️ Configuration
 
 ### Configuration Hierarchy
+
 1. Built-in defaults
 2. Global config: `~/.coda/config.yaml`
 3. Project config: `./.coda/config.yaml`
@@ -214,35 +226,36 @@ coda costs export january-invoice.json
 
 ```yaml
 # ~/.coda/config.yaml
-provider: claude-code          # Default AI provider
-yolo: false                   # Auto-accept prompts
-quiet: false                  # Suppress info messages
+provider: claude-code # Default AI provider
+yolo: false # Auto-accept prompts
+quiet: false # Suppress info messages
 
 # Safety settings
 security:
-  auto_scan: true             # Scan after each change
-  block_on_critical: true     # Stop on critical issues
+  auto_scan: true # Scan after each change
+  block_on_critical: true # Stop on critical issues
 
-# Cost controls  
+# Cost controls
 costs:
   daily_limit: 10.00
   monthly_limit: 200.00
-  warning_at: 80              # Warn at 80% of limit
+  warning_at: 80 # Warn at 80% of limit
 
 # Workflow
 checkpoint:
-  auto_create: true           # Auto-checkpoint before changes
-  keep_last: 10              # Number to retain
+  auto_create: true # Auto-checkpoint before changes
+  keep_last: 10 # Number to retain
 
 # Memory
 memory:
   max_size_mb: 100
-  eviction_policy: lru       # least-recently-used
+  eviction_policy: lru # least-recently-used
 ```
 
 ## 🔒 Security Features
 
 Coda automatically scans for:
+
 - Hardcoded passwords and API keys
 - SQL injection vulnerabilities
 - Cross-site scripting (XSS) risks
@@ -251,12 +264,13 @@ Coda automatically scans for:
 - Exposed environment variables
 
 Configure security scanning:
+
 ```yaml
 security:
   patterns_file: ~/.coda/security-patterns.yaml
   custom_patterns:
-    - name: "AWS Keys"
-      pattern: "AKIA[0-9A-Z]{16}"
+    - name: 'AWS Keys'
+      pattern: 'AKIA[0-9A-Z]{16}'
       severity: critical
 ```
 
@@ -280,19 +294,20 @@ coda --provider gemini "Optimize this algorithm"
 
 ### Provider Comparison
 
-| Provider | Best For | Key Features |
-|----------|----------|--------------|
-| Claude Code | Complex reasoning | Deep understanding, multi-file edits |
-| Aider | Git workflows | Auto-commits, git-aware |
-| Gemini | Fast responses | Quick suggestions, image support |
-| GitHub Copilot | Terminal commands | Command explanations |
-| Cline.ai | Autonomous tasks | Multi-step execution |
+| Provider       | Best For          | Key Features                         |
+| -------------- | ----------------- | ------------------------------------ |
+| Claude Code    | Complex reasoning | Deep understanding, multi-file edits |
+| Aider          | Git workflows     | Auto-commits, git-aware              |
+| Gemini         | Fast responses    | Quick suggestions, image support     |
+| GitHub Copilot | Terminal commands | Command explanations                 |
+| Cline.ai       | Autonomous tasks  | Multi-step execution                 |
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
 **"Coda command not found"**
+
 ```bash
 # Check Node.js installation
 node --version
@@ -305,6 +320,7 @@ export PATH="$PATH:$(npm root -g)/bin"
 ```
 
 **"AI provider not found"**
+
 ```bash
 # Check what's available
 coda doctor
@@ -315,6 +331,7 @@ pip install aider-install
 ```
 
 **"Spending limit reached"**
+
 ```bash
 # Check current usage
 coda costs show --today
@@ -331,17 +348,18 @@ coda offline enable
 ### Custom Workflows
 
 Create `.coda/workflows/deploy.yaml`:
+
 ```yaml
-name: "Safe Deployment"
+name: 'Safe Deployment'
 steps:
-  - checkpoint: "pre-deploy"
-  - security_scan: 
-      fail_on: ["critical", "high"]
+  - checkpoint: 'pre-deploy'
+  - security_scan:
+      fail_on: ['critical', 'high']
   - test:
       coverage_threshold: 80
-  - command: "npm run build"
-  - command: "npm run deploy"
-  - notification: "Deployment complete!"
+  - command: 'npm run build'
+  - command: 'npm run deploy'
+  - notification: 'Deployment complete!'
 ```
 
 ### MCP Server Integration
@@ -350,10 +368,10 @@ steps:
 # Add to config.yaml
 mcp_servers:
   postgres:
-    command: "npx"
-    args: ["@modelcontextprotocol/server-postgres"]
+    command: 'npx'
+    args: ['@modelcontextprotocol/server-postgres']
     env:
-      DATABASE_URL: "postgresql://localhost/mydb"
+      DATABASE_URL: 'postgresql://localhost/mydb'
 ```
 
 ## 📊 Statistics & Monitoring
@@ -396,6 +414,7 @@ This project is licensed under the [MIT License](LICENSE).
 ## 🙏 Acknowledgments
 
 Built with inspiration from:
+
 - [Claude Code](https://claude.ai) by Anthropic
 - [Aider](https://aider.chat) by Paul Gauthier
 - [Continue.dev](https://continue.dev) team

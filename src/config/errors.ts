@@ -31,7 +31,7 @@ export class ConfigValidationError extends ConfigError {
     public readonly configPath?: string,
   ) {
     const errorMessages = errors.errors
-      .map(err => `  • ${err.path.join('.')}: ${err.message}`)
+      .map((err) => `  • ${err.path.join('.')}: ${err.message}`)
       .join('\n')
 
     const message = configPath
@@ -50,10 +50,7 @@ export class PatternConfigError extends ConfigError {
     public readonly patternId: string,
     public readonly error: string,
   ) {
-    super(
-      `Invalid pattern configuration for "${patternId}": ${error}`,
-      'PATTERN_CONFIG_ERROR',
-    )
+    super(`Invalid pattern configuration for "${patternId}": ${error}`, 'PATTERN_CONFIG_ERROR')
   }
 }
 
@@ -65,10 +62,7 @@ export class ToolsetConfigError extends ConfigError {
     public readonly toolsetName: string,
     public readonly error: string,
   ) {
-    super(
-      `Invalid toolset configuration for "${toolsetName}": ${error}`,
-      'TOOLSET_CONFIG_ERROR',
-    )
+    super(`Invalid toolset configuration for "${toolsetName}": ${error}`, 'TOOLSET_CONFIG_ERROR')
   }
 }
 
@@ -76,7 +70,5 @@ export class ToolsetConfigError extends ConfigError {
  * Format Zod errors for display
  */
 export function formatZodError(error: z.ZodError): string {
-  return error.errors
-    .map(err => `${err.path.join('.')}: ${err.message}`)
-    .join(', ')
+  return error.errors.map((err) => `${err.path.join('.')}: ${err.message}`).join(', ')
 }

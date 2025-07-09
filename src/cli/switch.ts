@@ -10,14 +10,14 @@ import { log, warn } from '../utils/logging.js'
 export async function handleSwitchCommand(args: string[]): Promise<void> {
   // Check if a provider was specified directly
   const directProvider = args[0]
-  
+
   // Validate direct provider if specified
   if (directProvider) {
     const provider = getProvider(directProvider)
     if (!provider) {
       console.error(`Unknown provider: ${directProvider}`)
       console.error('Available providers:')
-      Object.values(AI_PROVIDERS).forEach(p => {
+      Object.values(AI_PROVIDERS).forEach((p) => {
         console.error(`  - ${p.id}: ${p.description}`)
       })
       process.exit(1)
@@ -26,7 +26,7 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
 
   // Load current config
   const configPath = CONFIG_PATHS.getConfigFilePath()
-  
+
   if (!fs.existsSync(configPath)) {
     console.error('No configuration file found.')
     console.error('Please run "coda cc-init" first to create a configuration.')
@@ -35,7 +35,7 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
 
   const config = await loadConfigFile()
   const currentProvider = config.provider || 'claude-code'
-  
+
   let newProvider: string
 
   if (directProvider) {
@@ -43,28 +43,28 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
   } else {
     // Auto-detect available providers using new system
     const detected = detectAvailableProviders()
-    const availableIds = new Set(detected.map(d => d.provider.id))
-    
+    const availableIds = new Set(detected.map((d) => d.provider.id))
+
     // Build choices from all providers
     const choices = []
-    
+
     // Group by priority for better UX
-    const highPriority = Object.values(AI_PROVIDERS).filter(p => p.priority === 'high')
-    const mediumPriority = Object.values(AI_PROVIDERS).filter(p => p.priority === 'medium')
-    const lowPriority = Object.values(AI_PROVIDERS).filter(p => p.priority === 'low')
-    
+    const highPriority = Object.values(AI_PROVIDERS).filter((p) => p.priority === 'high')
+    const mediumPriority = Object.values(AI_PROVIDERS).filter((p) => p.priority === 'medium')
+    const lowPriority = Object.values(AI_PROVIDERS).filter((p) => p.priority === 'low')
+
     const addProviderChoice = (provider: any) => {
       const isAvailable = availableIds.has(provider.id)
       const isCurrent = currentProvider === provider.id
-      
+
       choices.push({
         title: `${provider.name} ${isCurrent ? '(current)' : isAvailable ? '✓' : '(not installed)'}`,
         value: provider.id,
         description: provider.description,
-        disabled: false // Allow selecting even if not installed
+        disabled: false, // Allow selecting even if not installed
       })
     }
-    
+
     // Add providers in priority order
     highPriority.forEach(addProviderChoice)
     if (highPriority.length > 0 && mediumPriority.length > 0) {
@@ -75,7 +75,7 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
       choices.push({ title: '─────', value: null, disabled: true })
     }
     lowPriority.forEach(addProviderChoice)
-    
+
     // Show warning if no providers installed
     if (detected.length === 0) {
       warn('⚠️  No AI providers detected on your system')
@@ -90,7 +90,7 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
         name: 'provider',
         message: 'Select AI provider:',
         choices: choices,
-        initial: choices.findIndex(c => c.value === currentProvider) || 0
+        initial: choices.findIndex((c) => c.value === currentProvider) || 0,
       },
       {
         onCancel: () => {
@@ -109,13 +109,13 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
 
   // Ask for custom path if needed
   let customPath: string | undefined
-  
+
   const customPathResponse = await prompts(
     {
       type: 'text',
       name: 'customPath',
       message: `Enter custom path to ${newProvider} CLI (or press enter to use default):`,
-      initial: ''
+      initial: '',
     },
     {
       onCancel: () => {
@@ -141,7 +141,7 @@ export async function handleSwitchCommand(args: string[]): Promise<void> {
     const yamlStr = yaml.dump(config, { noRefs: true, lineWidth: -1 })
     fs.writeFileSync(configPath, yamlStr, 'utf8')
     log(`✅ Switched to ${newProvider}`)
-    
+
     // Try to verify the provider is available
     const provider = getProvider(newProvider)
     if (provider) {

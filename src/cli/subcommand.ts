@@ -14,7 +14,7 @@ export interface SubcommandDetectionResult {
  */
 export function detectSubcommand(args: string[]): SubcommandDetectionResult {
   // Find the first non-option argument
-  const firstNonOption = args.find(arg => !arg.startsWith('-'))
+  const firstNonOption = args.find((arg) => !arg.startsWith('-'))
 
   if (!firstNonOption) {
     return { isSubcommand: false }

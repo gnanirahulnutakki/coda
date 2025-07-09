@@ -9,7 +9,7 @@ function matchDomain(domain: string, patterns: string[]): boolean {
     if (pattern.includes('*')) {
       const regexPattern = pattern
         .split('*')
-        .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
         .join('.*')
       const regex = new RegExp(`^${regexPattern}$`)
       if (regex.test(domain)) {
