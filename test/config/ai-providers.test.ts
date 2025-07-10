@@ -113,8 +113,8 @@ describe('AI Providers', () => {
       const available = detectAvailableProviders()
 
       // Filter to only the providers we're testing
-      const expectedProviders = available.filter(p => 
-        ['aider', 'cody', 'amazon-q'].includes(p.provider.id)
+      const expectedProviders = available.filter((p) =>
+        ['aider', 'cody', 'amazon-q'].includes(p.provider.id),
       )
 
       expect(expectedProviders).toHaveLength(3)
