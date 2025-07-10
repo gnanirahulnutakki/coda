@@ -14,13 +14,7 @@ export default defineConfig({
     setupFiles: ['./test/utils/test-setup.ts'],
     coverage: {
       reporter: ['lcov', 'text'],
-      exclude: [
-        'node_modules/',
-        'dist/',
-        'test/',
-        '**/*.test.ts',
-        '**/*.spec.ts',
-      ],
+      exclude: ['node_modules/', 'dist/', 'test/', '**/*.test.ts', '**/*.spec.ts'],
     },
   },
 })
