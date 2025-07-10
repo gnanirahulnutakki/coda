@@ -35,6 +35,7 @@
     "build:watch": "nodemon --watch src/ --ext ts --exec tsup",
     "format": "prettier --write \"**/*.{js,mjs,jsx,ts,tsx,json,md,mdx,css,yml,yaml}\"",
     "test": "npm run build && vitest --reporter verbose --run",
+    "test:ci": "npm run build && vitest run -c vitest.config.ci.ts",
     "test:coverage": "npm run build && vitest --coverage --run",
     "lint": "tsc --noEmit",
     "test:watch": "npm run build && vitest --watch",

@@ -1,0 +1,70 @@
+
+> coda-cli@1.0.0 test
+> npm run build && vitest --reporter verbose --run --reporter=json --run
+
+
+> coda-cli@1.0.0 build
+> tsup
+
+CLI Building entry: {"cli":"src/index.ts"}
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.0
+CLI Using tsup config: /Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/tsup.config.ts
+CLI Target: node18
+CLI Cleaning output folder
+ESM Build start
+ESM You have emitDecoratorMetadata enabled but @swc/core was not installed, skipping swc plugin
+ESM dist/settings-27AHICNO.js          17.59 KB
+ESM dist/banner-7GLR2BPC.js            4.64 KB
+ESM dist/security-E4WYNO4C.js          15.98 KB
+ESM dist/multi-repo-672HXTYF.js        27.56 KB
+ESM dist/workflows-VDIANHKR.js         44.84 KB
+ESM dist/wizard-WJPO2BVQ.js            16.26 KB
+ESM dist/preset-manager-OOFPEZ4R.js    193.00 B
+ESM dist/test-HVS2QOYE.js              27.78 KB
+ESM dist/chunk-2IJDFNHA.js             13.98 KB
+ESM dist/switch-C5XSYDNQ.js            4.43 KB
+ESM dist/preset-ZNZ5OD2G.js            13.77 KB
+ESM dist/doctor-4DJHPHUL.js            5.45 KB
+ESM dist/diff-6XDBVRME.js              25.80 KB
+ESM dist/chunk-QLCBKQQW.js             8.74 KB
+ESM dist/stats-R3ZPE2VL.js             22.61 KB
+ESM dist/security-scanner-TMUKVBV6.js  173.00 B
+ESM dist/docs-I4LXFX63.js              23.49 KB
+ESM dist/offline-B6LPRDYS.js           25.30 KB
+ESM dist/chunk-KRWHJL3P.js             18.13 KB
+ESM dist/memory-UCFZ7WCO.js            5.95 KB
+ESM dist/chunk-BVT7ELAX.js             6.48 KB
+ESM dist/chunk-6N522XAG.js             3.41 KB
+ESM dist/cli.js                        80.67 KB
+ESM dist/checkpoint-OH2WUX6H.js        21.23 KB
+ESM dist/chunk-6C5AHUHG.js             3.22 KB
+ESM dist/schemas-K6ZTPVUM.js           563.00 B
+ESM dist/paths-LDRVM2FX.js             199.00 B
+ESM dist/parser-ZSZVHVZM.js            227.00 B
+ESM dist/loader-GVSU3USE.js            343.00 B
+ESM dist/costs-NKRJNEDY.js             34.95 KB
+ESM dist/chunk-56R7WNMS.js             4.85 KB
+ESM dist/prompts-HXLWV5VG.js           141.00 B
+ESM dist/chunk-BQK3TLDF.js             4.87 KB
+ESM dist/chunk-2PZYBQP3.js             360.00 B
+ESM dist/chunk-JV4CIHXQ.js             4.70 KB
+ESM dist/provider-detector-2RSZ47EV.js 6.89 KB
+ESM dist/cc-init-EPEVOKYH.js           6.59 KB
+ESM dist/chunk-RAQU3MNN.js             5.61 KB
+ESM ⚡️ Build success in 93ms
+file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/chunks/cac.Cb-PYCCB.js:1267
+			throw new Error(`Expected a single value for option "${command}", received [${received}]`);
+			      ^
+
+Error: Expected a single value for option "--run", received [true, true]
+    at transform (file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/chunks/cac.Cb-PYCCB.js:1267:10)
+    at setDotProp (file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/chunks/cac.Cb-PYCCB.js:207:22)
+    at CAC.mri (file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/chunks/cac.Cb-PYCCB.js:591:9)
+    at CAC.parse (file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/chunks/cac.Cb-PYCCB.js:508:27)
+    at file:///Users/nutakki/Documents/github/helm/helm-new/recloned/claude-composer/node_modules/vitest/dist/cli.js:27:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:327:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:663:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:99:5)
+
+Node.js v24.1.0

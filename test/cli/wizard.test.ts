@@ -25,7 +25,14 @@ describe('handleWizardCommand', () => {
 
     // Mock readline
     mockRl = {
-      question: vi.fn(),
+      question: vi.fn((prompt: string, callback: (answer: string) => void) => {
+        // Immediately call callback to avoid hanging
+        if (prompt.includes('start an AI session')) {
+          callback('n') // Don't start AI session in tests
+        } else {
+          callback('')
+        }
+      }),
       close: vi.fn(),
     }
 
@@ -117,6 +124,13 @@ describe('handleWizardCommand', () => {
         useDefaults: false,
         preset: undefined,
       })
+      
+      expect(mockWizard.saveConfig).toHaveBeenCalled()
+      expect(mockRl.question).toHaveBeenCalledWith(
+        expect.stringContaining('Would you like to start an AI session'),
+        expect.any(Function)
+      )
+      expect(mockRl.close).toHaveBeenCalled()
     })
 
     it('should run wizard with preset', async () => {
@@ -128,9 +142,11 @@ describe('handleWizardCommand', () => {
         preset: 'minimal',
       })
 
+      expect(mockWizard.saveConfig).toHaveBeenCalled()
       expect(mockConsoleLog).toHaveBeenCalledWith(
         expect.stringContaining('📦 Based on preset: minimal'),
       )
+      expect(mockRl.question).toHaveBeenCalled()
     })
 
     it('should save to custom path', async () => {
@@ -143,6 +159,7 @@ describe('handleWizardCommand', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith(
         expect.stringContaining('✅ Configuration saved to: /custom/config.yaml'),
       )
+      expect(mockRl.question).toHaveBeenCalled()
     })
 
     it('should handle wizard errors', async () => {
