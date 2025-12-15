@@ -55,7 +55,7 @@
     "@xterm/addon-serialize": "^0.13.0",
     "@xterm/headless": "^5.5.0",
     "@xterm/xterm": "^5.5.0",
-    "clipboardy": "^4.0.0",
+    "clipboardy": "^5.0.2",
     "commander": "^14.0.0",
     "dedent": "^1.6.0",
     "glob": "^10.3.10",
