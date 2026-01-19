@@ -53,7 +53,7 @@
     "@homebridge/node-pty-prebuilt-multiarch": "^0.12.0",
     "@types/js-yaml": "^4.0.9",
     "@xterm/addon-serialize": "^0.13.0",
-    "@xterm/headless": "^5.5.0",
+    "@xterm/headless": "^6.0.0",
     "@xterm/xterm": "^5.5.0",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
