@@ -61,7 +61,7 @@
     "glob": "^10.3.10",
     "js-yaml": "^4.1.0",
     "node-notifier": "^10.0.1",
-    "picomatch": "^4.0.2",
+    "picomatch": "^4.0.4",
     "prompts": "^2.4.2",
     "strip-ansi": "^7.1.0",
     "yaml": "^2.8.0",
