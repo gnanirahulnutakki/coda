@@ -59,7 +59,7 @@
     "commander": "^14.0.0",
     "dedent": "^1.6.0",
     "glob": "^10.3.10",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^5.0.0",
     "node-notifier": "^10.0.1",
     "picomatch": "^4.0.2",
     "prompts": "^2.4.2",
