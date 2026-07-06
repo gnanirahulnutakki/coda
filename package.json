@@ -68,7 +68,7 @@
     "zod": "^3.25.39"
   },
   "devDependencies": {
-    "@types/node": "^22.15.23",
+    "@types/node": "^26.1.0",
     "@types/prompts": "^2.4.9",
     "prettier": "^3.5.3",
     "tsup": "8.5.0",
